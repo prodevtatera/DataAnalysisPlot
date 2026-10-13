@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PlotLab – Entwurf</title>
+<style>
+  :root { --blue:#00376C; --paper:#FAFAF5; --ink:#000; --line:#d9d9d0; --soft:#eeeee6; --gutter:12px; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--paper); color:var(--ink); font:17px/27px "Source Sans 3", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  h1,h2,h3,.head { font-family:"Barlow", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  a { color:var(--blue); }
+  header { background:var(--blue); color:var(--paper); height:81px; display:flex; align-items:center; justify-content:space-between; padding:0 24px; }
+  header .brand { font:700 23px/1 "Barlow", system-ui, sans-serif; letter-spacing:.02em; }
+  header .tag { font-size:13px; border:1px solid var(--paper); padding:1px 8px; margin-left:12px; vertical-align:middle; }
+  header button { background:none; border:1px solid var(--paper); color:var(--paper); padding:4px 12px; font:inherit; font-size:15px; cursor:pointer; border-radius:0; }
+  header button[aria-pressed=true] { background:var(--paper); color:var(--blue); }
+  .draft { background:var(--soft); border-bottom:1px solid var(--line); padding:6px 24px; font-size:15px; }
+  main { max-width:1120px; margin:0 auto; padding:0 24px 48px; }
+  .hero { padding:40px 0 24px; display:grid; grid-template-columns:1.2fr 1fr; gap:32px; align-items:center; }
+  h1 { font-size:36px; line-height:1.17; font-weight:400; margin:0 0 12px; }
+  .lead { margin:0 0 20px; max-width:34em; }
+  .drop { border:2px dashed var(--blue); background:#fff; padding:28px 20px; text-align:center; }
+  .drop strong { display:block; font:700 20px/1.3 "Barlow", system-ui, sans-serif; color:var(--blue); }
+  .btns { margin-top:14px; display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
+  .btn { background:var(--blue); color:var(--paper); border:0; padding:10px 18px; font:700 16px "Barlow", system-ui, sans-serif; border-radius:0; cursor:pointer; }
+  .btn.alt { background:#fff; color:var(--blue); border:1px solid var(--blue); }
+  .note { font-size:15px; margin-top:10px; color:#333; }
+  h2 { font-size:23px; line-height:1.3; font-weight:700; margin:36px 0 12px; }
+  .ws { display:grid; grid-template-columns:230px 1fr 290px; gap:16px; align-items:start; }
+  .panel { background:#fff; border:1px solid var(--line); padding:12px 14px; }
+  .panel h3 { font-size:17px; margin:0 0 8px; }
+  table { border-collapse:collapse; width:100%; font-size:15px; line-height:22px; font-variant-numeric:tabular-nums; }
+  th,td { text-align:right; padding:2px 6px; border-bottom:1px solid var(--soft); }
+  th { background:var(--soft); font-weight:600; }
+  svg { width:100%; height:auto; display:block; }
+  .result { font:700 24px/1.3 "Barlow", system-ui, sans-serif; color:var(--blue); margin:4px 0 10px; }
+  .kv { font-size:15px; line-height:24px; }
+  .kv div { display:flex; justify-content:space-between; border-bottom:1px solid var(--soft); }
+  fieldset { border:1px solid var(--line); margin:12px 0 0; padding:6px 10px; font-size:15px; }
+  fieldset label { display:block; line-height:24px; }
+  .cards { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
+  .cards p { margin:0; }
+  footer { background:var(--blue); color:var(--paper); padding:20px 24px; font-size:15px; }
+  footer a { color:var(--paper); }
+  @media (max-width:992px) { .ws { grid-template-columns:1fr; } .hero { grid-template-columns:1fr; } .cards { grid-template-columns:1fr; } }
+  @media (max-width:576px) { h1 { font-size:28px; } header { padding:0 12px; } main { padding:0 12px 40px; } }
+</style>
+</head>
+<body>
+<header>
+  <div><span class="brand">PlotLab</span><span class="tag" data-i18n="tag">Entwurf</span></div>
+  <div><button data-lang="de" aria-pressed="true">DE</button> <button data-lang="en" aria-pressed="false">EN</button></div>
+</header>
+<div class="draft" data-i18n="draft">Entwurf der Startseite. Arbeitstitel, Beispieldaten, noch keine fertige App.</div>
+
+<main>
+  <section class="hero">
+    <div>
+      <h1 data-i18n="h1">Vom Messwert zum fertigen Protokoll-Diagramm</h1>
+      <p class="lead" data-i18n="lead">Daten einfügen, Ausgleichsgerade berechnen, Ergebnis richtig gerundet ablesen. Direkt im Browser, ohne Anmeldung und ohne Installation.</p>
+    </div>
+    <div class="drop">
+      <strong data-i18n="drop">Datei hierher ziehen</strong>
+      <span data-i18n="drop2">oder Tabelle aus Excel einfügen (CSV, XLSX, Dezimalkomma)</span>
+      <div class="btns">
+        <button class="btn" data-i18n="open">Beispiel öffnen</button>
+        <button class="btn alt" data-i18n="empty">Leeres Projekt</button>
+      </div>
+      <div class="note" data-i18n="note">Ihre Daten bleiben auf Ihrem Rechner.</div>
+    </div>
+  </section>
+
+  <h2 data-i18n="exh">Beispiel: Federkonstante, bereits geplottet und gefittet</h2>
+  <section class="ws">
+    <div class="panel">
+      <h3 data-i18n="tbl">Messwerte</h3>
+      <table id="tbl"></table>
+    </div>
+    <div class="panel"><svg id="plot" viewBox="0 0 560 400" role="img" aria-label="Kraft gegen Auslenkung mit Fehlerbalken und Ausgleichsgerade"></svg></div>
+    <div class="panel">
+      <h3 data-i18n="res">Ergebnis</h3>
+      <div class="result" id="res"></div>
+      <div class="kv" id="kv"></div>
+      <fieldset>
+        <legend data-i18n="meth">Unsicherheit der Parameter</legend>
+        <label><input type="radio" name="m" value="scaled" checked> <span data-i18n="scaled">skaliert mit √(χ²/DoF)</span></label>
+        <label><input type="radio" name="m" value="unscaled"> <span data-i18n="unscaled">nicht skaliert (aus den u(F))</span></label>
+      </fieldset>
+    </div>
+  </section>
+
+  <h2 data-i18n="why">Warum nicht Excel?</h2>
+  <section class="cards">
+    <p><strong data-i18n="c1h">Gewichtete Fits</strong><br><span data-i18n="c1">Fehlerbalken pro Punkt, χ²/DoF und beide Fehlerangaben auf einen Blick.</span></p>
+    <p><strong data-i18n="c2h">Richtig gerundet</strong><br><span data-i18n="c2">(Wert ± u) Einheit, genau nach der Rundungsregel im Praktikum.</span></p>
+    <p><strong data-i18n="c3h">Protokollfertig</strong><br><span data-i18n="c3">Beschriftete Achsen mit Größe, Symbol und Einheit. Export als PNG, SVG, PDF.</span></p>
+  </section>
+</main>
+<footer data-i18n="foot">Unabhängiges Studierendenwerkzeug. Nicht mit der Humboldt-Universität zu Berlin verbunden.</footer>
+
+<script>
+const T = {
+  de:{tag:"Entwurf",draft:"Entwurf der Startseite. Arbeitstitel, Beispieldaten, noch keine fertige App.",h1:"Vom Messwert zum fertigen Protokoll-Diagramm",lead:"Daten einfügen, Ausgleichsgerade berechnen, Ergebnis richtig gerundet ablesen. Direkt im Browser, ohne Anmeldung und ohne Installation.",drop:"Datei hierher ziehen",drop2:"oder Tabelle aus Excel einfügen (CSV, XLSX, Dezimalkomma)",open:"Beispiel öffnen",empty:"Leeres Projekt",note:"Ihre Daten bleiben auf Ihrem Rechner.",exh:"Beispiel: Federkonstante, bereits geplottet und gefittet",tbl:"Messwerte",res:"Ergebnis",meth:"Unsicherheit der Parameter",scaled:"skaliert mit √(χ²/DoF)",unscaled:"nicht skaliert (aus den u(F))",why:"Warum nicht Excel?",c1h:"Gewichtete Fits",c1:"Fehlerbalken pro Punkt, χ²/DoF und beide Fehlerangaben auf einen Blick.",c2h:"Richtig gerundet",c2:"(Wert ± u) Einheit, genau nach der Rundungsregel im Praktikum.",c3h:"Protokollfertig",c3:"Beschriftete Achsen mit Größe, Symbol und Einheit. Export als PNG, SVG, PDF.",foot:"Unabhängiges Studierendenwerkzeug. Nicht mit der Humboldt-Universität zu Berlin verbunden.",x:"Auslenkung s / cm",y:"Kraft F / N",pts:"Messwerte mit Fehlerbalken",fit:"Gewichtete Ausgleichsgerade",slope:"Steigung D",icpt:"Achsenabschnitt b",chi:"χ²/DoF",meth2:"Methode"},
+  en:{tag:"Draft",draft:"Draft of the home page. Working title, example data, not a finished app.",h1:"From measurements to a lab-report-ready plot",lead:"Paste data, compute the fit line, read the result correctly rounded. In your browser, no signup, no install.",drop:"Drag a file here",drop2:"or paste a table from Excel (CSV, XLSX, decimal comma)",open:"Open example",empty:"Empty project",note:"Your data stays on your computer.",exh:"Example: spring constant, already plotted and fitted",tbl:"Measurements",res:"Result",meth:"Parameter uncertainty",scaled:"scaled by √(χ²/DoF)",unscaled:"unscaled (from the u(F) values)",why:"Why not Excel?",c1h:"Weighted fits",c1:"Per-point error bars, χ²/DoF and both uncertainty options at a glance.",c2h:"Correctly rounded",c2:"(value ± u) unit, following the lab's rounding rule.",c3h:"Report-ready",c3:"Axes labelled with quantity, symbol and unit. Export as PNG, SVG, PDF.",foot:"Independent student tool. Not affiliated with Humboldt-Universität zu Berlin.",x:"Extension s / cm",y:"Force F / N",pts:"Measurements with error bars",fit:"Weighted fit line",slope:"Slope D",icpt:"Intercept b",chi:"χ²/DoF",meth2:"Method"}
+};
+let lang="de", method="scaled";
+// Example data (made up for this draft): extension s in cm, force F in N, u(F) = 0,3 N
+const D=[[1,2.4],[2,4.5],[3,7.1],[4,9.2],[5,11.8],[6,13.9],[7,16.6],[8,18.3]], U=0.3;
+const comma=(v,d)=>v.toFixed(d).replace(".",",");
+// Weighted straight-line fit y = b + m*x with weights 1/u^2
+function fit(){
+  const w=1/(U*U); let S=0,Sx=0,Sy=0,Sxx=0,Sxy=0;
+  for(const [x,y] of D){S+=w;Sx+=w*x;Sy+=w*y;Sxx+=w*x*x;Sxy+=w*x*y;}
+  const d=S*Sxx-Sx*Sx, m=(S*Sxy-Sx*Sy)/d, b=(Sxx*Sy-Sx*Sxy)/d;
+  let chi2=0; for(const [x,y] of D) chi2+=w*(y-b-m*x)**2;
+  const dof=D.length-2, f=Math.sqrt(chi2/dof);
+  return {m,b,um:Math.sqrt(S/d),ub:Math.sqrt(Sxx/d),chi2,dof,f};
+}
+// Rounding rule: u to 1 significant digit, 2 if that digit is 1 or 2; value rounded to match.
+function huRound(v,u){
+  const e=Math.floor(Math.log10(u)), lead=Math.floor(u/10**e), dig=lead<=2?2:1;
+  const q=10**(e-(dig-1)), dec=Math.max(0,-(e-(dig-1)));
+  return [comma(Math.round(v/q)*q,dec),comma(Math.round(u/q)*q,dec)];
+}
+function render(){
+  const t=T[lang], F=fit(), k=method==="scaled"?F.f:1;
+  const [mv,mu]=huRound(F.m,F.m>0?F.um*k:0), [bv,bu]=huRound(F.b,F.ub*k);
+  document.getElementById("res").textContent=`D = (${mv} ± ${mu}) N/cm`;
+  document.getElementById("kv").innerHTML=
+    `<div><span>${t.icpt}</span><span>(${bv} ± ${bu}) N</span></div>`+
+    `<div><span>${t.chi}</span><span>${comma(F.chi2/F.dof,2)}</span></div>`+
+    `<div><span>${t.meth2}</span><span>${method==="scaled"?"√(χ²/DoF)":"u(F)"}</span></div>`;
+  document.getElementById("tbl").innerHTML=
+    `<tr><th>s / cm</th><th>F / N</th><th>u(F) / N</th></tr>`+D.map(([x,y])=>`<tr><td>${comma(x,1)}</td><td>${comma(y,1)}</td><td>${comma(U,1)}</td></tr>`).join("");
+  // Plot
+  const W=560,H=400,L=62,R=16,Tp=16,B=64, X0=0,X1=9,Y0=0,Y1=21;
+  const px=x=>L+(x-X0)/(X1-X0)*(W-L-R), py=y=>H-B-(y-Y0)/(Y1-Y0)*(H-B-Tp);
+  let s=`<rect width="${W}" height="${H}" fill="#fff"/>`;
+  for(let x=0;x<=9;x++) s+=`<line x1="${px(x)}" x2="${px(x)}" y1="${Tp}" y2="${H-B}" stroke="#e6e6de"/><text x="${px(x)}" y="${H-B+18}" text-anchor="middle" font-size="13">${x}</text>`;
+  for(let y=0;y<=20;y+=5) s+=`<line y1="${py(y)}" y2="${py(y)}" x1="${L}" x2="${W-R}" stroke="#e6e6de"/><text x="${L-8}" y="${py(y)+4}" text-anchor="end" font-size="13">${y}</text>`;
+  s+=`<rect x="${L}" y="${Tp}" width="${W-L-R}" height="${H-B-Tp}" fill="none" stroke="#000"/>`;
+  s+=`<line x1="${px(0)}" y1="${py(F.b)}" x2="${px(9)}" y2="${py(F.b+F.m*9)}" stroke="#00376C" stroke-width="2.5"/>`;
+  for(const [x,y] of D) s+=`<line x1="${px(x)}" x2="${px(x)}" y1="${py(y-U)}" y2="${py(y+U)}" stroke="#000" stroke-width="1.5"/><line x1="${px(x)-4}" x2="${px(x)+4}" y1="${py(y-U)}" y2="${py(y-U)}" stroke="#000"/><line x1="${px(x)-4}" x2="${px(x)+4}" y1="${py(y+U)}" y2="${py(y+U)}" stroke="#000"/><circle cx="${px(x)}" cy="${py(y)}" r="4" fill="#000"/>`;
+  s+=`<text x="${(L+W-R)/2}" y="${H-24}" text-anchor="middle" font-size="15">${t.x}</text>`;
+  s+=`<text transform="translate(16 ${(Tp+H-B)/2}) rotate(-90)" text-anchor="middle" font-size="15">${t.y}</text>`;
+  s+=`<g font-size="13"><circle cx="${L+16}" cy="${Tp+16}" r="4"/><text x="${L+28}" y="${Tp+20}">${t.pts}</text><line x1="${L+10}" x2="${L+22}" y1="${Tp+36}" y2="${Tp+36}" stroke="#00376C" stroke-width="2.5"/><text x="${L+28}" y="${Tp+40}">${t.fit}</text></g>`;
+  document.getElementById("plot").innerHTML=s;
+  document.documentElement.lang=lang;
+  document.querySelectorAll("[data-i18n]").forEach(e=>e.textContent=t[e.dataset.i18n]);
+  document.querySelectorAll("[data-lang]").forEach(b=>b.setAttribute("aria-pressed",b.dataset.lang===lang));
+}
+document.querySelectorAll("[data-lang]").forEach(b=>b.onclick=()=>{lang=b.dataset.lang;render();});
+document.querySelectorAll("input[name=m]").forEach(r=>r.onchange=()=>{method=r.value;render();});
+render();
+</script>
+</body>
+</html>
