@@ -76,6 +76,8 @@ These choices still need to pass the one-day test build (see Next steps):
 - `docs/gemini-prompt.md`: a better prompt for asking another model to plan this.
 - `docs/research/`: raw research reports (HU programme, HU lab courses, other universities' biology labs, student tools and pain points).
 - `docs/lab-assignments-checklist.md`: real assignments turned into launch acceptance checks.
+- `docs/design.md`: colours, type and spacing taken from the look of hu-berlin.de, and what we must not copy.
+- `docs/loop-prompt.md`, `docs/progress.md`, `scripts/loop.sh`, `scripts/check.sh`: the unattended build loop. One fresh Claude session per step; progress.md holds the state; check.sh runs all tests in `tests/`.
 - `docs/roadmap.md`: phases and pass/fail gates. First target is Physics 2 (the HU physics lab for Biology students).
 
 ## Working with Luis
