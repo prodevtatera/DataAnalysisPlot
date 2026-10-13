@@ -25,7 +25,7 @@ ALLOWED=(
   mcp__plugin_playwright_playwright
 )
 # Sandbox: commands run with file writes limited to this folder and network limited to the hosts below.
-SETTINGS='{"sandbox":{"enabled":true,"network":{"allowedDomains":["www.itl.nist.gov","registry.npmjs.org","cdn.playwright.dev","cdn.jsdelivr.net"]}}}'
+SETTINGS='{"sandbox":{"enabled":true,"network":{"allowedDomains":["www.itl.nist.gov","registry.npmjs.org","cdn.playwright.dev","cdn.jsdelivr.net","github.com","api.github.com"]}}}'
 
 git switch loop/work 2>/dev/null || git switch -c loop/work || exit 1
 
@@ -41,9 +41,15 @@ for i in $(seq 1 "$MAX_ROUNDS"); do
       --permission-mode acceptEdits \
       --allowedTools "${ALLOWED[@]}" \
       --settings "$SETTINGS" \
-      --max-budget-usd "$MAX_USD" 2>&1 | tee -a loop.log
+      --max-budget-usd "$MAX_USD" 2>&1 | tee -a loop.log round.out
     rc=${PIPESTATUS[0]}
-    [ "$rc" -eq 0 ] && break
+    [ "$rc" -eq 0 ] && { rm -f round.out; break; }
+    # A login problem will not fix itself, so stop instead of waiting.
+    if grep -qiE 'authenticate|OAuth|not logged in|invalid api key|/login' round.out; then
+      echo "Claude is not logged in. Run 'claude /login' in a terminal, then start the loop again." | tee -a loop.log
+      rm -f round.out; exit 1
+    fi
+    rm -f round.out
     waited=$((waited + 1))
     [ "$waited" -ge 48 ] && { echo "claude kept failing for 12 hours, stopping" | tee -a loop.log; exit 1; }
     echo "claude failed (exit $rc), probably a usage limit. Waiting 15 min, retry $waited of 48." | tee -a loop.log
