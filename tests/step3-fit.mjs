@@ -27,14 +27,17 @@ const chi2 = S(w.map((v, i) => v * (y[i] - a * x[i] - b) ** 2)), k = Math.sqrt(c
 
 // Server: tiny static file server for testbuild/
 const types = { ".html": "text/html", ".js": "text/javascript", ".mjs": "text/javascript", ".wasm": "application/wasm", ".json": "application/json", ".woff2": "font/woff2", ".css": "text/css" };
+// Only files inside testbuild/ are served; ".." in a path is refused.
+const root = resolve("testbuild");
+const safe = u => { const f = resolve(root, "." + u); if (!f.startsWith(root + "/")) throw new Error("outside"); return f; };
 const srv = createServer(async (req, res) => {
   try {
     let path = decodeURIComponent(req.url.split("?")[0]);
     if (path === "/") path = "/index.html";
-    const f = await readFile(resolve("testbuild", "." + path));
+    const f = await readFile(safe(path));
     res.writeHead(200, { "content-type": types[extname(path)] || "application/octet-stream" }); res.end(f);
   } catch { res.writeHead(404); res.end(); }
-}).listen(0);
+}).listen(0, "127.0.0.1");
 await new Promise(r => srv.once("listening", r));
 const base = `http://localhost:${srv.address().port}/`;
 

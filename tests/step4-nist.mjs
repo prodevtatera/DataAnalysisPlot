@@ -24,11 +24,14 @@ function parse(txt) {
 const lre = (got, want) => got === want ? 9 : Math.min(9, -Math.log10(Math.abs(got - want) / Math.abs(want)));
 
 const types = { ".html": "text/html", ".js": "text/javascript", ".mjs": "text/javascript", ".wasm": "application/wasm", ".json": "application/json" };
+// Only files inside testbuild/ are served; ".." in a path is refused.
+const root = resolve("testbuild");
+const safe = u => { const f = resolve(root, "." + u); if (!f.startsWith(root + "/")) throw new Error("outside"); return f; };
 const srv = createServer(async (req, res) => {
   try { let p = decodeURIComponent(req.url.split("?")[0]); if (p === "/") p = "/index.html";
-    res.writeHead(200, { "content-type": types[extname(p)] || "application/octet-stream" }); res.end(await readFile(resolve("testbuild", "." + p))); }
+    res.writeHead(200, { "content-type": types[extname(p)] || "application/octet-stream" }); res.end(await readFile(safe(p))); }
   catch { res.writeHead(404); res.end(); }
-}).listen(0);
+}).listen(0, "127.0.0.1");
 await new Promise(r => srv.once("listening", r));
 const br = await chromium.launch();
 const pg = await br.newPage();
