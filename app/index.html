@@ -55,7 +55,7 @@
   #plot { background:#fff; border:1px solid var(--line); height:420px; }
   #histplot { background:#fff; border:1px solid var(--line); height:400px; }
   #cumplot { background:#fff; border:1px solid var(--line); height:400px; }
-  #histplot:has(> .empty), #cumplot:has(> .empty) { height:auto; }
+  #plot:has(> .empty), #histplot:has(> .empty), #cumplot:has(> .empty) { height:auto; }
   #h_w, #h_s { width:130px; }
   #results { background:#fff; border:1px solid var(--line); padding:12px 16px; }
   .result.stale .res { opacity:.5; }
@@ -103,6 +103,8 @@
   <p class="hint">Mit Unsicherheiten entsteht zusätzlich die Spalte „u(Name)“ mit der Gaußschen Fehlerfortpflanzung u(f)² = Σ (∂f/∂xᵢ)²·u(xᵢ)². Pro Eingangsgröße steht links vom „=“ die Spalte und rechts ihre Unsicherheit (eine Spalte, eine Zahl oder ein Ausdruck wie 0,01*D), getrennt durch „;“. Eingangsgrößen ohne Angabe gelten als genau. Die Eingangsgrößen müssen voneinander unabhängig sein.</p>
   <div id="fmsg" class="msg" role="alert" hidden></div>
   <h2>Diagramm</h2>
+  <div class="fitbar"><label id="loglabel"><input type="checkbox" id="logy" disabled> Logarithmische y-Achse (halblogarithmisch)</label><span class="hint">Es sind nur y-Werte größer als 0 möglich. Eine Anpassung y = a·x + b erscheint auf dieser Achse gekrümmt.</span></div>
+  <div id="plotmsg" class="msg note" role="status" hidden></div>
   <div id="plot"><div class="empty">Noch keine Daten.</div></div>
   <h2>Mittelwert und Streuung einer Spalte</h2>
   <p class="hint">Mittelwert x̄, Standardabweichung (Teiler n oder n−1) und Standardfehler s/√n der gewählten Spalte. Der Standardfehler nutzt immer s mit n−1, auch wenn du für die Standardabweichung n wählst. Mit einem Gerätefehler (Ablesefehler, in der Einheit der Spalte) wird zusätzlich u = √(u<sub>zufällig</sub>² + u<sub>Gerät</sub>²) angegeben.</p>
@@ -187,6 +189,7 @@
 <script src="derived.js"></script>
 <script src="stats.js"></script>
 <script src="series.js"></script>
+<script src="logaxis.js"></script>
 <script>
 const $ = id => document.getElementById(id);
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
@@ -227,6 +230,7 @@ const setSetting = (k, v) => change(() => { proj.settings[k] = v; });
 function restore(s) { proj = JSON.parse(s); editKey = null; $("msg").hidden = true; render(); updateHist(); }
 function undoStep() { if (!undo.length) return; redo.push(snap()); restore(undo.pop()); }
 function redoStep() { if (!redo.length) return; undo.push(snap()); restore(redo.pop()); }
+$("logy").onchange = e => setSetting("logy", e.target.checked);
 $("undo").onclick = undoStep;
 $("redo").onclick = redoStep;
 // Always take over Ctrl/Cmd+Z so the browser's own per-cell undo cannot disagree with ours.
@@ -257,7 +261,7 @@ function restoreAutosave() {
 function setProject(p) {
   proj = p; undo = []; redo = []; editKey = null; updateHist();
   $("msg").hidden = true;
-  $("saveproj").disabled = $("addrow").disabled = $("f_add").disabled = $("s_go").disabled = $("w_go").disabled = $("h_go").disabled = $("sr_add").disabled = false; if (worker?.ready && !pending) busy(false);
+  $("saveproj").disabled = $("addrow").disabled = $("f_add").disabled = $("s_go").disabled = $("w_go").disabled = $("h_go").disabled = $("sr_add").disabled = $("logy").disabled = false; if (worker?.ready && !pending) busy(false);
   render();
 }
 function showMsg(t) { $("msg").textContent = t; $("msg").hidden = false; }
@@ -290,13 +294,25 @@ function drawSeries(x, r) {
     if (ec) tr.error_y = { type: "data", array: idx.map(i => ec.values[i] ?? 0), visible: true, color: sty.c, thickness: 1.6, width: 5 };
     traces.push(tr, { x: [f.xlo, f.xhi], y: [f.a.value * f.xlo + f.b.value, f.a.value * f.xhi + f.b.value], mode: "lines", type: "scatter", name: "Anpassung " + s.y, line: { color: sty.c, width: 2.5, dash: sty.dash } });
   });
-  Plotly.react("plot", traces, { font: plotFont, separators: ",.", margin: { l: 70, r: 20, t: 20, b: 60 }, xaxis: axisStyle(x.name), yaxis: axisStyle(seriesAxisTitle(st.map(s => s.y))),
-    paper_bgcolor: "#fff", plot_bgcolor: "#fff", showlegend: true, legend: { x: 0.02, y: 0.98, bgcolor: "#fff", bordercolor: "#999", borderwidth: 1 } }, { displaylogo: false, responsive: true });
+  Plotly.react("plot", traces, { font: plotFont, separators: ",.", margin: plotMargin(), xaxis: axisStyle(x.name), yaxis: { ...axisStyle(seriesAxisTitle(st.map(s => s.y))), type: logY() ? "log" : "linear" },
+    paper_bgcolor: "#fff", plot_bgcolor: "#fff", showlegend: true, legend: legendFor() }, { displaylogo: false, responsive: true });
 }
+const logY = () => proj.settings.logy === true;
+// Decay curves start top left, where the usual legend sits, so on the log axis the legend goes above the plot.
+const legendFor = () => logY() ? { orientation: "h", x: 0, y: 1.02, yanchor: "bottom", bgcolor: "#fff", bordercolor: "#999", borderwidth: 1 } : { x: 0.02, y: 0.98, bgcolor: "#fff", bordercolor: "#999", borderwidth: 1 };
+const plotMargin = () => ({ l: 70, r: 20, t: logY() ? 50 : 20, b: 60 });
 function renderPlot() {
   const x = col("x"), y = col("y"), e = col("yerr"), sr = freshSeries();
+  $("plotmsg").hidden = true;
   if (!x || (!y && !sr)) { Plotly.purge("plot"); $("plot").innerHTML = '<div class="empty">Für ein Diagramm braucht es eine x- und eine y-Spalte.</div>'; return; }
+  const bad = logY() && logYProblem(sr ? seriesSettings(proj).map(s => proj.columns.find(c => c.name === s.y)) : [y]);
+  if (bad) { Plotly.purge("plot"); $("plot").textContent = ""; const d = document.createElement("div"); d.className = "empty"; d.textContent = bad; $("plot").append(d); return; }
   $("plot").querySelector(".empty")?.remove();
+  if (logY()) {
+    const cut = (sr ? seriesSettings(proj).filter(s => s.err !== null).map(s => [proj.columns.find(c => c.name === s.y), proj.columns.find(c => c.name === s.err)]) : e ? [[y, e]] : [])
+      .reduce((n, [c, ec]) => n + clippedBars(c.values, ec.values), 0);
+    if (cut) { $("plotmsg").textContent = `Bei ${cut} ${cut === 1 ? "Messpunkt reicht" : "Messpunkten reichen"} der Fehlerbalken nach unten bis 0 oder darunter. Auf der logarithmischen Achse ist nur der obere Teil sichtbar.`; $("plotmsg").hidden = false; }
+  }
   if (sr) return drawSeries(x, sr);
   const idx = x.values.map((_, i) => i).filter(i => x.values[i] !== null && y.values[i] !== null);
   const trace = { x: idx.map(i => x.values[i]), y: idx.map(i => y.values[i]), mode: "markers", type: "scatter", name: "Messwerte", marker: { color: "#00376C", size: 9 } };
@@ -319,8 +335,8 @@ function renderPlot() {
     }
   }
   Plotly.react("plot", traces, { font: { family: "Arial, Helvetica, sans-serif", size: 16, color: "#000" }, separators: ",.",
-    margin: { l: 70, r: 20, t: 20, b: 60 }, xaxis: ax(x.name), yaxis: { ...ax(y.name), ...(yRange ? { range: yRange } : {}) }, paper_bgcolor: "#fff", plot_bgcolor: "#fff",
-    showlegend: true, legend: { x: 0.02, y: 0.98, bgcolor: "#fff", bordercolor: "#999", borderwidth: 1 } }, { displaylogo: false, responsive: true });
+    margin: plotMargin(), xaxis: ax(x.name), yaxis: { ...ax(y.name), type: logY() ? "log" : "linear", ...(yRange && !logY() ? { range: yRange } : {}) }, paper_bgcolor: "#fff", plot_bgcolor: "#fff",
+    showlegend: true, legend: legendFor() }, { displaylogo: false, responsive: true });
 }
 const freshFit = () => proj.results.find(r => r.kind === "fit" && !isStale(proj, r));
 const uOf = q => (proj.settings.errMethod === "unscaled" && q.uUnscaled !== undefined) ? q.uUnscaled : (q.uScaled ?? q.u);
@@ -463,6 +479,7 @@ function syncControls() {
   const has = !!col("yerr"), w = has && proj.settings.weighted;
   $("weighted").checked = w; $("weighted").disabled = !has;
   $("wlabel").classList.toggle("off", !has);
+  $("logy").checked = logY();
   $("wlabel").title = has ? "" : "Dafür braucht es eine Spalte mit der Rolle „Fehler von y“.";
   $("errm").value = proj.settings.errMethod || "scaled"; $("errm").disabled = !w;
   $("srmsg").hidden = true;

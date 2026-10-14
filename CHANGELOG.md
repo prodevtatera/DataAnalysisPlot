@@ -2,6 +2,13 @@
 
 Written in plain language for people who do not read code. Newest entry on top.
 
+## 2026-10-14: Logarithmic y axis with error bars (P8)
+
+- **What a student can now do:** the switch "Logarithmische y-Achse (halblogarithmisch)" above the plot turns the y axis logarithmic, for example for a radioactive decay series or a bacterial growth curve. The y error bars stay visible and keep their true size on the log scale. It also works for the plot of several series. The switch is saved in the project, can be undone and survives a reload.
+- **Good to know:** the legend moves above the plot on the log axis, so it never covers the first data point. A straight-line fit y = a·x + b is still a straight line in the numbers, so it looks curved on this axis (the page says so). Fitting ln y comes with the later radioactivity steps.
+- **Messages:** a zero or negative y value cannot be drawn on a log axis. The plot then gives way to a message naming the column, the rows and the values (up to three, then "und n weitere"); correcting the value brings the plot back. If an error bar reaches down to 0 or below, only its upper part is drawn and a note says how many points are affected.
+- **Tested:** `tests/phase2-step10-semilog.sh` with six decay readings (980 to 110 counts, errors about √N): the drawn height of every error bar matches log10(N + s) − log10(N − s) from the hand values to 1,5 pixels, all points and bars lie inside the axis range, and the legend covers no point. Plus zero, negative and several bad values, undo, reload, save and open, a hand-edited project file.
+
 ## 2026-10-14: Calibration line with an unknown read off (P4, P7)
 
 - **What a student can now do:** after "Anpassen" on a calibration line, the new section "Kalibriergerade: Unbekanntes ablesen" takes one or more measured values of the unknown sample (for example `1,3405 ± 0,0003; 1,3372 ± 0,0002`) and gives the concentration x₀ = (y₀ − b)/a as (value ± u) unit, for example x₀ = (5,19 ± 0,21) %. A new example "Beispiel Kalibriergerade laden" shows a refractometer calibration.
