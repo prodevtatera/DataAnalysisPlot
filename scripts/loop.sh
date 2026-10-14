@@ -24,8 +24,10 @@ ALLOWED=(
   'Bash(curl * https://www.itl.nist.gov/*)'
   mcp__plugin_playwright_playwright
 )
-# Sandbox: file writes limited to this folder, network limited to the hosts below. The check and test scripts run outside it, because the browser tests cannot start inside it.
-SETTINGS='{"sandbox":{"enabled":true,"excludedCommands":["bash scripts/check.sh","bash tests/*"],"network":{"allowedDomains":["www.itl.nist.gov","registry.npmjs.org","cdn.playwright.dev","cdn.jsdelivr.net","github.com","api.github.com"]}}}'
+# Sandbox off on purpose: Chromium cannot start inside the macOS sandbox, and the browser tests need it.
+# Protection instead: the ALLOWED list above (no bare interpreters, no push to main, fixed git and npm commands).
+# Known limit: test scripts the session writes run with your user's rights. Run the loop only on this project's folder.
+SETTINGS='{"sandbox":{"enabled":false}}'
 
 git switch loop/work 2>/dev/null || git switch -c loop/work || exit 1
 
