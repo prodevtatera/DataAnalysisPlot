@@ -4,3 +4,5 @@ STOP
 docs/last-check.log
 node_modules
 app/vendor/pyodide
+.vercel
+.env*
