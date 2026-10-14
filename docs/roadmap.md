@@ -1,6 +1,6 @@
 # Roadmap
 
-Written 2026-10-13. Only phases 0 and 1 are firm. Phases 2 and 3 get revised after phase 1.
+Written 2026-10-13, reduced to the open items on 2026-10-14. What is done is in `roadmap_done.md`.
 
 ## What we know
 
@@ -11,69 +11,22 @@ Written 2026-10-13. Only phases 0 and 1 are firm. Phases 2 and 3 get revised aft
 
 ## How to read this
 
-- Each phase ends with a **gate**: a pass/fail check shown working, not described.
-- A phase does not start until the previous gate passes.
-- Effort figures are rough guesses for one person working with AI help. Replace them with real numbers after phase 0.
+- Each phase ended with a **gate**: a pass/fail check shown working, not described. The open items below are the unfinished parts of those gates.
 
-## Phase 0: One-day test build (about 1 day)
+## Done
 
-One page: paste a CSV, plot it with error bars, fit a curve with SciPy in the browser.
+Phases 0 to 2 and the built parts of Phase 3 are finished and moved to `roadmap_done.md`, with their evidence. 40 automatic checks pass.
 
-**Gate:**
-- Fits match 3 NIST datasets (certified values).
-- Load time and download size measured. State the device, browser and file size.
-- A figure exports as PNG and SVG and looks fit for a lab report.
-- Decision made: keep Pyodide + Plotly, or change.
+## Open now: needs people or extra software
 
-If the gate fails, we change the stack before writing anything else.
+These are what is left of the gates. The code is ready for all of them.
 
-## Phase 1: Foundations plus one physics experiment (about 3–5 weeks)
-
-Build the parts that decide how a project is stored, and prove them on a single experiment (P3 Elasticity, a line fit with a derived quantity).
-
-Build:
-- Project file: raw data, column roles (X, Y, error), analysis settings, and which results depend on which data.
-- Table with live updates to the plot.
-- Undo and redo. Save and open. Autosave.
-- German number input and output (decimal comma, semicolon CSV).
-- Weighted and unweighted linear fit. Show parameter errors both scaled and unscaled, and χ²/DoF. State the uncertainty method on screen.
-- Result line in HU format: (value ± u) unit, rounded to the uncertainty.
-- Fit goes stale or recalculates when data changes.
-- Clear messages for failed fits and bad data.
-
-**Gate:**
-- P3 works start to finish in the app, faster than in Excel (timed, on real or realistic data).
-- Weighted-fit results match R and NIST (see the "Rechnet QtiPlot falsch?" note in the checklist).
-- Edit a data cell: plot and fit update. Undo it: they revert. Save, close, reopen: nothing lost.
-
-## Phase 2: All Physics 2 experiments (about 4–6 weeks)
-
-Widen to every item P1–P9, using whatever list the daughter confirms.
-
-Build as needed by those items:
-- Formula columns with error propagation (P2, P5, P6).
-- Histogram with normal curve, cumulative and probability plots (P1).
-- Calibration line with an unknown read off it, with uncertainty (P4, P7).
-- Semi-log axes and χ² goodness-of-fit against Poisson and Gauss (P8).
-- Confidence intervals and linearised regression (P9).
-- Weighted mean with uncertainty (P2).
-- One template project per experiment.
-
-**Gate:**
-- Each of P1–P9 passes its own check from the checklist, on real data from the daughter if we can get it.
-- Every number checked against R or a hand calculation from the script.
-- Show it to her. Her time on one experiment is compared with her current tool.
-
-## Phase 3: Show lecturers (about 2 weeks, partly waiting)
-
-Lecturers decide the tools. Winning one matters more than many students.
-
-- Polish the first minute: finished example open on first visit, drag in a file, no signup.
-- German first, English second.
-- Demo to 3–5 Physics 2 lab instructors. Ask what they would need to put it in the lab manual.
-- Write down what they ask for.
-
-**Gate:** at least one instructor says they would try it in a lab group, or we learn exactly what blocks that.
+1. **Phase 3 gate: instructor demos.** Show the app to 3 to 5 Physics 2 lab instructors and ask what they would need to put it in the lab manual. **Pass:** at least one instructor says they would try it in a lab group, or we learn exactly what blocks that. Write down what they ask for. The demo script and questions are under "For Luis" in `progress.md`.
+2. **Real data and the real experiment list from her.** Phase 2 assumed P1 to P9 and used invented data. With her list and one dataset from last semester, rerun the P1 to P9 checks on real data and fix what differs.
+3. **Time one real student on one experiment.** A person (her, or a classmate) does the analysis of one experiment twice, once in the app and once in her usual tool, with a stopwatch. Write down the minutes and where she got stuck. This replaces the estimated Excel step count in `phase1-report.md` and `phase2-report.md`.
+4. **R cross-check (later).** Install R (`brew install r`). Run the weighted line fit, the NIST Norris data and the template results through R and compare them with the app to 6 digits or more. **Pass:** every number agrees, or each difference is explained. This closes the "matches R" part of the Phase 1 and Phase 2 gates. Not urgent: NIST and the hand calculations already agree to 9 digits.
+5. **Hosting.** Decide where the app lives. It must send long cache headers and compress files (see `phase0-timing.md`).
+6. **Launch specification.** Write it from the checklist and what the instructors say.
 
 ## Later: Biology widening (not planned in detail)
 

@@ -76,7 +76,8 @@ Done as far as it can be alone: the HU material research, the one-day test build
 - `docs/lab-assignments-checklist.md`: real assignments turned into launch acceptance checks.
 - `docs/design.md`: colours, type and spacing taken from the look of hu-berlin.de, and what we must not copy.
 - `docs/loop-prompt.md`, `docs/progress.md`, `scripts/loop.sh`, `scripts/check.sh`: the unattended build loop. One fresh Claude session per step; progress.md holds the state; check.sh runs all tests in `tests/`.
-- `docs/roadmap.md`: phases and pass/fail gates. First target is Physics 2 (the HU physics lab for Biology students).
+- `docs/roadmap.md`: what is still open (instructor demos, real data, a timed student, the R cross-check, hosting). First target is Physics 2 (the HU physics lab for Biology students).
+- `docs/roadmap_done.md`: phases 0 to 3 as built, with their gates and evidence.
 
 ## Working with Luis
 
