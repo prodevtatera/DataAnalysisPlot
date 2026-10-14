@@ -11,7 +11,7 @@ function prepareSeries(p, list) {
   const x = p.columns.find(c => c.role === "x");
   if (!x) return { error: "Für die Anpassung braucht es eine x-Spalte. Wähle die Rolle „x-Werte“ in der Tabelle." };
   if (!list.length) return { error: "Es gibt noch keine Reihe. Bitte mit „Reihe hinzufügen“ eine y-Spalte wählen." };
-  const de = v => String(v).replace(".", ","), unit = c => _colUnit(c.name), by = n => p.columns.find(c => c.name === n), jobs = [];
+  const de = v => String(v).replace(".", typeof decSep === "function" ? decSep() : ","), unit = c => _colUnit(c.name), by = n => p.columns.find(c => c.name === n), jobs = [];
   for (const [k, s] of list.entries()) {
     const yc = by(s.y), ec = s.err === null ? null : by(s.err), who = `Reihe ${k + 1} („${s.y}“)`;
     if (yc === x) return { error: `${who}: Die y-Spalte ist die x-Spalte. Bitte eine andere Spalte wählen.` };

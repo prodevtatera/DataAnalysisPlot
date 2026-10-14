@@ -2,9 +2,9 @@
 // Loaded before the main script and uses its globals ($, proj, esc, fmt, change, busy, pending, worker, Plotly ...) only when called.
 // Every number goes through a number formatter and every text through esc(), so a hand-edited project file cannot inject markup.
 const gofDist = { poisson: "Poisson", gauss: "Gauß" };
-const gofNum = new Intl.NumberFormat("de-DE", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-const gofSig = new Intl.NumberFormat("de-DE", { maximumSignificantDigits: 3 });
-const gofP = p => p < 0.001 ? "p < 0,001" : "p = " + new Intl.NumberFormat("de-DE", { minimumFractionDigits: 3, maximumFractionDigits: 3 }).format(p);
+const gofNum = nf({ minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const gofSig = nf({ maximumSignificantDigits: 3 });
+const gofP = p => p < 0.001 ? "p < 0" + decSep() + "001" : "p = " + nf({ minimumFractionDigits: 3, maximumFractionDigits: 3 }).format(p);
 const gofOk = r => Array.isArray(r.counts) && r.counts.length >= 4 && r.counts.length <= 100 && r.counts.every(Number.isFinite) && [r.n, r.mean, r.s, r.start, r.width].every(Number.isFinite) && r.width >= 1 &&
   r.dists && Object.keys(gofDist).every(k => { const d = r.dists[k]; return d && Array.isArray(d.expected) && d.expected.length === r.counts.length && d.expected.every(Number.isFinite) && [d.chi2, d.dof, d.p].every(Number.isFinite); });
 const freshGof = () => { const r = proj.results.find(q => q.kind === "gof" && !isStale(proj, q)); return r && gofOk(r) ? r : null; };
@@ -37,7 +37,7 @@ function renderGofPlot() {
   const mid = r.counts.map((_, j) => r.start + j * r.width + (r.width - 1) / 2), ax = t => ({ title: { text: t, standoff: 10 }, showline: true, linecolor: "#000", mirror: true, ticks: "outside", gridcolor: "#e4e4dc", zeroline: false, exponentformat: "none" });
   const bars = { type: "bar", x: mid, y: r.counts, width: r.counts.map(() => r.width), name: "Messwerte (Anzahl der Intervalle)", marker: { color: "#00376C", line: { color: "#fff", width: 1.5 } } };
   const line = (k, color, sym, dash) => ({ type: "scatter", mode: "lines+markers", x: mid, y: r.dists[k].expected, name: "Erwartet " + gofDist[k], line: { color, width: 2.5, dash }, marker: { color, size: 9, symbol: sym } });
-  Plotly.react("gofplot", [bars, line("poisson", "#D55E00", "circle", "solid"), line("gauss", "#009E73", "diamond", "dash")], { font: { family: "Arial, Helvetica, sans-serif", size: 16, color: "#000" }, separators: ",.",
+  Plotly.react("gofplot", [bars, line("poisson", "#D55E00", "circle", "solid"), line("gauss", "#009E73", "diamond", "dash")], { font: { family: "Arial, Helvetica, sans-serif", size: 16, color: "#000" }, separators: plotSeparators(),
     margin: { l: 70, r: 20, t: 20, b: 60 }, xaxis: ax(String((r.inputs || {}).col) + " (Zählwert je Intervall)"), yaxis: ax("Anzahl der Intervalle"), paper_bgcolor: "#fff", plot_bgcolor: "#fff",
     showlegend: true, legend: { x: 0.98, xanchor: "right", y: 0.98, bgcolor: "#fff", bordercolor: "#999", borderwidth: 1 } }, { displaylogo: false, responsive: true });
 }

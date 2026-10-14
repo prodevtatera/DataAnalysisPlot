@@ -2,6 +2,14 @@
 
 Written in plain language for people who do not read code. Newest entry on top.
 
+## 2026-10-14: English, first part (DE / EN switch)
+
+- **What a student can now do:** switch the page between German and English with the "DE" and "EN" buttons in the header. German stays the default, also when the browser is set to English. The choice is remembered. The data, the table and your results do not change when you switch.
+- **What is already in English:** the top of the page (buttons, hints, the first-visit note), the plot (headings, legend, messages), the results and the fit (method text, table, buttons, messages), the paste box, the table and the template list.
+- **Numbers follow the language:** in English the decimal point is used (`a = (0.02529 ± 0.00029) mm/N`, `E = (201 ± 8) GPa`), in German the decimal comma. The result format (value ± u) unit is exactly the same in both. You can type `0.27` or `0,26` in either language.
+- **Not yet in English:** the sections from "Formelspalte" on (formulas, statistics, histogram, chi-square, weighted mean, series, derived quantity, calibration, comparison), the texts inside the templates and some messages. A note at the top says so while English is on.
+- **Tested:** `tests/phase3-step3-language.sh` in a real browser: every German text has an English one, the project is identical after switching there and back, the choice survives a reload, English error messages for a wrong cell and a fit without data.
+
 ## 2026-10-14: A finished example on the first visit, and drop a file on the page
 
 - **What a student can now do:** open the page for the first time and see a finished example at once: the P3 elasticity measurement (invented data), plotted with error bars, both lines fitted, and the result E = (201 ± 8) GPa shown at the top without a single click. The plot and the result sit directly under the buttons now, so they are in the first view. The plot appears after about 0,4 s and the fit result after about 3 s (Apple M5, Chrome engine, local server).
