@@ -2,6 +2,14 @@
 
 Written in plain language for people who do not read code. Newest entry on top.
 
+## 2026-10-14: Compare a measured and a calculated value (P6)
+
+- **What a student can now do:** the new section "Messwert und Vergleichswert vergleichen" takes two values with uncertainty, for example a measured resistance `100,2 ± 0,3` and the calculated one `100,0 ± 0,4`, plus a unit. The result shows the difference as (value ± u) unit, how many combined uncertainties that is, and a plain verdict. Under 2 combined uncertainties: "stimmen im Rahmen ihrer Unsicherheiten überein". 2 or more: "unterscheiden sich deutlich", with a hint to check units, calculation and systematic errors. The relative deviation from the reference is shown too.
+- **Good to know:** the combined uncertainty is √(u₁² + u₂²), the two values are treated as independent. A value without ± counts as exact, so a literature value like 9,80665 works. The limit of 2 is the same as in the slope comparison. The inputs are saved in the project, can be undone, and the result goes out of date when an input changes.
+- **Fixed on the way:** the rounding to HU format wrote an uncertainty of 0,3 as "0,30" instead of "0,3" (a floating-point slip: 0,3 / 0,1 is 2,9999999999999996). It is now 0,3 everywhere.
+- **Messages:** an empty or non-numeric value, a negative uncertainty, two ± signs, or both uncertainties 0 each give a plain German message and no result.
+- **Tested:** `tests/phase2-step13-compare.sh` with hand values: 100,2 ± 0,3 against 100,0 ± 0,4 (difference 0,2, u 0,5, z 0,4, agree); 30,0 ± 0,3 against 31,2 ± 0,4 (z 2,4, disagree); a boundary pair with z exactly 2 (counts as disagree; without a rounding guard floating point gives 1,99999999999999); an exact literature value. Also undo, reload, save and open, and a hand-edited project file.
+
 ## 2026-10-14: Confidence interval of a mean with the t distribution (P9)
 
 - **What a student can now do:** in "Mittelwert und Streuung einer Spalte" there is a new choice "Vertrauensintervall" (keines, 90 %, 95 %, 99 %). With a level chosen, the result gets one more line in HU format, for example "Mittelwert x̄ mit 95 %-Vertrauensintervall = (10,02 ± 0,24) mm", and below it the factor and the interval: "t(0,975; 4) = 2,776 (zweiseitig, Student-Verteilung, 4 Freiheitsgrade). Intervall: [9,78; 10,26] mm."

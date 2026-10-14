@@ -61,8 +61,14 @@ const seriesKey = p => {
   const x = p.columns.find(c => c.role === "x"), by = n => (p.columns.find(c => c.name === n) || {}).values, st = seriesSettings(p);
   return fnv(JSON.stringify([st, x && [x.name, x.values], st.map(s => [by(s.y), by(s.err)])]));
 };
+// Comparison of a measured and a calculated value (P6): the two values as text "100,2 ± 0,3" and the unit.
+function compareSettings(p) {
+  const c = (p.settings || {}).compare || {}, t = k => typeof c[k] === "string" ? c[k] : "";
+  return { meas: t("meas"), ref: t("ref"), unit: t("unit") };
+}
+const compareKey = p => fnv(JSON.stringify(compareSettings(p)));
 // Results that depend on their own settings and columns instead of the x/y/error fingerprint.
-const KEYS = { stats: statsKey, wmean: wmeanKey, hist: histKey, gof: gofKey, series: seriesKey };
+const KEYS = { stats: statsKey, wmean: wmeanKey, hist: histKey, gof: gofKey, series: seriesKey, compare: compareKey };
 
 function addResult(p, result) {
   p.results = p.results.filter(r => r.kind !== result.kind);
@@ -89,4 +95,4 @@ function open(text) {
   return ok ? { project: p } : { error: "Das Projekt ist beschädigt: Spalten oder Werte fehlen oder sind keine Zahlen." };
 }
 
-if (typeof module !== "undefined") module.exports = { gofSettings, calibSettings, seriesSettings, SERIES_MAX, derivedSettings, statsSettings, wmeanSettings, histSettings, ROLES, newProject, fingerprint, addResult, isStale, save, open };
+if (typeof module !== "undefined") module.exports = { compareSettings, gofSettings, calibSettings, seriesSettings, SERIES_MAX, derivedSettings, statsSettings, wmeanSettings, histSettings, ROLES, newProject, fingerprint, addResult, isStale, save, open };

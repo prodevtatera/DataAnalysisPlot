@@ -73,4 +73,4 @@ function readOff(fit, y0, u0) {
   const sum = t.y0 + t.a + t.b + t.cov;
   return { x0, u: Math.sqrt(Math.max(0, v)), parts: Object.fromEntries(Object.entries(t).map(([k, q]) => [k, sum > 0 ? q / sum : null])) };
 }
-if (typeof module !== "undefined") module.exports = { parseDerivedVars, deriveQuantity, parseCalibValues, readOff };
+if (typeof module !== "undefined") module.exports = { toNum: _toNum, parseDerivedVars, deriveQuantity, parseCalibValues, readOff };

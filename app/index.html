@@ -191,6 +191,15 @@
     <button class="btn" id="c_go">x₀ ablesen</button>
   </div>
   <div id="calibmsg" class="msg" role="alert" hidden></div>
+  <h2>Messwert und Vergleichswert vergleichen</h2>
+  <p class="hint">Zwei Werte mit Unsicherheit vergleichen, zum Beispiel einen gemessenen Widerstand mit dem berechneten (P6). Der Unterschied d = Messwert − Vergleichswert hat die Unsicherheit √(u₁² + u₂²) (die Werte gelten als unabhängig). Unter 2 solchen Unsicherheiten stimmen die Werte überein. Fehlt die Unsicherheit eines Werts, gilt er als genau (zum Beispiel ein Literaturwert).</p>
+  <div class="fitbar" id="compare">
+    <label>Messwert <input class="txt" id="k_meas" aria-label="Messwert mit Unsicherheit" placeholder="100,2 ± 0,3" autocomplete="off" spellcheck="false"></label>
+    <label>Vergleichswert <input class="txt" id="k_ref" aria-label="Berechneter oder Literaturwert mit Unsicherheit" placeholder="100,0 ± 0,4" autocomplete="off" spellcheck="false"></label>
+    <label>Einheit <input class="txt" id="k_unit" aria-label="Einheit beider Werte" placeholder="Ω" autocomplete="off"></label>
+    <button class="btn" id="k_go">Vergleichen</button>
+  </div>
+  <div id="comparemsg" class="msg" role="alert" hidden></div>
   <h2>Ergebnisse</h2>
   <div id="results"><div class="empty">Noch keine Ergebnisse.</div></div>
 </main>
@@ -206,6 +215,7 @@
 <script src="gof.js"></script>
 <script src="gofview.js"></script>
 <script src="series.js"></script>
+<script src="compare.js"></script>
 <script src="logaxis.js"></script>
 <script>
 const $ = id => document.getElementById(id);
@@ -224,6 +234,7 @@ const DERIVED_TEMPLATES = {
   g: { name: "g", unit: "m/s²", formula: "4*pi^2/a", vars: "", aUnit: "s²/m" },
 };
 const DKEYS = { d_name: "name", d_unit: "unit", d_formula: "formula", d_vars: "vars", d_aunit: "aUnit" };
+const KKEYS = { k_meas: "meas", k_ref: "ref", k_unit: "unit" };
 const ROLE_LABELS = { x: "x-Werte", y: "y-Werte", yerr: "Fehler von y", unused: "nicht verwendet" };
 let proj = null;
 
@@ -428,6 +439,12 @@ function ciDetail(r) {
   return `<div class="detail" data-ci>${pct} %-Vertrauensintervall: x̄ ± t·s/√n mit t(${fmtT.format((1 + c.level) / 2)}; ${fmt.format(c.df)}) = ${fmtT.format(c.t)} (zweiseitig, Student-Verteilung, ${fmt.format(c.df)} Freiheitsgrad${c.df === 1 ? "" : "e"}).` +
     (a && b ? ` Intervall: [${a[0]}; ${b[0]}]${unit}.` : "") + "</div>";
 }
+// Comparison result: both values in HU format and the verdict. Everything passes through the number formatter or esc.
+function compareDetail(r) {
+  const unit = r.unit ? " " + esc(r.unit) : "", hv = q => { q = q || {}; const t = huRound(Number(q.value), Number(q.u)); return (t ? `(${t[0]} ± ${t[1]})` : fmt.format(Number(q.value))) + unit; };
+  return `<div class="detail" data-how>Messwert ${hv(r.m)}, Vergleichswert ${hv(r.c)}. Unsicherheit des Unterschieds √(u₁² + u₂²)${r.rel == null ? "" : `. Abweichung vom Vergleichswert: ${fmtPlain.format(Number(r.rel))} %`}.</div>` +
+    `<div class="detail" data-verdict>${esc(r.verdict)}</div>`;
+}
 function wmeanDetail(r) {
   const i = r.inputs || {}, k = fmt.format(Number(i.k));
   return `<div class="detail" data-how>Ergebnisse „${esc(i.val)}“ mit Unsicherheiten „${esc(i.unc)}“, n = ${fmt.format(Number(r.n))} Zeilen. Gewichte w = 1/u², Mittelwert Σ(w·x)/Σw, Unsicherheit 1/√Σw.</div>` +
@@ -496,7 +513,7 @@ function renderResults() {
       const u = uOf(q), t = huRound(q.value, u);
       return `<div class="res">${esc(q.name)} = ${q.text !== undefined ? esc(q.text) : t ? `(${t[0]} ± ${t[1]})` : q.plain ? fmtPlain.format(q.value) : fmt.format(q.value)}${q.unit ? " " + esc(q.unit) : ""}</div>`;
     }).join("");
-    return `<div class="result${stale ? " stale" : ""}">${stale ? `<div class="msg stalemsg">Die Daten wurden geändert. Dieses Ergebnis ist veraltet. Bitte neu ${["stats", "wmean", "hist", "gof", "derived", "calib"].includes(r.kind) ? "berechnen" : "anpassen"}.</div>` : ""}${lines}${r.kind === "fit" && r.dof ? fitDetail(r) : ""}${r.kind === "derived" ? derivedDetail(r) : ""}${r.kind === "stats" ? statsDetail(r) : ""}${r.kind === "wmean" ? wmeanDetail(r) : ""}${r.kind === "hist" ? histDetail(r) : ""}${r.kind === "gof" ? gofDetail(r) : ""}${r.kind === "series" ? seriesDetail(r) : ""}${r.kind === "calib" ? calibDetail(r) : ""}</div>`;
+    return `<div class="result${stale ? " stale" : ""}">${stale ? `<div class="msg stalemsg">Die Daten wurden geändert. Dieses Ergebnis ist veraltet. Bitte neu ${["stats", "wmean", "hist", "gof", "derived", "calib", "compare"].includes(r.kind) ? "berechnen" : "anpassen"}.</div>` : ""}${lines}${r.kind === "fit" && r.dof ? fitDetail(r) : ""}${r.kind === "derived" ? derivedDetail(r) : ""}${r.kind === "stats" ? statsDetail(r) : ""}${r.kind === "wmean" ? wmeanDetail(r) : ""}${r.kind === "hist" ? histDetail(r) : ""}${r.kind === "gof" ? gofDetail(r) : ""}${r.kind === "series" ? seriesDetail(r) : ""}${r.kind === "calib" ? calibDetail(r) : ""}${r.kind === "compare" ? compareDetail(r) : ""}</div>`;
   }).join("");
 }
 // Weighting needs an error column; errors method only matters for a weighted fit.
@@ -531,6 +548,9 @@ function syncControls() {
   const ds = derivedSettings(proj);
   for (const [id, k] of Object.entries(DKEYS)) $(id).value = ds[k];
   $("c_y0").value = calibSettings(proj).y0; $("calibmsg").hidden = true;
+  const cs = compareSettings(proj);
+  for (const [id, k] of Object.entries(KKEYS)) $(id).value = cs[k];
+  $("comparemsg").hidden = true;
 }
 // Formula columns are recomputed from the data on every change; rows that cannot be calculated are named in the message.
 function recalc() {
@@ -784,6 +804,30 @@ $("c_go").onclick = () => {
     used: { a: pa.value, b: pb.value, xUnit: unit, scaled: { ua: per("scaled").ua, ub: per("scaled").ub, cov: cv("scaled")[1] }, ...(fit.weighted ? { unscaled: { ua: per("unscaled").ua, ub: per("unscaled").ub, cov: cv("unscaled")[1] } } : {}) },
     reads, params: reads.map(q => ({ name: `x₀ (y₀ = ${fmt.format(q.y0)})`, unit, value: q.x0, uScaled: q.uScaled, ...(q.uUnscaled !== undefined ? { uUnscaled: q.uUnscaled } : {}) })),
   }));
+};
+// Comparison of two values: the three texts are project settings (typing in one field is one undo step); the result needs no fit and no table data.
+for (const id of Object.keys(KKEYS)) {
+  $(id).addEventListener("input", e => {
+    if (editKey !== "compare." + id) { pushUndo(); editKey = "compare." + id; }
+    proj.settings.compare = { ...compareSettings(proj), [KKEYS[id]]: e.target.value };
+    renderResults(); autosave();
+  });
+  $(id).addEventListener("focusout", () => { editKey = null; });
+}
+function compareFailed(why) { $("comparemsg").textContent = why; $("comparemsg").hidden = false; }
+$("k_go").onclick = () => {
+  if (!proj) return;
+  const st = compareSettings(proj), m = parseValue(st.meas, "Messwert"), c = parseValue(st.ref, "Vergleichswert");
+  if (m.error) return compareFailed(m.error);
+  if (c.error) return compareFailed(c.error);
+  const d = compareValues(m, c);
+  if (d.error) return compareFailed(d.error);
+  const unit = st.unit.trim(), z = fmtPlain.format(d.z);
+  const verdict = d.agree ? `Der Unterschied beträgt ${z} kombinierte Unsicherheiten (unter ${COMPARE_K}). Messwert und Vergleichswert stimmen im Rahmen ihrer Unsicherheiten überein.`
+    : `Der Unterschied beträgt ${z} kombinierte Unsicherheiten (${COMPARE_K} oder mehr). Messwert und Vergleichswert unterscheiden sich deutlich. Prüfe Einheiten, Rechnung und mögliche systematische Fehler.`;
+  $("comparemsg").hidden = true;
+  change(() => addResult(proj, { kind: "compare", unit, m, c, z: d.z, rel: d.rel, verdict,
+    params: [{ name: "Differenz Messwert − Vergleichswert", unit, value: d.diff, u: d.u }, { name: "Abweichung in kombinierten Unsicherheiten", unit: "", value: d.z, plain: true }] }));
 };
 // Typing the instrument error is one undo step; the two selects are one step each.
 $("s_instr").addEventListener("input", e => {
