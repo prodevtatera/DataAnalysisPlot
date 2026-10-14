@@ -19,7 +19,7 @@
   .lang button { font:700 15px/20px "Barlow", system-ui, sans-serif; background:transparent; color:var(--paper); border:1px solid var(--paper); border-radius:0; padding:4px 10px; cursor:pointer; }
   .lang button[aria-pressed=true] { background:var(--paper); color:var(--blue); }
   main { flex:1; width:100%; max-width:1120px; margin:0 auto; padding:24px 24px 48px; }
-  h1 { font-size:36px; line-height:1.17; font-weight:400; margin:0 0 12px; }
+  h1 { font-size:30px; line-height:1.17; font-weight:400; margin:0 0 10px; }
   h2 { font-size:23px; font-weight:700; margin:28px 0 8px; }
   .btns { margin:10px 0; display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
   .btn { background:var(--blue); color:var(--paper); border:0; padding:10px 18px; font-weight:700; font-size:16px; line-height:20px; border-radius:0; cursor:pointer; }
@@ -54,7 +54,7 @@
   td input:focus { outline:2px solid var(--blue); outline-offset:-2px; background:#fff; }
   td input.bad { background:#fde8ea; outline:2px solid #B00020; outline-offset:-2px; }
   textarea { width:100%; height:120px; font:15px/22px ui-monospace, Menlo, Consolas, monospace; padding:10px; border:1px solid var(--blue); border-radius:0; background:#fff; resize:vertical; }
-  #plot { background:#fff; border:1px solid var(--line); height:420px; }
+  #plot { background:#fff; border:1px solid var(--line); height:380px; }
   #histplot { background:#fff; border:1px solid var(--line); height:400px; }
   #cumplot { background:#fff; border:1px solid var(--line); height:400px; }
   #gofplot { background:#fff; border:1px solid var(--line); height:400px; }
@@ -76,6 +76,32 @@
   .hint { font-size:15px; color:#333; }
   body.dropping main { outline:3px dashed var(--blue); outline-offset:-8px; }
   footer { background:var(--blue); color:var(--paper); padding:20px 24px; font-size:15px; }
+  main > section { margin-top:28px; }
+  section > h2:first-child, .thead h2 { margin-top:0; }
+  .thead { display:flex; justify-content:space-between; align-items:center; gap:12px; margin:0 0 8px; }
+  .thead h2 { margin:0; }
+  .tool { border-top:2px solid var(--line); padding-top:14px; }
+  .work { display:grid; grid-template-columns:minmax(0,5fr) minmax(0,7fr); grid-template-areas:"left plot"; gap:24px; align-items:start; margin-top:12px; }
+  .work .left { grid-area:left; min-width:0; }
+  #s_plot { grid-area:plot; min-width:0; }
+  .work .hint { margin:0 0 6px; }
+  .work .btns { margin:8px 0 0; }
+  .menu { position:relative; }
+  .menuitems { position:absolute; z-index:5; top:100%; left:0; margin-top:4px; background:#fff; border:1px solid var(--blue); padding:8px; display:flex; flex-direction:column; gap:8px; width:max-content; }
+  .menuitems .btn { text-align:left; }
+  summary.btn { display:inline-block; list-style:none; cursor:pointer; }
+  summary.btn::-webkit-details-marker { display:none; }
+  summary.btn::after { content:" ▾"; }
+  details[open] > summary.btn::after { content:" ▴"; }
+  .toolbtns { display:flex; flex-wrap:wrap; gap:8px; margin:12px 0 0; }
+  .toolbtns .btn { white-space:nowrap; }
+  button[data-tool].open { background:var(--blue); color:var(--paper); }
+  .tplpick { display:flex; gap:6px; align-items:center; }
+  .tplpick select { font-size:16px; padding:6px 8px; }
+  #tpl_info a.go { color:var(--blue); font-weight:600; }
+  /* With a mouse the row delete buttons show only on the row under the pointer (or with the keyboard focus in the row); on a touch screen they always show. */
+  @media (hover:hover) { td > .btn[data-del] { visibility:hidden; } tr:hover > td > .btn[data-del], tr:focus-within > td > .btn[data-del] { visibility:visible; } }
+  @media (max-width:960px) { .work { grid-template-columns:minmax(0,1fr); grid-template-areas:"plot" "left"; } }
   @media (max-width:768px) { h1 { font-size:28px; } header,footer { padding-left:12px; padding-right:12px; } main { padding:16px 12px 40px; } }
 </style>
 </head>
@@ -83,46 +109,84 @@
 <header><span class="brand">PlotLab</span><span class="lang" role="group" aria-label="Sprache / Language"><button id="lang_de" data-lang="de" aria-pressed="true">DE</button><button id="lang_en" data-lang="en" aria-pressed="false">EN</button></span></header>
 <main>
   <h1 data-i18n="h_data">Messdaten</h1>
-  <p class="hint" data-i18n="hint_data">Klicke in eine Zelle und tippe. Dezimalkomma ist in Ordnung. Das Diagramm folgt sofort.</p>
-  <div class="btns">
+  <div class="btns" id="filebar">
     <button class="btn" id="blank" data-i18n="b_blank">Leere Tabelle</button>
-    <button class="btn alt" id="example" data-i18n="b_example">Beispiel laden</button>
-    <button class="btn alt" id="example2" data-i18n="b_example2">Beispiel Elastizität laden</button>
-    <button class="btn alt" id="example3" data-i18n="b_example3">Beispiel Belastung und Entlastung laden</button>
-    <button class="btn alt" id="example4" data-i18n="b_example4">Beispiel Kalibriergerade laden</button>
+    <details class="menu" id="exmenu"><summary class="btn alt" data-i18n="b_examples">Beispiele</summary><div class="menuitems">
+      <button class="btn alt" id="example" data-i18n="b_example">Beispiel laden</button>
+      <button class="btn alt" id="example2" data-i18n="b_example2">Beispiel Elastizität laden</button>
+      <button class="btn alt" id="example3" data-i18n="b_example3">Beispiel Belastung und Entlastung laden</button>
+      <button class="btn alt" id="example4" data-i18n="b_example4">Beispiel Kalibriergerade laden</button>
+    </div></details>
     <label class="btn alt"><span data-i18n="b_open">Projekt öffnen</span><input id="openfile" type="file" accept=".json,.plotlab" hidden></label>
     <button class="btn alt" id="saveproj" data-i18n="b_save" disabled>Projekt speichern</button>
     <button class="btn alt" id="undo" disabled title="Strg/Cmd+Z" data-i18n="b_undo" data-i18n-title="k_undo">Rückgängig</button>
     <button class="btn alt" id="redo" disabled title="Umschalt+Strg/Cmd+Z" data-i18n="b_redo" data-i18n-title="k_redo">Wiederholen</button>
-  </div>
-  <div id="intro" class="msg note" role="status" hidden><span data-i18n="intro">Das ist ein fertiges Beispiel (P3 Elastizität, erfundene Daten), schon angepasst und ausgewertet. Ziehe deine eigene Datei auf diese Seite (CSV mit Semikolon oder Tab, Dezimalkomma ist in Ordnung, oder ein .plotlab-Projekt) oder beginne mit „Leere Tabelle“.</span><div id="introres"></div></div>
-  <h2 data-i18n="h_plot">Diagramm</h2>
-  <div class="fitbar"><label id="loglabel"><input type="checkbox" id="logy" disabled> <span data-i18n="logy">Logarithmische y-Achse (halblogarithmisch)</span></label><span class="hint" data-i18n="logy_hint">Es sind nur y-Werte größer als 0 möglich. Eine Anpassung y = a·x + b erscheint auf dieser Achse gekrümmt.</span></div>
-  <div id="plotmsg" class="msg note" role="status" hidden></div>
-  <div id="plot"><div class="empty" data-i18n="plot_none">Noch keine Daten.</div></div>
-  <h2 data-i18n="h_results">Ergebnisse</h2>
-  <div id="results"><div class="empty" data-i18n="res_none">Noch keine Ergebnisse.</div></div>
-  <h2 data-i18n="h_tpl">Vorlage laden</h2>
-  <p class="hint" data-i18n="hint_tpl">Eine fertige Vorlage pro Versuch mit erfundenen Beispieldaten, den passenden Spalten und Einstellungen. Du drückst die Schritte der Reihe nach und ersetzt dann die Zahlen durch deine Messung. Das ersetzt das aktuelle Projekt.</p>
-  <div class="fitbar">
-    <label><span data-i18n="tpl_exp">Versuch</span> <select id="tpl_sel" aria-label="Vorlage wählen" data-i18n-aria="tpl_aria"><option value="" data-i18n="tpl_choose">(bitte wählen)</option></select></label>
+    <label class="tplpick" data-i18n-title="hint_tpl"><span data-i18n="tpl_exp">Versuch</span> <select id="tpl_sel" aria-label="Vorlage wählen" data-i18n-aria="tpl_aria"><option value="" data-i18n="tpl_choose">(bitte wählen)</option></select></label>
     <button class="btn" id="tpl_load" data-i18n="b_tpl">Vorlage laden</button>
   </div>
   <div id="tplmsg" class="msg" role="alert" hidden></div>
-  <div id="tpl_info" hidden></div>
-  <h2 data-i18n="h_paste">Daten einfügen</h2>
-  <textarea id="paste" aria-label="Daten einfügen" data-i18n-aria="h_paste" spellcheck="false" placeholder="F / N;ΔL / mm;sΔL / mm&#10;10;0,26;0,02"></textarea>
-  <div class="btns"><button class="btn" id="pastego" data-i18n="b_paste">Als Tabelle übernehmen</button><span class="hint" data-i18n="hint_paste">Aus Excel oder einer CSV-Datei kopieren. Trennzeichen ; oder Tab, Dezimalkomma ist in Ordnung. Die ersten drei Spalten sind x, y und Fehler von y.</span></div>
+  <div id="intro" class="msg note" role="status" hidden><span data-i18n="intro">Das ist ein fertiges Beispiel (P3 Elastizität, erfundene Daten), schon angepasst und ausgewertet. Ziehe deine eigene Datei auf diese Seite (CSV mit Semikolon oder Tab, Dezimalkomma ist in Ordnung, oder ein .plotlab-Projekt) oder beginne mit „Leere Tabelle“.</span><div id="introres"></div></div>
   <div id="note" class="msg note" role="status" hidden></div>
   <div id="storewarn" class="msg" role="alert" data-i18n="store_warn" hidden>Automatisches Speichern ist in diesem Browser nicht möglich. Bitte speichere das Projekt mit „Projekt speichern“.</div>
   <div id="msg" class="msg" role="alert" hidden></div>
+  <div class="work">
+  <section id="s_plot">
+  <h2 data-i18n="h_plot">Diagramm</h2>
+  <div id="plotmsg" class="msg note" role="status" hidden></div>
+  <div id="plot"><div class="empty" data-i18n="plot_none">Noch keine Daten.</div></div>
+  </section>
+  <div class="left">
+  <section id="s_table">
   <h2 data-i18n="h_table">Tabelle</h2>
+  <p class="hint" data-i18n="hint_data">Klicke in eine Zelle und tippe. Dezimalkomma ist in Ordnung. Das Diagramm folgt sofort.</p>
   <p class="hint" data-i18n="hint_table">Mehrere Zellen aus Excel oder einer CSV-Datei kannst du mit Strg/Cmd+V in eine Zelle einfügen. Sie füllen die Tabelle ab dieser Zelle nach unten und rechts; Formelspalten werden übersprungen.</p>
   <div class="scroll" id="table"><div class="empty" data-i18n="table_none">Noch keine Daten. Lade das Beispiel oder öffne ein Projekt.</div></div>
   <div class="btns">
     <button class="btn alt" id="addrow" data-i18n="b_addrow" disabled>Zeile hinzufügen</button>
   </div>
-  <h2 data-i18n="h_formula">Formelspalte</h2>
+  </section>
+  <div id="tpl_info" hidden></div>
+  </div>
+  </div>
+  <section id="s_results">
+  <h2 data-i18n="h_results">Ergebnisse</h2>
+  <div class="fitbar">
+    <label id="wlabel"><input type="checkbox" id="weighted"> <span data-i18n="weighted">Mit den Fehlerwerten gewichten</span></label>
+    <select id="errm" aria-label="Fehlermethode"><option value="scaled" data-i18n="errm_scaled">Fehler skaliert mit √(χ²/DoF)</option><option value="unscaled" data-i18n="errm_unscaled">Fehler unskaliert (aus den Fehlerwerten)</option></select>
+    <button class="btn" id="fit" data-i18n="b_fit" disabled>Anpassen</button>
+    <span class="hint" id="fitstate" data-i18n="fs_loading">Rechenmodul (SciPy) wird geladen …</span>
+  </div>
+  <div id="fitmsg" class="msg" role="alert" hidden></div>
+  <div id="results"><div class="empty" data-i18n="res_none">Noch keine Ergebnisse.</div></div>
+  </section>
+  <section id="s_tools">
+  <h2 data-i18n="h_tools">Werkzeuge</h2>
+  <p class="hint" data-i18n="hint_tools">Weitere Rechnungen und Diagramme. Wähle ein Werkzeug, es öffnet sich darunter. Ein Punkt neben dem Namen heißt: Dazu gibt es schon ein Ergebnis.</p>
+  <details id="toolmenu"><summary class="btn alt"><span data-i18n="tool_menu">Werkzeug wählen</span> <span id="toolcount"></span></summary>
+    <div class="toolbtns">
+      <button class="btn alt small" data-tool="paste"><span data-i18n="tool_paste">Daten einfügen</span><span class="mark" data-i18n-title="tool_used" title="Ergebnis vorhanden" hidden> ●</span></button>
+      <button class="btn alt small" data-tool="formula"><span data-i18n="tool_formula">Formelspalte</span><span class="mark" data-i18n-title="tool_used" title="Ergebnis vorhanden" hidden> ●</span></button>
+      <button class="btn alt small" data-tool="stats"><span data-i18n="tool_stats">Mittelwert und Streuung</span><span class="mark" data-i18n-title="tool_used" title="Ergebnis vorhanden" hidden> ●</span></button>
+      <button class="btn alt small" data-tool="hist"><span data-i18n="tool_hist">Histogramm</span><span class="mark" data-i18n-title="tool_used" title="Ergebnis vorhanden" hidden> ●</span></button>
+      <button class="btn alt small" data-tool="cum"><span data-i18n="tool_cum">Summenhäufigkeit</span><span class="mark" data-i18n-title="tool_used" title="Ergebnis vorhanden" hidden> ●</span></button>
+      <button class="btn alt small" data-tool="gof"><span data-i18n="tool_gof">χ²-Test</span><span class="mark" data-i18n-title="tool_used" title="Ergebnis vorhanden" hidden> ●</span></button>
+      <button class="btn alt small" data-tool="wmean"><span data-i18n="tool_wmean">Gewichteter Mittelwert</span><span class="mark" data-i18n-title="tool_used" title="Ergebnis vorhanden" hidden> ●</span></button>
+      <button class="btn alt small" data-tool="series"><span data-i18n="tool_series">Mehrere Messreihen</span><span class="mark" data-i18n-title="tool_used" title="Ergebnis vorhanden" hidden> ●</span></button>
+      <button class="btn alt small" data-tool="derived"><span data-i18n="tool_derived">Abgeleitete Größe</span><span class="mark" data-i18n-title="tool_used" title="Ergebnis vorhanden" hidden> ●</span></button>
+      <button class="btn alt small" data-tool="calib"><span data-i18n="tool_calib">Kalibriergerade</span><span class="mark" data-i18n-title="tool_used" title="Ergebnis vorhanden" hidden> ●</span></button>
+      <button class="btn alt small" data-tool="compare"><span data-i18n="tool_compare">Vergleich</span><span class="mark" data-i18n-title="tool_used" title="Ergebnis vorhanden" hidden> ●</span></button>
+      <button class="btn alt small" data-tool="logy"><span data-i18n="tool_logy">Logarithmische Achse</span><span class="mark" data-i18n-title="tool_used" title="Ergebnis vorhanden" hidden> ●</span></button>
+      <button class="btn alt small" data-tool="export"><span data-i18n="tool_export">Diagramm speichern</span><span class="mark" data-i18n-title="tool_used" title="Ergebnis vorhanden" hidden> ●</span></button>
+    </div>
+  </details>
+  </section>
+<section class="tool" data-tool-panel="paste" hidden>
+  <div class="thead"><h2 data-i18n="h_paste">Daten einfügen</h2><button class="btn alt small tclose" data-close="paste" data-i18n="tool_close">Schließen</button></div>
+  <textarea id="paste" aria-label="Daten einfügen" data-i18n-aria="h_paste" spellcheck="false" placeholder="F / N;ΔL / mm;sΔL / mm&#10;10;0,26;0,02"></textarea>
+  <div class="btns"><button class="btn" id="pastego" data-i18n="b_paste">Als Tabelle übernehmen</button><span class="hint" data-i18n="hint_paste">Aus Excel oder einer CSV-Datei kopieren. Trennzeichen ; oder Tab, Dezimalkomma ist in Ordnung. Die ersten drei Spalten sind x, y und Fehler von y.</span></div>
+</section>
+<section class="tool" data-tool-panel="formula" hidden>
+  <div class="thead"><h2 data-i18n="h_formula">Formelspalte</h2><button class="btn alt small tclose" data-close="formula" data-i18n="tool_close">Schließen</button></div>
   <p class="hint" data-i18n="hint_formula">Eine neue Spalte aus anderen Spalten rechnen, zum Beispiel r² aus dem Durchmesser D. Erlaubt: + − * / ^ und Klammern, Zahlen mit Komma, die Namen der Spalten links davon (der Teil vor „ / “, sonst in eckigen Klammern) und die Funktionen sqrt, ln, log10, exp, abs, sin, cos, tan (Bogenmaß) sowie pi.</p>
   <div class="fitbar">
     <label><span data-i18n="l_name">Name</span> <input class="txt" id="f_name" aria-label="Name der neuen Spalte" data-i18n-aria="aria_fname" placeholder="r² / mm²" autocomplete="off"></label>
@@ -132,7 +196,9 @@
   </div>
   <p class="hint" data-i18n="hint_func">Mit Unsicherheiten entsteht zusätzlich die Spalte „u(Name)“ mit der Gaußschen Fehlerfortpflanzung u(f)² = Σ (∂f/∂xᵢ)²·u(xᵢ)². Pro Eingangsgröße steht links vom „=“ die Spalte und rechts ihre Unsicherheit (eine Spalte, eine Zahl oder ein Ausdruck wie 0,01*D), getrennt durch „;“. Eingangsgrößen ohne Angabe gelten als genau. Die Eingangsgrößen müssen voneinander unabhängig sein.</p>
   <div id="fmsg" class="msg" role="alert" hidden></div>
-  <h2 data-i18n="h_stats">Mittelwert und Streuung einer Spalte</h2>
+</section>
+<section class="tool" data-tool-panel="stats" hidden>
+  <div class="thead"><h2 data-i18n="h_stats">Mittelwert und Streuung einer Spalte</h2><button class="btn alt small tclose" data-close="stats" data-i18n="tool_close">Schließen</button></div>
   <p class="hint" data-i18n-html="hint_stats">Mittelwert x̄, Standardabweichung (Teiler n oder n−1) und Standardfehler s/√n der gewählten Spalte. Der Standardfehler nutzt immer s mit n−1, auch wenn du für die Standardabweichung n wählst. Mit einem Gerätefehler (Ablesefehler, in der Einheit der Spalte) wird zusätzlich u = √(u<sub>zufällig</sub>² + u<sub>Gerät</sub>²) angegeben. Mit einem Vertrauensniveau wird das Vertrauensintervall x̄ ± t·s/√n mit dem Faktor t der Student-Verteilung (n−1 Freiheitsgrade) angegeben; der Gerätefehler ist darin nicht enthalten.</p>
   <div class="fitbar" id="stats">
     <label><span data-i18n="l_col">Spalte</span> <select id="s_col" aria-label="Spalte für Mittelwert und Streuung" data-i18n-aria="aria_scol"></select></label>
@@ -142,7 +208,9 @@
     <button class="btn" id="s_go" data-i18n="b_calc" disabled>Berechnen</button>
   </div>
   <div id="statsmsg" class="msg" role="alert" hidden></div>
-  <h2 data-i18n="h_hist">Häufigkeitstabelle und Histogramm</h2>
+</section>
+<section class="tool" data-tool-panel="hist" hidden>
+  <div class="thead"><h2 data-i18n="h_hist">Häufigkeitstabelle und Histogramm</h2><button class="btn alt small tclose" data-close="hist" data-i18n="tool_close">Schließen</button></div>
   <p class="hint" data-i18n="hint_hist">Teilt die Werte einer Spalte in Klassen [von, bis) ein und zählt sie: absolute, relative und kumulierte Häufigkeit. Die Klassen sind links geschlossen, ein Wert genau auf einer Grenze gehört zur oberen Klasse. Das Histogramm zeigt die Anzahl je Klasse und dazu die Normalverteilung mit dem Mittelwert x̄ und der Standardabweichung s (Teiler n oder n−1): erwartete Anzahl je Klasse = n·Klassenbreite·φ(x). Bleiben Klassenbreite und Beginn leer, werden sie automatisch gewählt.</p>
   <div class="fitbar" id="hist">
     <label><span data-i18n="l_col">Spalte</span> <select id="h_col" aria-label="Spalte für das Histogramm" data-i18n-aria="aria_hcol"></select></label>
@@ -153,10 +221,14 @@
   </div>
   <div id="hmsg" class="msg" role="alert" hidden></div>
   <div id="histplot"><div class="empty" data-i18n="hist_none">Noch kein Histogramm. Wähle eine Spalte und drücke „Berechnen“.</div></div>
-  <h2 data-i18n="h_cum">Summenhäufigkeit mit Ablesung bei 16 % und 84 %</h2>
+</section>
+<section class="tool" data-tool-panel="cum" hidden>
+  <div class="thead"><h2 data-i18n="h_cum">Summenhäufigkeit mit Ablesung bei 16 % und 84 %</h2><button class="btn alt small tclose" data-close="cum" data-i18n="tool_close">Schließen</button></div>
   <p class="hint" data-i18n="hint_cum">Aus derselben Klasseneinteilung: die kumulierte relative Häufigkeit an den Klassengrenzen, mit geraden Linien dazwischen. Bei 16 % und 84 % wird der Wert x abgelesen; bei normalverteilten Messwerten liegen diese Werte bei x̄ − s und x̄ + s, und die halbe Differenz (x₈₄ − x₁₆)/2 ist eine Abschätzung für s.</p>
   <div id="cumplot"><div class="empty" data-i18n="cum_none">Noch keine Summenhäufigkeit. Berechne zuerst das Histogramm.</div></div>
-  <h2 data-i18n="h_gof">χ²-Test: Poisson- und Gauß-Verteilung (Zählraten)</h2>
+</section>
+<section class="tool" data-tool-panel="gof" hidden>
+  <div class="thead"><h2 data-i18n="h_gof">χ²-Test: Poisson- und Gauß-Verteilung (Zählraten)</h2><button class="btn alt small tclose" data-close="gof" data-i18n="tool_close">Schließen</button></div>
   <p class="hint" data-i18n="hint_gof">Prüft, ob Zählwerte je Messintervall (zum Beispiel Zerfälle in 10 s, P8) zu einer Poisson- oder einer Gauß-Verteilung passen. Die Zählwerte werden in Klassen aus ganzen Zahlen eingeteilt. Für jede Klasse wird die erwartete Anzahl berechnet, daraus χ², die Freiheitsgrade und der p-Wert. Ist die erwartete Anzahl einer Klasse kleiner als 5, erscheint eine Warnung. Bleiben Klassenbreite und Beginn leer, werden sie automatisch gewählt.</p>
   <div class="fitbar" id="gof">
     <label><span data-i18n="l_gcol">Spalte mit Zählwerten</span> <select id="g_col" aria-label="Spalte mit den Zählwerten" data-i18n-aria="aria_gcol"></select></label>
@@ -166,7 +238,9 @@
   </div>
   <div id="gofmsg" class="msg" role="alert" hidden></div>
   <div id="gofplot"><div class="empty" data-i18n="gof_none">Noch kein χ²-Test. Wähle die Spalte mit den Zählwerten und drücke „Berechnen“.</div></div>
-  <h2 data-i18n="h_wm">Gewichteter Mittelwert und Überlappung mehrerer Ergebnisse</h2>
+</section>
+<section class="tool" data-tool-panel="wmean" hidden>
+  <div class="thead"><h2 data-i18n="h_wm">Gewichteter Mittelwert und Überlappung mehrerer Ergebnisse</h2><button class="btn alt small tclose" data-close="wmean" data-i18n="tool_close">Schließen</button></div>
   <p class="hint" data-i18n="hint_wm">Jede Zeile ist ein Ergebnis x mit seiner Unsicherheit u (zum Beispiel drei Volumenmessungen). Gewichte w = 1/u², Mittelwert = Σ(w·x)/Σw, Unsicherheit = 1/√Σw. Die Unsicherheit wird so übernommen, wie sie in der Tabelle steht. Überlappung: Die Intervalle x ± k·u müssen sich alle gemeinsam schneiden.</p>
   <div class="fitbar" id="wmean">
     <label><span data-i18n="l_wval">Ergebnisse x</span> <select id="w_val" aria-label="Spalte mit den Ergebnissen" data-i18n-aria="aria_wval"></select></label>
@@ -175,15 +249,9 @@
     <button class="btn" id="w_go" data-i18n="b_calc" disabled>Berechnen</button>
   </div>
   <div id="wmsg" class="msg" role="alert" hidden></div>
-  <h2 data-i18n="h_fit">Anpassung (Gerade y = a·x + b)</h2>
-  <div class="fitbar">
-    <label id="wlabel"><input type="checkbox" id="weighted"> <span data-i18n="weighted">Mit den Fehlerwerten gewichten</span></label>
-    <select id="errm" aria-label="Fehlermethode"><option value="scaled" data-i18n="errm_scaled">Fehler skaliert mit √(χ²/DoF)</option><option value="unscaled" data-i18n="errm_unscaled">Fehler unskaliert (aus den Fehlerwerten)</option></select>
-    <button class="btn" id="fit" data-i18n="b_fit" disabled>Anpassen</button>
-    <span class="hint" id="fitstate" data-i18n="fs_loading">Rechenmodul (SciPy) wird geladen …</span>
-  </div>
-  <div id="fitmsg" class="msg" role="alert" hidden></div>
-  <h2 data-i18n="h_series">Mehrere Messreihen in einem Diagramm</h2>
+</section>
+<section class="tool" data-tool-panel="series" hidden>
+  <div class="thead"><h2 data-i18n="h_series">Mehrere Messreihen in einem Diagramm</h2><button class="btn alt small tclose" data-close="series" data-i18n="tool_close">Schließen</button></div>
   <p class="hint" data-i18n="hint_series">Jede Reihe ist eine y-Spalte gegen die x-Spalte, zum Beispiel Belastung und Entlastung (P3). Pro Reihe wird eine Gerade y = a·x + b über den gewählten x-Bereich angepasst (leer = alle Punkte). Mit Fehlerspalte wird gewichtet (1/s²), ohne Fehlerspalte ungewichtet. Alle Reihen erscheinen im Diagramm oben, jede mit ihrer Anpassungslinie; Punkte außerhalb des Bereichs sind blass und werden nicht angepasst. Danach werden die Steigungen verglichen: der Unterschied in kombinierten Unsicherheiten √(u₁² + u₂²) (unabhängige Reihen); unter 2 gelten sie als gleich.</p>
   <div id="sr_rows"></div>
   <div class="btns">
@@ -191,7 +259,9 @@
     <button class="btn" id="sr_go" data-i18n="b_srgo" disabled>Reihen anpassen</button>
   </div>
   <div id="srmsg" class="msg" role="alert" hidden></div>
-  <h2 data-i18n="h_derived">Abgeleitete Größe aus den Fit-Parametern</h2>
+</section>
+<section class="tool" data-tool-panel="derived" hidden>
+  <div class="thead"><h2 data-i18n="h_derived">Abgeleitete Größe aus den Fit-Parametern</h2><button class="btn alt small tclose" data-close="derived" data-i18n="tool_close">Schließen</button></div>
   <p class="hint" data-i18n-html="hint_derived">Eine Größe aus der Steigung a und dem Achsenabschnitt b der Geraden rechnen, mit Fehlerfortpflanzung u(f)² = Σ (∂f/∂xᵢ)²·u(xᵢ)². Die Fehler von a und b kommen aus der Anpassung (skaliert oder unskaliert, wie oben gewählt) und werden als unabhängig behandelt. Weitere Größen mit Wert und Unsicherheit schreibst du als <code>L = 1 ± 0,002; d = 0,5 ± 0,01</code>. Die Einheiten stimmen nur, wenn die Formel die Umrechnung enthält: die Vorlagen sagen, in welchen Einheiten a und die weiteren Größen stehen müssen.</p>
   <div class="btns">
     <button class="btn alt" id="d_tE" data-i18n="b_dtE">Vorlage: Elastizitätsmodul E (P3)</button>
@@ -206,14 +276,18 @@
     <button class="btn" id="derive" data-i18n="b_calc">Berechnen</button>
   </div>
   <div id="derivemsg" class="msg" role="alert" hidden></div>
-  <h2 data-i18n="h_calib">Kalibriergerade: Unbekanntes ablesen</h2>
+</section>
+<section class="tool" data-tool-panel="calib" hidden>
+  <div class="thead"><h2 data-i18n="h_calib">Kalibriergerade: Unbekanntes ablesen</h2><button class="btn alt small tclose" data-close="calib" data-i18n="tool_close">Schließen</button></div>
   <p class="hint" data-i18n="hint_calib">Mit der angepassten Geraden y = a·x + b aus einem gemessenen y₀ der unbekannten Probe das zugehörige x₀ = (y₀ − b)/a berechnen (P4, P7). Die Unsicherheit u(x₀)² = (u(y₀)² + x₀²·u(a)² + u(b)² + 2·x₀·cov(a,b)) / a² enthält die Kovarianz von a und b, denn beide Parameter hängen zusammen. Mehrere Proben mit „;“ trennen. Fehlt die Unsicherheit, gilt y₀ als genau.</p>
   <div class="fitbar" id="calib">
     <label><span data-i18n="l_cy0">Gemessene Werte y₀</span> <input class="txt" id="c_y0" aria-label="Gemessene Werte y0 mit Unsicherheit" data-i18n-aria="aria_cy0" placeholder="1,3405 ± 0,0003; 1,3372 ± 0,0002" data-i18n-ph="ph_cy0" autocomplete="off" spellcheck="false"></label>
     <button class="btn" id="c_go" data-i18n="b_cgo">x₀ ablesen</button>
   </div>
   <div id="calibmsg" class="msg" role="alert" hidden></div>
-  <h2 data-i18n="h_cmp">Messwert und Vergleichswert vergleichen</h2>
+</section>
+<section class="tool" data-tool-panel="compare" hidden>
+  <div class="thead"><h2 data-i18n="h_cmp">Messwert und Vergleichswert vergleichen</h2><button class="btn alt small tclose" data-close="compare" data-i18n="tool_close">Schließen</button></div>
   <p class="hint" data-i18n="hint_cmp">Zwei Werte mit Unsicherheit vergleichen, zum Beispiel einen gemessenen Widerstand mit dem berechneten (P6). Der Unterschied d = Messwert − Vergleichswert hat die Unsicherheit √(u₁² + u₂²) (die Werte gelten als unabhängig). Unter 2 solchen Unsicherheiten stimmen die Werte überein. Fehlt die Unsicherheit eines Werts, gilt er als genau (zum Beispiel ein Literaturwert).</p>
   <div class="fitbar" id="compare">
     <label><span data-i18n="l_kmeas">Messwert</span> <input class="txt" id="k_meas" aria-label="Messwert mit Unsicherheit" data-i18n-aria="aria_kmeas" placeholder="100,2 ± 0,3" data-i18n-ph="ph_kmeas" autocomplete="off" spellcheck="false"></label>
@@ -222,6 +296,16 @@
     <button class="btn" id="k_go" data-i18n="b_kgo">Vergleichen</button>
   </div>
   <div id="comparemsg" class="msg" role="alert" hidden></div>
+</section>
+<section class="tool" data-tool-panel="logy" hidden>
+  <div class="thead"><h2 data-i18n="h_logy">Logarithmische y-Achse</h2><button class="btn alt small tclose" data-close="logy" data-i18n="tool_close">Schließen</button></div>
+  <div class="fitbar"><label id="loglabel"><input type="checkbox" id="logy" disabled> <span data-i18n="logy">Logarithmische y-Achse (halblogarithmisch)</span></label><span class="hint" data-i18n="logy_hint">Es sind nur y-Werte größer als 0 möglich. Eine Anpassung y = a·x + b erscheint auf dieser Achse gekrümmt.</span></div>
+</section>
+<section class="tool" data-tool-panel="export" hidden>
+  <div class="thead"><h2 data-i18n="h_export">Diagramm speichern</h2><button class="btn alt small tclose" data-close="export" data-i18n="tool_close">Schließen</button></div>
+  <p class="hint" data-i18n="hint_export">Das Diagramm als PNG (2400 Pixel breit, für einen Bericht) oder als SVG (Vektorgrafik) speichern. Histogramm, Summenhäufigkeit und χ²-Test haben ihre Knöpfe in ihrem eigenen Werkzeug.</p>
+  <div id="exp_plot"></div>
+</section>
 </main>
 <footer data-i18n="foot">Unabhängiges Studierendenwerkzeug. Nicht mit der Universität verbunden.</footer>
 <script src="vendor/plotly.min.js"></script>
@@ -240,7 +324,9 @@
 <script src="series.js"></script>
 <script src="compare.js"></script>
 <script src="logaxis.js"></script>
+<script src="tools.js"></script>
 <script src="export.js"></script>
+<script src="toolui.js"></script>
 <script>
 const $ = id => document.getElementById(id);
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
@@ -273,7 +359,7 @@ function pushUndo() { undo.push(snap()); if (undo.length > 200) undo.shift(); re
 // Every change to the project except cell typing goes through here, so it can be undone.
 function change(fn) { pushUndo(); editKey = null; fn(); render(); }
 const setSetting = (k, v) => change(() => { proj.settings[k] = v; });
-function restore(s) { proj = JSON.parse(s); editKey = null; $("msg").hidden = true; render(); updateHist(); }
+function restore(s) { const tools = proj.settings.tools; proj = JSON.parse(s); proj.settings.tools = tools; editKey = null; $("msg").hidden = true; render(); updateHist(); }
 function undoStep() { if (!undo.length) return; redo.push(snap()); restore(undo.pop()); }
 function redoStep() { if (!redo.length) return; undo.push(snap()); restore(redo.pop()); }
 $("logy").onchange = e => setSetting("logy", e.target.checked);
@@ -317,7 +403,8 @@ function startExample() {
   if (worker?.ready) autoNext();
 }
 function setProject(p) {
-  proj = p; undo = []; redo = []; editKey = null; updateHist(); auto = null; $("intro").hidden = true;
+  proj = p; if (!toolsOpen(p)) p.settings.tools = [...new Set([...toolsUsed(p), ...noProject])]; noProject = []; // a project from before the tools opens the ones it has results in
+  undo = []; redo = []; editKey = null; updateHist(); auto = null; $("intro").hidden = true;
   $("msg").hidden = true;
   $("saveproj").disabled = $("addrow").disabled = $("f_add").disabled = $("s_go").disabled = $("w_go").disabled = $("h_go").disabled = $("sr_add").disabled = $("logy").disabled = false; if (worker?.ready && !pending) busy(false);
   render();
@@ -608,18 +695,22 @@ function renderTemplate() {
   box.hidden = !tp;
   if (!tp) return;
   box.innerHTML = `<h3>${esc(tp.title)}</h3><div class="warn" data-invented>${t("tpl_invented")}</div>` +
-    `<div>${esc(tp.note)}</div><ol>` + tp.steps.map(s => `<li>${esc(s.text)}${s.go ? ` <button class="btn alt small" data-go="${esc(s.go)}">${t("tpl_show")}</button>` : ""}</li>`).join("") + "</ol>";
+    `<div>${esc(tp.note)}</div><ol>` + tp.steps.map(s => `<li>${esc(s.text)}${s.go ? ` <a href="#" class="go" data-go="${esc(s.go)}">${t("tpl_show")}</a>` : ""}</li>`).join("") + "</ol>";
 }
 $("tpl_info").addEventListener("click", e => {
   const el = e.target.dataset.go && $(e.target.dataset.go);
-  if (el) { el.scrollIntoView({ block: "center" }); el.focus(); }
+  if (!el) return;
+  e.preventDefault();
+  const panel = el.closest("[data-tool-panel]"); // the button may sit in a tool that is closed: open it first
+  if (panel) openTool(panel.dataset.toolPanel);
+  el.scrollIntoView({ block: "center" }); el.focus();
 });
 // Formula columns are recomputed from the data on every change; rows that cannot be calculated are named in the message.
 function recalc() {
   const m = recalcFormulas(proj);
   $("fmsg").textContent = m.join("\n"); $("fmsg").hidden = !m.length;
 }
-function render() { recalc(); renderTable(); renderPlot(); renderResults(); syncControls(); renderTemplate(); autosave(); }
+function render() { recalc(); renderTable(); renderPlot(); renderResults(); syncControls(); renderTemplate(); syncTools(); autosave(); }
 
 // An edit changes data only: keep the focused table as it is, redraw plot and results.
 $("table").addEventListener("input", e => {
@@ -1037,9 +1128,12 @@ for (const b of document.querySelectorAll("[data-lang]")) b.onclick = () => {
   for (const id of ["msg", "fitmsg", "tplmsg"]) $(id).hidden = true; // these hold text in the old language
   if (proj) render();
 };
+// The "Beispiele" menu closes after a pick or a click elsewhere.
+document.addEventListener("click", e => { if (!e.target.closest("#exmenu summary")) $("exmenu").open = false; });
 initLang();
 relabelTemplates();
 restoreAutosave();
+syncTools(); // without a project (test address ?start=leer) too
 </script>
 </body>
 </html>

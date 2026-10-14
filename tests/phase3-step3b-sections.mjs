@@ -5,7 +5,7 @@
 import { createRequire } from "node:module";
 import { resolve } from "node:path";
 import { serve } from "./serve.mjs";
-const { chromium } = createRequire(resolve("testbuild/x.js"))("playwright-core");
+import { chromium } from "./tools.mjs";
 let bad = 0;
 let last = Date.now();
 const eq = (name, got, want) => { if (Date.now() - last > 4000) console.log(`slow step before "${name}": ${((Date.now() - last) / 1000).toFixed(1)} s`); last = Date.now(); got = JSON.stringify(got); want = JSON.stringify(want); if (got !== want) { console.log(`FAIL ${name}: got ${got}, want ${want}`); bad++; } };
@@ -32,9 +32,10 @@ await p.click("#lang_en");
 
 console.log("section 0");
 // 0. Headings, labels and placeholders of the translated sections are English.
-eq("section headings", await p.$$eval("h2", e => e.map(x => x.textContent)), ["Plot", "Results", "Load template", "Paste data", "Table", "Formula column", "Mean and spread of a column", "Frequency table and histogram",
-  "Cumulative frequency with read-off at 16 % and 84 %", "χ² test: Poisson and Gaussian distribution (count rates)", "Weighted mean and overlap of several results", "Fit (straight line y = a·x + b)", "Several series in one plot",
-  "Derived quantity from the fit parameters", "Calibration line: read off an unknown", "Compare a measured value with a reference value"]);
+// Phase 4 step 2: the page order changed (table beside the plot, fit bar inside "Results", the tools in a "Tools" menu, "Paste data" is a tool, the log axis and the figure export are tools of their own); every heading is still English.
+eq("section headings", await p.$$eval("h2", e => e.map(x => x.textContent)), ["Plot", "Table", "Results", "Tools", "Paste data", "Formula column", "Mean and spread of a column", "Frequency table and histogram",
+  "Cumulative frequency with read-off at 16 % and 84 %", "χ² test: Poisson and Gaussian distribution (count rates)", "Weighted mean and overlap of several results", "Several series in one plot",
+  "Derived quantity from the fit parameters", "Calibration line: read off an unknown", "Compare a measured value with a reference value", "Logarithmic y axis", "Save plot"]);
 eq("placeholders and button texts", await p.evaluate(() => [$("f_unc").placeholder, $("h_w").placeholder, $("d_vars").placeholder, $("c_y0").placeholder, $("k_meas").placeholder, $("f_add").textContent, $("s_go").textContent, $("c_go").textContent, $("k_go").textContent, $("sr_go").textContent]),
   ["D = sD; c = 0.01", "automatic", "L = 1 ± 0.002; d = 0.5 ± 0.01", "1.3405 ± 0.0003; 1.3372 ± 0.0002", "100.2 ± 0.3", "Calculate column", "Calculate", "Read off x₀", "Compare", "Fit series"]);
 eq("labels of the stats bar", await p.$$eval("#stats label > span", e => e.map(x => x.textContent)), ["Column", "Standard deviation with", "Instrument error (optional)", "Confidence interval"]);

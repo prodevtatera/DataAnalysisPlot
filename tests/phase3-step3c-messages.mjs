@@ -21,7 +21,7 @@ const { logYProblem } = req("../app/logaxis.js");
 const { prepareSeries } = req("../app/series.js");
 const { parseValue, compareValues } = req("../app/compare.js");
 const { TEMPLATES } = req("../app/templates.js");
-const { chromium } = createRequire(resolve("testbuild/x.js"))("playwright-core");
+import { chromium } from "./tools.mjs";
 let bad = 0;
 const eq = (name, got, want) => { got = JSON.stringify(got); want = JSON.stringify(want); if (got !== want) { console.log(`FAIL ${name}: got ${got}, want ${want}`); bad++; } };
 const yes = (name, v) => eq(name, !!v, true);
@@ -210,7 +210,7 @@ eq("series: none left", await text("#srmsg"), "There is no series yet. Please ch
 // 4. Templates: list, box and the example numbers in the fields are English; the project keeps the German text; back to German.
 const opts = () => p.$$eval("#tpl_sel option", e => e.map(o => o.textContent));
 eq("template list in English", await opts(), ["(please choose)", "P1 Error distribution", "P2 Volume measurement", "P3 Elasticity", "P4 Surface tension", "P5 Polarimetry (sucrose)", "P5 Newton's rings", "P6 Wheatstone bridge", "P6 Grating", "P7 Refractometer", "P8 Radioactivity: count rates", "P8 Radioactivity: decay curve", "P9 Pendulum"]);
-const box = () => p.evaluate(() => { const b = document.getElementById("tpl_info"); return b.hidden ? null : { title: b.querySelector("h3").textContent, note: b.querySelector("div:not([data-invented])").textContent, steps: [...b.querySelectorAll("li")].map(l => l.firstChild.textContent), show: [...b.querySelectorAll("li button")].map(x => x.textContent) }; });
+const box = () => p.evaluate(() => { const b = document.getElementById("tpl_info"); return b.hidden ? null : { title: b.querySelector("h3").textContent, note: b.querySelector("div:not([data-invented])").textContent, steps: [...b.querySelectorAll("li")].map(l => l.firstChild.textContent), show: [...b.querySelectorAll("li a.go")].map(x => x.textContent) }; });
 await p.selectOption("#tpl_sel", "p6a"); await p.click("#tpl_load"); await ready();
 const bx = await box();
 eq("P6 box title and first step", [bx.title, bx.steps[0], bx.show], ["P6 Wheatstone bridge", "The columns “Rx / Ω” and “u(Rx) / Ω” are already calculated: Rx = R1·R2/R3, u(Rx) from Gaussian error propagation with u(R1), u(R2), u(R3) (see the column heads).", ["Show", "Show"]]);
@@ -244,16 +244,16 @@ eq("worker message in German", await text("#gofmsg"), "Der χ²-Test ist fehlges
 await p.click("#lang_en");
 
 // 6. Export: button texts, file names and the failure message follow the language; the saved project too.
-eq("export buttons in English", await p.$$eval("#plot_png, #plot_svg, #histplot_png, #cumplot_svg, #gofplot_png", e => e.map(x => x.textContent)), ["Save plot as PNG", "Save plot as SVG", "Save plot as PNG", "Save plot as SVG", "Save plot as PNG"]);
+eq("export buttons in English", await p.evaluate(ids => ids.map(i => document.getElementById(i).textContent), ["plot_png", "plot_svg", "histplot_png", "cumplot_svg", "gofplot_png"]), ["Save plot as PNG", "Save plot as SVG", "Save plot as PNG", "Save plot as SVG", "Save plot as PNG"]);
 await p.selectOption("#tpl_sel", "p8b"); await p.click("#tpl_load"); await ready();
 await p.waitForFunction(() => !document.getElementById("plot_svg").disabled);
 const file = async sel => { const [d] = await Promise.all([p.waitForEvent("download"), p.click(sel)]); return d.suggestedFilename(); };
 eq("English file names", [await file("#plot_png"), await file("#plot_svg"), await file("#saveproj")], ["plot.png", "plot.svg", "project.plotlab"]);
 await p.evaluate(() => { window.__toImage = Plotly.toImage; Plotly.toImage = () => Promise.reject(new Error("no")); });
 await p.click("#plot_png");
-eq("export failure message in English", await vis("#plot ~ .msg"), "The plot could not be saved.");
+eq("export failure message in English", await vis("#exp_plot .msg"), "The plot could not be saved.");
 await p.click("#lang_de");
-eq("the visible failure message follows the language", await vis("#plot ~ .msg"), "Das Diagramm konnte nicht gespeichert werden.");
+eq("the visible failure message follows the language", await vis("#exp_plot .msg"), "Das Diagramm konnte nicht gespeichert werden.");
 eq("German export buttons", await p.$$eval("#plot_png, #plot_svg", e => e.map(x => x.textContent)), ["Diagramm als PNG speichern", "Diagramm als SVG speichern"]);
 await p.evaluate(() => { Plotly.toImage = window.__toImage; });
 eq("German file names", [await file("#plot_png"), await file("#plot_svg"), await file("#saveproj")], ["diagramm.png", "diagramm.svg", "projekt.plotlab"]);

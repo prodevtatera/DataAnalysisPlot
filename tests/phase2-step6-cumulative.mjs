@@ -8,7 +8,7 @@ import { resolve } from "node:path";
 import { writeFileSync, mkdtempSync } from "node:fs";
 import { tmpdir } from "node:os";
 const req = createRequire(import.meta.url);
-const { chromium } = createRequire(resolve("testbuild/x.js"))("playwright-core");
+import { chromium, openTool } from "./tools.mjs";
 const { cumRead } = req("../app/stats.js");
 const { newProject, save } = req("../app/project.js");
 let bad = 0;
@@ -62,6 +62,7 @@ eq("legend names", pl.d.map(t => t.name), ["Kumulierte relative Häufigkeit", "A
 eq("labels", pl.d[1].text, ["9,812", "10,36"]);
 eq("read-off text", await readoff(), "Ablesung in der Summenhäufigkeit: x bei 16 % = 9,812 mm, x bei 84 % = 10,36 mm; halbe Differenz = 0,274 mm. Zum Vergleich: x̄ − s = 9,787 mm, x̄ + s = 10,31 mm.");
 await p.screenshot({ path: "evidence/phase2-step6-cumulative.png", fullPage: true });
+await openTool(p, "cum");   // the cumulative plot is a tool that is hidden until opened
 await (await p.$("#cumplot")).screenshot({ path: "evidence/phase2-step6-cumulative-plot.png" });
 
 // Out of date after an edit: plot removed; edit reverted: back. Divisor change does not move the cumulative plot's marks (it only changes s) but still marks the result stale.

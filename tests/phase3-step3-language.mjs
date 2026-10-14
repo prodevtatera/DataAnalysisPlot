@@ -6,7 +6,7 @@ import { readFileSync } from "node:fs";
 import { serve } from "./serve.mjs";
 const req = createRequire(import.meta.url);
 const { TEXTS } = req("../app/i18n.js");
-const { chromium } = createRequire(resolve("testbuild/x.js"))("playwright-core");
+import { chromium } from "./tools.mjs";
 let bad = 0;
 const eq = (name, got, want) => { got = JSON.stringify(got); want = JSON.stringify(want); if (got !== want) { console.log(`FAIL ${name}: got ${got}, want ${want}`); bad++; } };
 const yes = (name, v) => eq(name, !!v, true);
@@ -21,7 +21,7 @@ for (const [k, e] of Object.entries(TEXTS)) {
 }
 const used = new Set();
 // part C: the pure files, the templates and the export call t() too
-for (const f of ["index.html", "gofview.js", "parse.js", "drop.js", "project.js", "derived.js", "gof.js", "logaxis.js", "series.js", "compare.js", "formula.js", "propagate.js", "templates.js", "export.js"]) {
+for (const f of ["index.html", "gofview.js", "parse.js", "drop.js", "project.js", "derived.js", "gof.js", "logaxis.js", "series.js", "compare.js", "formula.js", "propagate.js", "templates.js", "export.js", "toolui.js"]) {
   const src = readFileSync(resolve("app", f), "utf8");
   for (const m of src.matchAll(/data-i18n(?:-\w+)?="(\w+)"/g)) used.add(m[1]);
   for (const m of src.matchAll(/\b(?:t|fitState|stored)\("(\w+)"[,)]/g)) used.add(m[1]);
@@ -60,7 +60,7 @@ eq("German pressed button", await p.getAttribute("#lang_de", "aria-pressed"), "t
 await p.click("#lang_en");
 eq("html lang", await p.evaluate(() => document.documentElement.lang), "en");
 eq("heading, button, hint", [await text("h1"), await text("#blank"), await text("#undo"), await p.getAttribute("#undo", "title")], ["Measurement data", "Empty table", "Undo", "Ctrl/Cmd+Z"]);
-eq("section headings", await p.$$eval("h2", e => e.slice(0, 3).map(x => x.textContent)), ["Plot", "Results", "Load template"]);
+eq("section headings", await p.$$eval("h2", e => e.slice(0, 4).map(x => x.textContent)), ["Plot", "Table", "Results", "Tools"]); // Phase 4 step 2: new page order, the template chooser sits in the file row
 eq("English result lines: decimal point, HU format unchanged", await lines(), DE_LINES.map(l => l.replace(/,/g, ".")));
 eq("headline in the note", await text("#introres"), "E = (201 ± 8) GPa");
 yes("English detail has the decimal point and the method in English", (await text("#results")).includes("0.0252857") && (await text("#results")).includes("Method: weighted least squares (weights 1/s²); errors scaled with √(χ²/DoF)") && (await text("#results")).includes("Degrees of freedom: 4"));

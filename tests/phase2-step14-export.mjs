@@ -4,7 +4,7 @@ import { createRequire } from "node:module";
 import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { serve } from "./serve.mjs";
-const { chromium } = createRequire(resolve("testbuild/x.js"))("playwright-core");
+import { chromium } from "./tools.mjs";
 let bad = 0;
 const eq = (name, got, want) => { got = JSON.stringify(got); want = JSON.stringify(want); if (got !== want) { console.log(`FAIL ${name}: got ${got}, want ${want}`); bad++; } };
 
@@ -19,7 +19,7 @@ const ctx = await br.newContext({ acceptDownloads: true, viewport: { width: 1200
 const p = await ctx.newPage();
 await p.goto(base + "app/index.html?start=leer");
 await p.evaluate(() => localStorage.clear()); await p.reload();
-const off = () => p.$$eval(BTNS.map(b => "#" + b).join(","), e => e.map(b => b.disabled));
+const off = () => p.evaluate(ids => ids.map(i => document.getElementById(i).disabled), BTNS);   // by id in this order (the main plot's buttons moved into the "Diagramm speichern" tool, so document order is no longer this order)
 const paste = t => p.fill("#paste", t).then(() => p.click("#pastego"));
 const grab = async (id, fmt, tag) => {
   const [d] = await Promise.all([p.waitForEvent("download"), p.click(`#${id}_${fmt}`)]);

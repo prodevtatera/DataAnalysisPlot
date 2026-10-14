@@ -18,7 +18,9 @@
       const b = document.createElement("button"); b.className = "btn alt"; b.textContent = label; b.dataset.i18n = key; b.id = id + "_" + fmt; b.disabled = true;
       b.onclick = () => exportPlot(id, name, fmt, note); return b;
     });
-    bar.append(...btns); box.after(bar, note);
+    bar.append(...btns);
+    const host = document.getElementById("exp_" + id); // the main plot's buttons live in the "Diagramm speichern" tool
+    if (host) host.append(bar, note); else box.after(bar, note);
     const sync = () => btns.forEach(b => { b.disabled = !box.querySelector(".main-svg"); });
     new MutationObserver(sync).observe(box, { childList: true }); sync();
   }

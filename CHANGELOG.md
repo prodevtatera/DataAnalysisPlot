@@ -2,6 +2,13 @@
 
 Written in plain language for people who do not read code. Newest entry on top.
 
+## 2026-10-14: A calmer workbench: table, plot and results first, the other tools in a "Werkzeuge" menu
+
+- **What changed for a student:** a first visit no longer shows 16 sections and 55 buttons. It shows the finished example with the table on the left, the plot on the right and the result E = (201 ± 8) GPa above them, then the results and a "Werkzeuge" (tools) section. That is 4 sections and 12 buttons, and the whole plot is in view on a 1200 x 800 screen. All other tools (paste data, formula column, mean and spread, histogram, cumulative plot, χ² test, weighted mean, several series, derived quantity, calibration line, comparison, logarithmic axis, save plot) are behind one button "Werkzeug wählen". A tool opens below the results; you can close it again with "Schließen" and have several open. A dot next to a tool's name means it already has a result. The tools you left open are kept when you reload or save the project; opening a tool is not an undo step.
+- **Also changed:** the four example buttons are now in one "Beispiele" menu; the template chooser sits in the top row with the other file actions; the delete button of a table row appears when you point at the row (on a touch screen it is always shown); the "Zeigen" links in a template's steps open the tool they point to; the save-as-PNG and SVG buttons of the main plot are in the "Diagramm speichern" tool. An old project file without this information opens the tools it already has results in.
+- **Tested:** `tests/phase4-step2-tools.sh` in a real browser (first-view counts, each of the 13 tools opens alone, kept after reload, not an undo step, old files, German and English menu). The older tests now open a tool first through a small shared helper (`tests/tools.mjs`); none of their expected numbers changed.
+- **Still to do (steps 3 and 4):** each template opens only the tools of its experiment; the top row gets grouped and polished and is checked on tablet and phone widths.
+
 ## 2026-10-14: The university's name is gone from every page; the footer follows the language
 
 - **What changed for a student:** the footer at the bottom no longer names the university. German: "Unabhängiges Studierendenwerkzeug. Nicht mit der Universität verbunden." English: "Independent student tool. Not affiliated with the university." On the workbench the footer now switches with the "DE / EN" button (before, it was English only). The same sentence is on the draft page and the Phase 0 test page.

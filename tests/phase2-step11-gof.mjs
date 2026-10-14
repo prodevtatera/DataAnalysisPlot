@@ -13,7 +13,7 @@ import { serve } from "./serve.mjs";
 const req = createRequire(import.meta.url);
 const { gofPrepare, gofVerdict, gofLow } = req("../app/gof.js");
 const { newProject, save, gofSettings, isStale, addResult } = req("../app/project.js");
-const { chromium } = createRequire(resolve("testbuild/x.js"))("playwright-core");
+import { chromium } from "./tools.mjs";
 let bad = 0;
 const eq = (name, got, want) => {
   got = JSON.stringify(got); want = JSON.stringify(want);

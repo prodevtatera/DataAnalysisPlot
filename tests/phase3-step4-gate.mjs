@@ -6,7 +6,7 @@
 import { createRequire } from "node:module";
 import { resolve } from "node:path";
 import { serve } from "./serve.mjs";
-const { chromium } = createRequire(resolve("testbuild/x.js"))("playwright-core");
+import { chromium } from "./tools.mjs";
 let bad = 0;
 const eq = (name, got, want) => { got = JSON.stringify(got); want = JSON.stringify(want); if (got !== want) { console.log(`FAIL ${name}: got ${got}, want ${want}`); bad++; } };
 const yes = (name, v) => eq(name, !!v, true);

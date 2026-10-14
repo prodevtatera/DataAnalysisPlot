@@ -7,7 +7,7 @@
 import { createRequire } from "node:module";
 import { resolve } from "node:path";
 import { serve } from "./serve.mjs";
-const { chromium } = createRequire(resolve("testbuild/x.js"))("playwright-core");
+import { chromium } from "./tools.mjs";
 const { deriveQuantity } = createRequire(import.meta.url)("../app/derived.js");
 let bad = 0;
 const eq = (name, got, want) => {

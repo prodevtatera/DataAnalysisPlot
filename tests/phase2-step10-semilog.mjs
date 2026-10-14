@@ -11,7 +11,7 @@ import { serve } from "./serve.mjs";
 const req = createRequire(import.meta.url);
 const { logYProblem, clippedBars } = req("../app/logaxis.js");
 const { newProject, save } = req("../app/project.js");
-const { chromium } = createRequire(resolve("testbuild/x.js"))("playwright-core");
+import { chromium } from "./tools.mjs";
 let bad = 0;
 const eq = (name, got, want) => { got = JSON.stringify(got); want = JSON.stringify(want); if (got !== want) { console.log(`FAIL ${name}: got ${got}, want ${want}`); bad++; } };
 const near = (name, got, want, tol) => { if (!(Math.abs(got - want) <= tol)) { console.log(`FAIL ${name}: got ${got}, want ${want} (± ${tol})`); bad++; } };

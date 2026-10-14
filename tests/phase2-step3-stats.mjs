@@ -9,7 +9,7 @@ import { resolve } from "node:path";
 import { writeFileSync, readFileSync, mkdtempSync } from "node:fs";
 import { tmpdir } from "node:os";
 const req = createRequire(import.meta.url);
-const { chromium } = createRequire(resolve("testbuild/x.js"))("playwright-core");
+import { chromium } from "./tools.mjs";
 const { describe } = req("../app/stats.js");
 const { newProject, save } = req("../app/project.js");
 let bad = 0;

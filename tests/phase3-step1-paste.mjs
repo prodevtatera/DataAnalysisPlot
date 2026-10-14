@@ -5,7 +5,7 @@ import { resolve } from "node:path";
 import { serve } from "./serve.mjs";
 const req = createRequire(import.meta.url);
 const { parseBlock, pasteInto } = req("../app/parse.js");
-const { chromium } = createRequire(resolve("testbuild/x.js"))("playwright-core");
+import { chromium } from "./tools.mjs";
 let bad = 0;
 const eq = (name, got, want) => { got = JSON.stringify(got); want = JSON.stringify(want); if (got !== want) { console.log(`FAIL ${name}: got ${got}, want ${want}`); bad++; } };
 const nearAll = (name, got, want, tol = 1e-7) => { if (!(got.length === want.length && want.every((w, i) => w === null ? got[i] === null : Math.abs(got[i] - w) <= tol * Math.abs(w)))) { console.log(`FAIL ${name}: got ${JSON.stringify(got)}, want ${JSON.stringify(want)}`); bad++; } };

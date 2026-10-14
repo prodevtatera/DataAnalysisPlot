@@ -8,7 +8,7 @@ import { writeFileSync, readFileSync, mkdtempSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { serve } from "./serve.mjs";
 const { newProject, save } = createRequire(import.meta.url)("../app/project.js");
-const { chromium } = createRequire(resolve("testbuild/x.js"))("playwright-core");
+import { chromium } from "./tools.mjs";
 let bad = 0;
 const digits = (got, want) => Math.min(9, -Math.log10(Math.abs(got - want) / Math.abs(want) || 1e-12));
 const need = (name, got, want, min) => { const d = digits(got, want); if (!(d >= min)) { console.log(`FAIL ${name}: got ${got}, want ${want}, ${d.toFixed(1)} digits < ${min}`); bad++; } return d.toFixed(1); };
