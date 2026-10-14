@@ -24,8 +24,8 @@ ALLOWED=(
   'Bash(curl * https://www.itl.nist.gov/*)'
   mcp__plugin_playwright_playwright
 )
-# Sandbox: commands run with file writes limited to this folder and network limited to the hosts below.
-SETTINGS='{"sandbox":{"enabled":true,"network":{"allowedDomains":["www.itl.nist.gov","registry.npmjs.org","cdn.playwright.dev","cdn.jsdelivr.net","github.com","api.github.com"]}}}'
+# Sandbox: file writes limited to this folder, network limited to the hosts below. The check and test scripts run outside it, because the browser tests cannot start inside it.
+SETTINGS='{"sandbox":{"enabled":true,"excludedCommands":["bash scripts/check.sh","bash tests/*"],"network":{"allowedDomains":["www.itl.nist.gov","registry.npmjs.org","cdn.playwright.dev","cdn.jsdelivr.net","github.com","api.github.com"]}}}'
 
 git switch loop/work 2>/dev/null || git switch -c loop/work || exit 1
 

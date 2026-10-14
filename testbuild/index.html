@@ -29,6 +29,7 @@
   table { border-collapse:collapse; width:100%; font-size:15px; line-height:22px; font-variant-numeric:tabular-nums; }
   th,td { text-align:right; padding:3px 10px; border-bottom:1px solid var(--soft); }
   th { background:var(--soft); position:sticky; top:0; font-weight:600; }
+  #plot { background:#fff; border:1px solid var(--line); height:420px; }
   .empty { padding:24px 14px; color:#444; }
   .hint { font-size:15px; color:#333; }
   footer { background:var(--blue); color:var(--paper); padding:20px 24px; font-size:15px; }
@@ -55,12 +56,15 @@
       <div class="scroll" id="table"><div class="empty">Noch keine Daten.</div></div>
     </section>
   </div>
+  <h2>Diagramm</h2>
+  <div id="plot"><div class="empty">Noch keine Daten.</div></div>
 </main>
 <footer>Independent student tool. Not affiliated with Humboldt-Universität zu Berlin.</footer>
+<script src="vendor/plotly.min.js"></script>
 <script src="parse.js"></script>
 <script>
 const $ = id => document.getElementById(id);
-const EXAMPLE = "x;y;sy\n1,0;2,1;0,2\n2,0;4,3;0,2\n3,0;6,2;0,3\n4,0;8,4;0,3\n5,0;9,9;0,4";
+const EXAMPLE = "t / s;U / V;sU / V\n1,0;2,1;0,2\n2,0;4,3;0,2\n3,0;6,2;0,3\n4,0;8,4;0,3\n5,0;9,9;0,4";
 const fmt = new Intl.NumberFormat("de-DE", { maximumFractionDigits: 10 });
 const esc = s => s.replace(/[&<>]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]));
 
@@ -70,10 +74,28 @@ function render() {
   if (r.error) {
     msg.textContent = r.error;
     $("table").innerHTML = '<div class="empty">Noch keine Daten.</div>';
+    clearPlot();
     return;
   }
   $("table").innerHTML = "<table><thead><tr>" + r.header.map(h => `<th>${esc(h)}</th>`).join("") +
     "</tr></thead><tbody>" + r.rows.map(row => "<tr>" + row.map(v => `<td>${v === null ? "" : fmt.format(v)}</td>`).join("") + "</tr>").join("") + "</tbody></table>";
+  drawPlot(r);
+}
+function clearPlot() { Plotly.purge("plot"); $("plot").innerHTML = '<div class="empty">Noch keine Daten.</div>'; }
+// Column 1 = x, column 2 = y, column 3 (optional) = y error. Rows with an empty x or y are skipped.
+function drawPlot(r) {
+  if (r.header.length < 2) { clearPlot(); $("plot").innerHTML = '<div class="empty">Für ein Diagramm braucht es mindestens zwei Spalten (x und y).</div>'; return; }
+  $("plot").querySelector(".empty")?.remove();
+  const rows = r.rows.filter(w => w[0] !== null && w[1] !== null);
+  const hasErr = r.header.length > 2;
+  const f = { family: '"Source Sans 3", system-ui, sans-serif', size: 16, color: "#000" };
+  const ax = t => ({ title: { text: t, standoff: 10 }, showline: true, linecolor: "#000", mirror: true, ticks: "outside", gridcolor: "#e4e4dc", zeroline: false, exponentformat: "none" });
+  const trace = { x: rows.map(w => w[0]), y: rows.map(w => w[1]), mode: "markers", type: "scatter", name: "Messwerte",
+    marker: { color: "#00376C", size: 9, symbol: "circle" } };
+  if (hasErr) trace.error_y = { type: "data", array: rows.map(w => w[2] ?? 0), visible: true, color: "#00376C", thickness: 1.6, width: 5 };
+  Plotly.newPlot("plot", [trace], { font: f, separators: ",.", margin: { l: 70, r: 20, t: 20, b: 60 },
+    xaxis: ax(r.header[0]), yaxis: ax(r.header[1]), paper_bgcolor: "#fff", plot_bgcolor: "#fff",
+    showlegend: true, legend: { x: 0.02, y: 0.98, bgcolor: "#fff", bordercolor: "#999", borderwidth: 1 } }, { displaylogo: false, responsive: true });
 }
 $("in").addEventListener("input", render);
 $("example").onclick = () => { $("in").value = EXAMPLE; render(); };
