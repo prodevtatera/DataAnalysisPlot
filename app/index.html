@@ -107,6 +107,15 @@
     <button class="btn" id="s_go" disabled>Berechnen</button>
   </div>
   <div id="statsmsg" class="msg" role="alert" hidden></div>
+  <h2>Gewichteter Mittelwert und Überlappung mehrerer Ergebnisse</h2>
+  <p class="hint">Jede Zeile ist ein Ergebnis x mit seiner Unsicherheit u (zum Beispiel drei Volumenmessungen). Gewichte w = 1/u², Mittelwert = Σ(w·x)/Σw, Unsicherheit = 1/√Σw. Die Unsicherheit wird so übernommen, wie sie in der Tabelle steht. Überlappung: Die Intervalle x ± k·u müssen sich alle gemeinsam schneiden.</p>
+  <div class="fitbar" id="wmean">
+    <label>Ergebnisse x <select id="w_val" aria-label="Spalte mit den Ergebnissen"></select></label>
+    <label>Unsicherheit u <select id="w_unc" aria-label="Spalte mit den Unsicherheiten"></select></label>
+    <label>Faktor k <input class="num" id="w_k" aria-label="Faktor k für die Überlappung" inputmode="decimal"></label>
+    <button class="btn" id="w_go" disabled>Berechnen</button>
+  </div>
+  <div id="wmsg" class="msg" role="alert" hidden></div>
   <h2>Anpassung (Gerade y = a·x + b)</h2>
   <div class="fitbar">
     <label id="wlabel"><input type="checkbox" id="weighted"> Mit den Fehlerwerten gewichten</label>
@@ -197,7 +206,7 @@ function restoreAutosave() {
 function setProject(p) {
   proj = p; undo = []; redo = []; editKey = null; updateHist();
   $("msg").hidden = true;
-  $("saveproj").disabled = $("addrow").disabled = $("f_add").disabled = $("s_go").disabled = false; if (worker?.ready && !pending) $("fit").disabled = false;
+  $("saveproj").disabled = $("addrow").disabled = $("f_add").disabled = $("s_go").disabled = $("w_go").disabled = false; if (worker?.ready && !pending) $("fit").disabled = false;
   render();
 }
 function showMsg(t) { $("msg").textContent = t; $("msg").hidden = false; }
@@ -254,6 +263,11 @@ function statsDetail(r) {
   return `<div class="detail" data-how>Spalte „${esc(i.col)}“, n = ${n} Werte. Standardabweichung mit Teiler ${i.ddof === 0 ? "n" : "n−1"}. Mittelwert ± Standardfehler s/√n (s mit n−1).` +
     (i.instr != null ? ` Mit Gerätefehler ${fmt.format(Number(i.instr))}: u = √(u<sub>zufällig</sub>² + u<sub>Gerät</sub>²).` : "") + "</div>";
 }
+function wmeanDetail(r) {
+  const i = r.inputs || {}, k = fmt.format(Number(i.k));
+  return `<div class="detail" data-how>Ergebnisse „${esc(i.val)}“ mit Unsicherheiten „${esc(i.unc)}“, n = ${fmt.format(Number(r.n))} Zeilen. Gewichte w = 1/u², Mittelwert Σ(w·x)/Σw, Unsicherheit 1/√Σw.</div>` +
+    `<div class="detail" data-verdict>Überlappung der Intervalle x ± ${k}·u: ${esc(r.verdict)}</div>`;
+}
 function renderResults() {
   if (!proj.results.length) { $("results").innerHTML = '<div class="empty">Noch keine Ergebnisse.</div>'; return; }
   $("results").innerHTML = proj.results.map(r => {
@@ -262,7 +276,7 @@ function renderResults() {
       const u = uOf(q), t = huRound(q.value, u);
       return `<div class="res">${esc(q.name)} = ${t ? `(${t[0]} ± ${t[1]})` : q.plain ? fmtPlain.format(q.value) : fmt.format(q.value)}${q.unit ? " " + esc(q.unit) : ""}</div>`;
     }).join("");
-    return `<div class="result${stale ? " stale" : ""}">${stale ? `<div class="msg stalemsg">Die Daten wurden geändert. Dieses Ergebnis ist veraltet. Bitte neu ${r.kind === "stats" ? "berechnen" : "anpassen"}.</div>` : ""}${lines}${r.kind === "fit" && r.dof ? fitDetail(r) : ""}${r.kind === "derived" ? derivedDetail(r) : ""}${r.kind === "stats" ? statsDetail(r) : ""}</div>`;
+    return `<div class="result${stale ? " stale" : ""}">${stale ? `<div class="msg stalemsg">Die Daten wurden geändert. Dieses Ergebnis ist veraltet. Bitte neu ${r.kind === "stats" || r.kind === "wmean" ? "berechnen" : "anpassen"}.</div>` : ""}${lines}${r.kind === "fit" && r.dof ? fitDetail(r) : ""}${r.kind === "derived" ? derivedDetail(r) : ""}${r.kind === "stats" ? statsDetail(r) : ""}${r.kind === "wmean" ? wmeanDetail(r) : ""}</div>`;
   }).join("");
 }
 // Weighting needs an error column; errors method only matters for a weighted fit.
@@ -272,10 +286,13 @@ function syncControls() {
   $("wlabel").classList.toggle("off", !has);
   $("wlabel").title = has ? "" : "Dafür braucht es eine Spalte mit der Rolle „Fehler von y“.";
   $("errm").value = proj.settings.errMethod || "scaled"; $("errm").disabled = !w;
-  $("fitmsg").hidden = true; $("derivemsg").hidden = true; $("statsmsg").hidden = true;
+  $("fitmsg").hidden = true; $("derivemsg").hidden = true; $("statsmsg").hidden = true; $("wmsg").hidden = true;
   const st = statsSettings(proj);
   $("s_col").replaceChildren(...proj.columns.map(c => Object.assign(document.createElement("option"), { value: c.name, textContent: c.name })));
   $("s_col").value = st.col; $("s_ddof").value = st.ddof; $("s_instr").value = st.instr == null ? "" : fmt.format(st.instr); $("s_instr").classList.remove("bad");
+  const wm = wmeanSettings(proj), opts = (none) => [...(none ? [Object.assign(document.createElement("option"), { value: "", textContent: "(keine)" })] : []), ...proj.columns.map(c => Object.assign(document.createElement("option"), { value: c.name, textContent: c.name }))];
+  $("w_val").replaceChildren(...opts(false)); $("w_unc").replaceChildren(...opts(true));
+  $("w_val").value = wm.val; $("w_unc").value = wm.unc ?? ""; $("w_k").value = fmt.format(wm.k); $("w_k").classList.remove("bad");
   for (const k of ["L", "uL", "d", "ud"]) { const v = (proj.settings.young || {})[k]; $("y_" + k).value = v == null ? "" : fmt.format(v); $("y_" + k).classList.remove("bad"); }
 }
 // Formula columns are recomputed from the data on every change; rows that cannot be calculated are named in the message.
@@ -457,6 +474,34 @@ $("s_go").onclick = () => {
     params: [p("Mittelwert x̄", d.mean, d.sem), p(st.ddof === 0 ? "Standardabweichung σ (Teiler n)" : "Standardabweichung s (Teiler n−1)", d.s), p("Standardfehler des Mittelwerts s/√n", d.sem),
       ...(d.uTotal === null ? [] : [p("Mittelwert x̄ mit Gerätefehler", d.mean, d.uTotal)])],
   }));
+};
+// Weighted mean: the three settings live in the project (undo works); typing k is one undo step.
+const setWmean = patch => setSetting("wmean", { ...wmeanSettings(proj), ...patch });
+$("w_val").onchange = e => setWmean({ val: e.target.value });
+$("w_unc").onchange = e => setWmean({ unc: e.target.value || null });
+$("w_k").addEventListener("input", e => {
+  const v = parseCell(e.target.value);
+  e.target.classList.toggle("bad", v === undefined || v === null || !(v > 0));
+  if (!(v > 0)) return;
+  if (editKey !== "wmean.k") { pushUndo(); editKey = "wmean.k"; }
+  proj.settings.wmean = { ...wmeanSettings(proj), k: v };
+  renderResults(); autosave();
+});
+$("w_k").addEventListener("focusout", () => { editKey = null; });
+function wmeanFailed(why) { $("wmsg").textContent = why; $("wmsg").hidden = false; }
+$("w_go").onclick = () => {
+  const st = wmeanSettings(proj), cv = proj.columns.find(c => c.name === st.val), cu = proj.columns.find(c => c.name === st.unc);
+  if ($("w_k").classList.contains("bad")) return wmeanFailed("Der Faktor k muss eine Zahl größer als 0 sein.");
+  if (!cu) return wmeanFailed("Bitte eine Spalte mit den Unsicherheiten wählen.");
+  if (cu === cv) return wmeanFailed("Ergebnisse und Unsicherheiten müssen verschiedene Spalten sein.");
+  const rows = cv.values.map((v, i) => i).filter(i => cv.values[i] !== null && cu.values[i] !== null);
+  const zero = rows.find(i => !(cu.values[i] > 0));
+  if (zero !== undefined) return wmeanFailed(`Alle Unsicherheiten müssen größer als 0 sein (Zeile ${zero + 1}). Das Gewicht 1/u² ist sonst nicht definiert.`);
+  if (rows.length < 2) return wmeanFailed(`Es gibt ${rows.length} Zeile${rows.length === 1 ? "" : "n"} mit Ergebnis und Unsicherheit. Ein gewichteter Mittelwert braucht mindestens zwei.`);
+  const unit = (cv.name.split("/")[1] || "").trim(), d = weightedMean(rows.map(i => cv.values[i]), rows.map(i => cu.values[i]), st.k), nr = j => rows[j - 1] + 1;
+  const verdict = d.overlap ? "Alle Intervalle haben einen gemeinsamen Bereich. Die Ergebnisse stimmen im Rahmen ihrer Unsicherheiten überein."
+    : "Die Ergebnisse stimmen nicht überein: " + d.bad.map(b => `Zeile ${nr(b.i)} und Zeile ${nr(b.j)} (Lücke ${fmtPlain.format(b.gap)}${unit ? " " + unit : ""})`).join("; ") + ". Der gewichtete Mittelwert ist dann mit Vorsicht zu lesen.";
+  change(() => addResult(proj, { kind: "wmean", inputs: st, n: d.n, verdict, params: [{ name: "Gewichteter Mittelwert", unit, value: d.mean, u: d.u }] }));
 };
 $("weighted").onchange = e => setSetting("weighted", e.target.checked);
 $("errm").onchange = e => setSetting("errMethod", e.target.value);

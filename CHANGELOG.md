@@ -2,6 +2,13 @@
 
 Written in plain language for people who do not read code. Newest entry on top.
 
+## 2026-10-14: Weighted mean and overlap check (P2)
+
+- **What a student can now do:** under "Gewichteter Mittelwert und Überlappung mehrerer Ergebnisse" pick the column with the results (for example three volume measurements) and the column with their uncertainties, set the factor k (default 1) and press "Berechnen". The page shows the weighted mean as (value ± u) unit in HU format, for example (10,02 ± 0,09) cm³, with weights 1/u² and u = 1/√Σw. It also says whether the intervals x ± k·u all share a common range ("stimmen im Rahmen ihrer Unsicherheiten überein") or names the rows that do not overlap and by how much.
+- **Good to know:** the uncertainties are used as they stand in the table (not scaled). Rows with an empty result or uncertainty are skipped. Changing a column, k or any value marks the result as out of date.
+- **Messages:** an uncertainty of 0 or less (names the row), no uncertainty column, the same column twice, a k that is not a positive number, or fewer than two usable rows gives a plain German message.
+- **Tested:** `tests/phase2-step4-wmean.sh` with three volume results (10,3 ± 0,2; 10,5 ± 0,3; 9,9 ± 0,1 cm³) against a separate hand calculation in exact fractions (mean 10,02245, u 0,0857143; k = 1 no overlap, k = 2 overlap), in the real page with undo, reload, save, reopen and a hand-edited project file.
+
 ## 2026-10-14: Mean, standard deviation and standard error (P1, P2)
 
 - **What a student can now do:** choose a column under "Mittelwert und Streuung einer Spalte", pick n or n−1 for the standard deviation, optionally enter an instrument (reading) error and press "Berechnen". The page shows the mean as (value ± standard error) unit, the standard deviation, the standard error s/√n, and with an instrument error a second mean line where random and instrument error are added in quadrature, for example (10,110 ± 0,022) mL.

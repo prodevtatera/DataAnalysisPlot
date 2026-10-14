@@ -23,14 +23,22 @@ function statsSettings(p) {
 }
 // The result depends on the current settings and on that column's values.
 const statsKey = p => { const st = statsSettings(p); return fnv(JSON.stringify([st, p.columns.find(c => c.name === st.col).values])); };
+// Weighted mean of results (value column, uncertainty column) with the overlap factor k: defaults are the y and y-error columns.
+function wmeanSettings(p) {
+  const st = p.settings.wmean || {}, has = n => p.columns.some(c => c.name === n);
+  const val = has(st.val) ? st.val : (p.columns.find(c => c.role === "y") || p.columns[0]).name;
+  const unc = has(st.unc) ? st.unc : st.unc === null ? null : (p.columns.find(c => c.role === "yerr") || {}).name ?? null; // null = "(keine)" chosen on purpose
+  return { val, unc, k: st.k > 0 ? st.k : 1 };
+}
+const wmeanKey = p => { const st = wmeanSettings(p), by = n => (p.columns.find(c => c.name === n) || {}).values; return fnv(JSON.stringify([st, by(st.val), by(st.unc)])); };
 
 function addResult(p, result) {
   p.results = p.results.filter(r => r.kind !== result.kind);
-  p.results.push({ ...result, settings: { ...p.settings }, computedFrom: result.kind === "stats" ? statsKey(p) : fingerprint(p) });
+  p.results.push({ ...result, settings: { ...p.settings }, computedFrom: result.kind === "stats" ? statsKey(p) : result.kind === "wmean" ? wmeanKey(p) : fingerprint(p) });
 }
 
 // Stale when the data changed, weighting was switched after the fit, or (derived results) the extra inputs changed.
-const isStale = (p, r) => r.kind === "stats" ? r.computedFrom !== statsKey(p) : r.computedFrom !== fingerprint(p) || (r.settings || {}).weighted !== p.settings.weighted ||
+const isStale = (p, r) => r.kind === "stats" ? r.computedFrom !== statsKey(p) : r.kind === "wmean" ? r.computedFrom !== wmeanKey(p) : r.computedFrom !== fingerprint(p) || (r.settings || {}).weighted !== p.settings.weighted ||
   (r.kind === "derived" && JSON.stringify((r.settings || {}).young) !== JSON.stringify(p.settings.young));
 
 const save = p => JSON.stringify(p, null, 1);
@@ -48,4 +56,4 @@ function open(text) {
   return ok ? { project: p } : { error: "Das Projekt ist beschädigt: Spalten oder Werte fehlen oder sind keine Zahlen." };
 }
 
-if (typeof module !== "undefined") module.exports = { statsSettings, ROLES, newProject, fingerprint, addResult, isStale, save, open };
+if (typeof module !== "undefined") module.exports = { statsSettings, wmeanSettings, ROLES, newProject, fingerprint, addResult, isStale, save, open };
