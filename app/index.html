@@ -60,6 +60,12 @@
   td.low { color:#9a3f00; }
   #g_w, #g_s { width:130px; }
   #h_w, #h_s { width:130px; }
+  #tpl_info { background:#fff; border:1px solid var(--line); border-left:6px solid var(--blue); padding:10px 16px; margin:10px 0; }
+  #tpl_info[hidden] { display:none; }
+  #tpl_info h3 { font:700 20px "Barlow", system-ui, sans-serif; margin:0 0 4px; }
+  #tpl_info ol { margin:6px 0 0; padding-left:22px; }
+  #tpl_info li { margin:6px 0; }
+  #tpl_info .warn { border-left:6px solid #D55E00; padding-left:10px; margin:6px 0; }
   #results { background:#fff; border:1px solid var(--line); padding:12px 16px; }
   .result.stale .res { opacity:.5; }
   .res { font:700 20px "Barlow", system-ui, sans-serif; margin:2px 0; }
@@ -84,6 +90,14 @@
     <button class="btn alt" id="undo" disabled title="Strg/Cmd+Z">Rückgängig</button>
     <button class="btn alt" id="redo" disabled title="Umschalt+Strg/Cmd+Z">Wiederholen</button>
   </div>
+  <h2>Vorlage laden</h2>
+  <p class="hint">Eine fertige Vorlage pro Versuch mit erfundenen Beispieldaten, den passenden Spalten und Einstellungen. Du drückst die Schritte der Reihe nach und ersetzt dann die Zahlen durch deine Messung. Das ersetzt das aktuelle Projekt.</p>
+  <div class="fitbar">
+    <label>Versuch <select id="tpl_sel" aria-label="Vorlage wählen"><option value="">(bitte wählen)</option></select></label>
+    <button class="btn" id="tpl_load">Vorlage laden</button>
+  </div>
+  <div id="tplmsg" class="msg" role="alert" hidden></div>
+  <div id="tpl_info" hidden></div>
   <h2>Daten einfügen</h2>
   <textarea id="paste" aria-label="Daten einfügen" spellcheck="false" placeholder="F / N;ΔL / mm;sΔL / mm&#10;10;0,26;0,02"></textarea>
   <div class="btns"><button class="btn" id="pastego">Als Tabelle übernehmen</button><span class="hint">Aus Excel oder einer CSV-Datei kopieren. Trennzeichen ; oder Tab, Dezimalkomma ist in Ordnung. Die ersten drei Spalten sind x, y und Fehler von y.</span></div>
@@ -207,6 +221,7 @@
 <script src="round.js"></script>
 <script src="parse.js"></script>
 <script src="project.js"></script>
+<script src="templates.js"></script>
 <script src="formula.js"></script>
 <script src="propagate.js"></script>
 <script src="derived.js"></script>
@@ -228,11 +243,6 @@ const EXAMPLE3 = [["F / N", "ΔL auf / mm", "sΔL auf / mm", "ΔL ab / mm", "sΔ
 // Refractometer calibration (P7): refractive index n against mass fraction w, standards 0 to 10 %, errors grow with the reading.
 const EXAMPLE4 = [["w / %", "n / 1", "sn / 1"], [[0, 1.3331, 0.0002], [2, 1.3358, 0.0002], [4, 1.3389, 0.0002], [6, 1.3416, 0.0004], [8, 1.3445, 0.0004], [10, 1.3474, 0.0004]]];
 const EXAMPLE = [["t / s", "U / V", "sU / V"], [[1, 2.1, 0.2], [2, 4.3, 0.2], [3, 6.2, 0.3], [4, 8.4, 0.3], [5, 9.9, 0.4]]];
-// Templates for the derived quantity. E: L in m, d in mm, a in mm/N gives GPa (1 m, 1 mm, 1 mm/N is 4/π GPa). g: a = T²/l in s²/m gives m/s².
-const DERIVED_TEMPLATES = {
-  E: { name: "E", unit: "GPa", formula: "4*L/(pi*d^2*a)", vars: "L = 1 ± 0,002; d = 0,5 ± 0,01", aUnit: "mm/N" },
-  g: { name: "g", unit: "m/s²", formula: "4*pi^2/a", vars: "", aUnit: "s²/m" },
-};
 const DKEYS = { d_name: "name", d_unit: "unit", d_formula: "formula", d_vars: "vars", d_aunit: "aUnit" };
 const KKEYS = { k_meas: "meas", k_ref: "ref", k_unit: "unit" };
 const ROLE_LABELS = { x: "x-Werte", y: "y-Werte", yerr: "Fehler von y", unused: "nicht verwendet" };
@@ -552,12 +562,31 @@ function syncControls() {
   for (const [id, k] of Object.entries(KKEYS)) $(id).value = cs[k];
   $("comparemsg").hidden = true;
 }
+// Template projects: the project only stores the id; title and texts come from TEMPLATES (templates.js), so a project file cannot put text on the page.
+const tplOf = () => TEMPLATES.find(t => t.id === proj.template);
+$("tpl_sel").append(...TEMPLATES.map(t => Object.assign(document.createElement("option"), { value: t.id, textContent: t.title })));
+$("tpl_load").onclick = () => {
+  const t = TEMPLATES.find(q => q.id === $("tpl_sel").value);
+  if (!t) { $("tplmsg").textContent = "Bitte zuerst einen Versuch in der Liste wählen."; $("tplmsg").hidden = false; return; }
+  $("tplmsg").hidden = true; setProject(t.build());
+};
+function renderTemplate() {
+  const t = tplOf(), box = $("tpl_info");
+  box.hidden = !t;
+  if (!t) return;
+  box.innerHTML = `<h3>${esc(t.title)}</h3><div class="warn" data-invented>Erfundene Beispieldaten, keine echten Messwerte von Studierenden. Ersetze die Zahlen durch deine Messung; Ergebnisse müssen danach neu berechnet werden.</div>` +
+    `<div>${esc(t.note)}</div><ol>` + t.steps.map(s => `<li>${esc(s.text)}${s.go ? ` <button class="btn alt small" data-go="${esc(s.go)}">Zeigen</button>` : ""}</li>`).join("") + "</ol>";
+}
+$("tpl_info").addEventListener("click", e => {
+  const el = e.target.dataset.go && $(e.target.dataset.go);
+  if (el) { el.scrollIntoView({ block: "center" }); el.focus(); }
+});
 // Formula columns are recomputed from the data on every change; rows that cannot be calculated are named in the message.
 function recalc() {
   const m = recalcFormulas(proj);
   $("fmsg").textContent = m.join("\n"); $("fmsg").hidden = !m.length;
 }
-function render() { recalc(); renderTable(); renderPlot(); renderResults(); syncControls(); autosave(); }
+function render() { recalc(); renderTable(); renderPlot(); renderResults(); syncControls(); renderTemplate(); autosave(); }
 
 // An edit changes data only: keep the focused table as it is, redraw plot and results.
 $("table").addEventListener("input", e => {

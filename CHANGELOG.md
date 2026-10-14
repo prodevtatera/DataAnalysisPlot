@@ -2,6 +2,14 @@
 
 Written in plain language for people who do not read code. Newest entry on top.
 
+## 2026-10-14: One ready-made project per experiment, P1 to P5
+
+- **What a student can now do:** under "Vorlage laden" there is a list with six templates: P1 Fehlerverteilung, P2 Volumenmessung, P3 Elastizität, P4 Oberflächenspannung, P5 Polarimetrie (Saccharose) and P5 Newtonsche Ringe. One click gives a finished project: the table, the calculated columns (for example r² with its uncertainty, or 1/r), the column roles and all settings. A box above the table names the experiment and lists the steps in order ("Auf Anpassen drücken", then "Berechnen" for E, σ or R). Each step has a "Zeigen" button that jumps to the right place. Then the student replaces the numbers with their own measurement.
+- **Important:** the numbers in every template are invented example data, not real student data, and the box says so in an orange note. They only show how the experiment goes. The templates are sketches until we have the real experiment sheets.
+- **What comes out (invented data):** P3 gives E = (201 ± 8) GPa, P4 gives σ = (72,6 ± 0,5) mN/m, P5 Newton gives R = (0,9989 ± 0,0012) m, P5 polarimetry gives a specific rotation of (66,6 ± 0,4) °/(dm·g·mL⁻¹), P2 gives a weighted volume of (10,02 ± 0,09) cm³ and says that two of the three results do not overlap at k = 1.
+- **Good to know:** loading a template replaces the current project, like the existing examples. A project file only stores which template it came from; the texts always come from the page.
+- **Tested:** `tests/phase2-step15-templates.sh` loads every template in a real browser, presses its steps and compares the result lines with a separate hand calculation (`tests/reference/templates.py`, exact fractions). Also: wrong clicks give clear messages, an edit makes results out of date, a hand-edited project file cannot inject text.
+
 ## 2026-10-14: The app no longer borrows files from the test build
 
 - **What changed:** nothing a student sees. The app folder now holds everything it needs: the fit program, the plot library, the fonts and the number helpers.

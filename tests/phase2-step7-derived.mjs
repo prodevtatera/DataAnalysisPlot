@@ -187,6 +187,8 @@ eq("unweighted detail", (await how()).includes("Beiträge zu u(g)/|g|: a: 0,944 
 
 // A hand-edited project with script text everywhere: shown as text, nothing runs.
 await p.setInputFiles("#openfile", dir + "/hand.plotlab");
+// Wait for the hand-edited project itself (old results are on screen already, so a selector alone races with the file read).
+await p.waitForFunction(() => proj.settings.derived.name.startsWith("<img"));
 await p.waitForSelector("#results .res");
 eq("no script ran", await p.evaluate(() => window.pwn), undefined);
 eq("no injected elements", await p.$$eval("#results img, #results script, #derived img, #derived script, #derivemsg img", e => e.length), 0);
