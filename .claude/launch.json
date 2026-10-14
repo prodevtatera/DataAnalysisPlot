@@ -1,6 +1,31 @@
 {
   "version": "0.0.1",
   "configurations": [
-    { "name": "draft", "runtimeExecutable": "python3", "runtimeArgs": ["-m", "http.server", "4173", "--directory", "draft"], "port": 4173 }
+    {
+      "name": "draft",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "4173",
+        "--directory",
+        "draft"
+      ],
+      "port": 4173
+    },
+    {
+      "name": "testbuild",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "4174",
+        "--bind",
+        "127.0.0.1",
+        "--directory",
+        "testbuild"
+      ],
+      "port": 4174
+    }
   ]
 }

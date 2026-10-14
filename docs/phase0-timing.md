@@ -6,7 +6,7 @@ Measured by `tests/step5-load.sh` on: Apple M5, 10 cores, 16 GB RAM, Darwin 25.6
 |---|---|---|
 | Ready to fit (button enabled) | 2.8 s | 2.6 s |
 | Bytes loaded from the network | 35.4 MB | 0.0 MB |
-| Time for one fit (press "Anpassen" to result) | 38 ms | 35 ms |
+| Time for one fit (press "Anpassen" to result) | 41 ms | 35 ms |
 
 Files loaded on a first visit: 16. Total size: 35.5 MB as stored, about 24.7 MB gzip-compressed (what a real server would send).
 Estimated first-visit download time: about 4.0 s at 50 Mbit/s, about 19.8 s at 10 Mbit/s (university Wi-Fi in a crowded lecture hall), plus the browser's own 2.8 s.

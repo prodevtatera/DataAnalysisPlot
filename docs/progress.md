@@ -1,17 +1,20 @@
-STATUS: DONE
-PHASE: 0
+STATUS: RUNNING
+PHASE: 1
 
 Read by every round of the loop (see docs/loop-prompt.md). Keep the first line exactly as `STATUS: RUNNING`, `STATUS: DONE` or `STATUS: BLOCKED`.
 
-## Next steps (Phase 0: one-day test build, code in `testbuild/`)
+## Next steps (Phase 1: foundations plus P3 Elasticity, code in `app/`)
 
-- [x] 1. One page: paste a CSV (also German format: decimal comma, semicolon) into a box, parse it, show it as a table. Bad input shows a clear message.
-- [x] 2. Plot the table with y error bars.
-- [x] 3. Fit a curve with SciPy in the browser (Pyodide in a Web Worker). Show parameters, their errors, and say which error method was used.
-- [x] 4. Check the fit against 3 NIST datasets, one each of lower, average and higher difficulty. Record certified values, app values and the difference. Check in an automatic script.
-- [x] 5. Measure first load time and download size (state device, browser, dataset size), and the time of a repeat visit.
-- [x] 6. Export the figure as PNG and SVG. Look at both and say if they are fit for a lab report.
-- [x] 7. Write `docs/phase0-report.md`: gate results and a recommendation to keep or change Pyodide + Plotly. Set STATUS: DONE.
+Phase 0 is finished (see `docs/phase0-report.md`; its steps are in the Log). Phase 1 builds the real app in `app/`, reusing what `testbuild/` proved (parser, plot, fit worker, rounding, local Pyodide copy). Keep `testbuild/` and its tests working until the app replaces them.
+
+- [ ] 1. Project model and file: one JSON structure holding raw data, column roles (X, Y, error), analysis settings and results, where each result records which data it was computed from. Save as a downloaded file, open from a file. Test: save, reload, open gives identical data, roles, settings and results.
+- [ ] 2. App page in `app/` on the project model: an editable table (type into a cell, add and delete rows). Editing a cell updates the plot at once and marks fit results out of date. Test in a browser: edit a cell, check plot and stale message.
+- [ ] 3. Undo and redo (buttons and Ctrl/Cmd+Z, Shift+Ctrl/Cmd+Z) for cell edits, row changes and fit settings. Test: edit, undo, redo; plot and result revert and return.
+- [ ] 4. Autosave in the browser and restore after a reload or a closed tab, with a clear "Wiederhergestellt" note. Test: edit, reload, nothing lost.
+- [ ] 5. Column roles chosen by the student (X, Y, y error, x unused), stored in the project, driving plot and fit. Weighted and unweighted line fit with scaled and unscaled errors, χ²/DoF and the method on screen (as in step 3 of Phase 0).
+- [ ] 6. P3 Elasticity: a derived quantity from the fitted slope with a propagated uncertainty, in HU format. Read the P3 entry in `docs/lab-assignments-checklist.md` and the research in `docs/research/` for the formula and units. Test with a hand calculation.
+- [ ] 7. Weighted-fit numbers checked against an independent reference: NIST linear regression (Norris, unweighted) and hand calculation for the weighted case. R is not installed, so the R comparison in the gate is marked "needs Luis" under Blocked, but do not stop for it.
+- [ ] 8. Timed end-to-end test of P3: open, paste data, set roles, fit, read the result line, save. Record the time of the automated run and the number of clicks, next to the same task in Excel from the checklist. Write `docs/phase1-report.md` with the gate results. Gate items that need R or a real student go under "For Luis". Keep STATUS: RUNNING and write the Phase 2 steps from the roadmap.
 
 ## For Luis
 
@@ -22,7 +25,7 @@ Read by every round of the loop (see docs/loop-prompt.md). Keep the first line e
 
 ## Blocked
 
-(nothing)
+(nothing blocking. The R cross-check from the Phase 1 gate needs R installed: Luis, please run `brew install r` when you can.)
 
 ## Log
 
@@ -36,3 +39,4 @@ Read by every round of the loop (see docs/loop-prompt.md). Keep the first line e
 - 2026-10-14, step 5: Measured on an Apple M5 (10 cores, 16 GB), Chromium 145 headless, local server, 5-point example. First visit: 35.4 MB stored (about 24.7 MB with gzip), page ready to fit after 2.9 s (plus download: about 4 s at 50 Mbit/s, about 20 s at 10 Mbit/s). Repeat visit: 0 MB downloaded, ready after 2.8 s. One fit takes about 35 ms. Needs long cache headers and compression on the real host; in a private window the two biggest files (23.6 MB) are downloaded again. Written to `docs/phase0-timing.md` by `tests/step5-load.sh`. Not measured: a real phone, a slow laptop, real network.
 - 2026-10-14, step 6: A student can now save the figure as PNG (2400 x 1400 pixels, sharp for a report) or SVG (vector; text stays text, error bars and fit line are paths, no embedded raster). Buttons are off until there is a plot. Tested in a real browser: the downloaded files were checked as files (PNG signature and size, SVG text "t / s", "U / V", "Messwerte", "Anpassung") and both were looked at. Found and fixed: the legend box was too narrow in the export because the exported image used a fallback font; the figure now uses Arial so page, PNG and SVG match. Verdict: fit for a lab report. Limits: this is a normal 2D chart (3D or WebGL charts would not be true vector); the SVG names the font Arial, so another program without Arial will substitute. Evidence: `evidence/step6-export.png`, `evidence/step6-export.svg`.
 - 2026-10-14, step 7: Wrote `docs/phase0-report.md`. All four Phase 0 gate checks pass, with evidence. Recommendation: keep Pyodide + Plotly. All 7 checks in `scripts/check.sh` pass. Phase 0 done; Phase 1 waits for Luis.
+- 2026-10-14: Phase 0 gate passed, moved to Phase 1. An earlier version of this file set STATUS: DONE at the end of Phase 0, which was a mistake: the loop must continue to the next phase. Phase 1 steps written from the roadmap.
