@@ -2,6 +2,11 @@
 
 Written in plain language for people who do not read code. Newest entry on top.
 
+## 2026-10-14: A friendlier look and a logo
+
+- **What changed for a student:** the home page and the workbench have a round logo next to the name "PlotLab" and the same picture as the browser tab icon. Buttons are round, cards and boxes have rounded corners, and the colours are a soft indigo on a light background instead of the dark blue. The home page has a coloured welcome box, the three points as cards, and cards that lift a little when you point at them.
+- **Tested:** the whole check (`scripts/check.sh`) passes, including the home page test at 1200, 800 and 375 px. I looked at the home page and the first screen of the workbench in a browser. The other tool screens of the workbench were not looked at one by one. No student has seen the new look yet.
+
 ## 2026-10-14: The app has its own web address
 
 - **What changed for a student:** the app is now online at https://plot.productledlab.dev. Anyone can open it in a browser, no signup and no install. The home page, the finished example and the workbench open from there; the data still stays on your own computer.

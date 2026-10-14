@@ -1,5 +1,7 @@
 # Design: a look that feels familiar to HU students
 
+**Update 2026-10-14 (Luis's call): friendlier look.** Rounded corners (16px cards, pill buttons), indigo `#4F46E5` as the main colour, soft background `#F7F8FD`, orange `#F97316` focus ring, white header with the round logo (`app/logo.jpg`, favicon `app/favicon.jpg`). This replaces the square-corner, HU-blue tokens in the table below; the "Do not" rules still hold.
+
 Measured on 2026-10-13 from https://www.hu-berlin.de/en (computed styles in the browser). We copy the look: colours, type sizes, spacing, square corners. We do not copy anything that says "this is HU".
 
 ## Tokens

@@ -32,11 +32,11 @@ if (typeof document !== "undefined") {
     for (let x = 0; x <= 9; x++) s += `<line x1="${px(x)}" x2="${px(x)}" y1="${Tp}" y2="${H - B}" stroke="#e6e6de"/><text x="${px(x)}" y="${H - B + 20}" text-anchor="middle" font-size="14">${x}</text>`;
     for (let y = 0; y <= 20; y += 5) s += `<line y1="${py(y)}" y2="${py(y)}" x1="${L}" x2="${W - R}" stroke="#e6e6de"/><text x="${L - 8}" y="${py(y) + 5}" text-anchor="end" font-size="14">${y}</text>`;
     s += `<rect x="${L}" y="${Tp}" width="${W - L - R}" height="${H - B - Tp}" fill="none" stroke="#000"/>`;
-    s += `<line x1="${px(0)}" y1="${py(F.b)}" x2="${px(9)}" y2="${py(F.b + F.m * 9)}" stroke="#00376C" stroke-width="2.5"/>`;
+    s += `<line x1="${px(0)}" y1="${py(F.b)}" x2="${px(9)}" y2="${py(F.b + F.m * 9)}" stroke="#4F46E5" stroke-width="2.5"/>`;
     for (const [x, y] of D) s += `<line x1="${px(x)}" x2="${px(x)}" y1="${py(y - U)}" y2="${py(y + U)}" stroke="#000" stroke-width="1.5"/><line x1="${px(x) - 4}" x2="${px(x) + 4}" y1="${py(y - U)}" y2="${py(y - U)}" stroke="#000"/><line x1="${px(x) - 4}" x2="${px(x) + 4}" y1="${py(y + U)}" y2="${py(y + U)}" stroke="#000"/><circle cx="${px(x)}" cy="${py(y)}" r="4" fill="#000"/>`;
     s += `<text x="${(L + W - R) / 2}" y="${H - 22}" text-anchor="middle" font-size="16">${t("home_ax_x")}</text>`;
     s += `<text transform="translate(16 ${(Tp + H - B) / 2}) rotate(-90)" text-anchor="middle" font-size="16">${t("home_ax_y")}</text>`;
-    s += `<g font-size="14"><circle cx="${L + 16}" cy="${Tp + 18}" r="4"/><text x="${L + 28}" y="${Tp + 23}">${t("home_pts")}</text><line x1="${L + 10}" x2="${L + 22}" y1="${Tp + 40}" y2="${Tp + 40}" stroke="#00376C" stroke-width="2.5"/><text x="${L + 28}" y="${Tp + 45}">${t("home_fit")}</text></g>`;
+    s += `<g font-size="14"><circle cx="${L + 16}" cy="${Tp + 18}" r="4"/><text x="${L + 28}" y="${Tp + 23}">${t("home_pts")}</text><line x1="${L + 10}" x2="${L + 22}" y1="${Tp + 40}" y2="${Tp + 40}" stroke="#4F46E5" stroke-width="2.5"/><text x="${L + 28}" y="${Tp + 45}">${t("home_fit")}</text></g>`;
     $("plot").innerHTML = s;
   }
   document.querySelectorAll("input[name=m]").forEach(r => r.onchange = () => { method = r.value; renderExample(); });
