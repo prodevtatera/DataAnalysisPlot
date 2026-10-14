@@ -44,4 +44,33 @@ function deriveQuantity(formula, fit, vars) {
     return { error: `Die Formel lässt sich nicht berechnen: ${e}.` };
   }
 }
-if (typeof module !== "undefined") module.exports = { parseDerivedVars, deriveQuantity };
+
+// Calibration line (P4, P7): measured values "0,45 ± 0,01; 0,62 ± 0,01" (u may be missing = exact) -> {values: [{y0, u}]} or {error}.
+function parseCalibValues(text) {
+  const entries = String(text).split(";").map(s => s.trim()).filter(Boolean), values = [];
+  if (!entries.length) return { error: "Bitte mindestens einen gemessenen Wert y₀ eintragen, zum Beispiel 0,45 ± 0,01. Mehrere Werte mit „;“ trennen." };
+  if (entries.length > 10) return { error: "Es sind höchstens 10 gemessene Werte möglich." };
+  for (const e of entries) {
+    const parts = e.split(/±|\+-|\+\/-/).map(s => s.trim());
+    if (parts.length > 2) return { error: `„${e}“: Es darf nur ein ± vorkommen.` };
+    const y0 = _toNum(parts[0]), u = parts.length === 2 ? _toNum(parts[1]) : 0;
+    if (!Number.isFinite(y0)) return { error: `„${e}“: „${parts[0]}“ ist keine Zahl.` };
+    if (!Number.isFinite(u) || u < 0) return { error: `„${e}“: Die Unsicherheit „${parts[1]}“ ist keine Zahl größer oder gleich 0.` };
+    values.push({ y0, u });
+  }
+  return { values };
+}
+// x0 = (y0 - b)/a with u(x0)² = (u(y0)² + x0²·u(a)² + u(b)² + 2·x0·cov(a,b)) / a². fit = {a, b, ua, ub, cov} (cov = covariance of a and b).
+// parts: share of each term in u(x0)² (they add up to 1; the covariance share is negative when a and b are positively correlated).
+function readOff(fit, y0, u0) {
+  const { a, b, ua, ub, cov } = fit;
+  if (!Number.isFinite(a) || !(Math.abs(a) > 2 * ua)) { // a slope that is not clearly different from 0 gives a meaningless x0
+    const g = new Intl.NumberFormat("de-DE", { maximumSignificantDigits: 3 });
+    return { error: `Die Steigung a = ${g.format(a)} (u(a) = ${g.format(ua)}) ist nicht deutlich von 0 verschieden. Daraus lässt sich kein x₀ ablesen.` };
+  }
+  const x0 = (y0 - b) / a, t = { y0: u0 * u0, a: x0 * x0 * ua * ua, b: ub * ub, cov: 2 * x0 * cov }, v = (t.y0 + t.a + t.b + t.cov) / (a * a);
+  if (!Number.isFinite(v)) return { error: "Die Unsicherheit von x₀ lässt sich nicht berechnen." };
+  const sum = t.y0 + t.a + t.b + t.cov;
+  return { x0, u: Math.sqrt(Math.max(0, v)), parts: Object.fromEntries(Object.entries(t).map(([k, q]) => [k, sum > 0 ? q / sum : null])) };
+}
+if (typeof module !== "undefined") module.exports = { parseDerivedVars, deriveQuantity, parseCalibValues, readOff };

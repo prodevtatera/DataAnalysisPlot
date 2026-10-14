@@ -43,6 +43,8 @@ function derivedSettings(p) {
   const d = p.settings.derived || {}, t = k => typeof d[k] === "string" ? d[k] : "";
   return { name: t("name"), unit: t("unit"), formula: t("formula"), vars: t("vars"), aUnit: t("aUnit") };
 }
+// Calibration read-off (P4, P7): the measured y0 values as text "0,45 ± 0,01; 0,62 ± 0,01".
+const calibSettings = p => ({ y0: typeof ((p.settings || {}).calib || {}).y0 === "string" ? p.settings.calib.y0 : "" });
 // Several y series fitted over their own x ranges (P3 loading and unloading): [{y, err, xmin, xmax}], at most 4. A series whose y column is gone is dropped.
 const SERIES_MAX = 4;
 function seriesSettings(p) {
@@ -61,9 +63,10 @@ function addResult(p, result) {
   p.results.push({ ...result, settings: { ...p.settings }, computedFrom: (KEYS[result.kind] || fingerprint)(p) });
 }
 
-// Stale when the data changed, weighting was switched after the fit, or (derived results) the extra inputs changed.
+// Stale when the data changed, weighting was switched after the fit, or (derived and calibration results) their own inputs changed.
 const isStale = (p, r) => KEYS[r.kind] ? r.computedFrom !== KEYS[r.kind](p) : r.computedFrom !== fingerprint(p) || (r.settings || {}).weighted !== p.settings.weighted ||
-  (r.kind === "derived" && JSON.stringify(derivedSettings({ settings: r.settings || {} })) !== JSON.stringify(derivedSettings(p)));
+  (r.kind === "derived" && JSON.stringify(derivedSettings({ settings: r.settings || {} })) !== JSON.stringify(derivedSettings(p))) ||
+  (r.kind === "calib" && JSON.stringify(calibSettings({ settings: r.settings || {} })) !== JSON.stringify(calibSettings(p)));
 
 const save = p => JSON.stringify(p, null, 1);
 
@@ -80,4 +83,4 @@ function open(text) {
   return ok ? { project: p } : { error: "Das Projekt ist beschädigt: Spalten oder Werte fehlen oder sind keine Zahlen." };
 }
 
-if (typeof module !== "undefined") module.exports = { seriesSettings, SERIES_MAX, derivedSettings, statsSettings, wmeanSettings, histSettings, ROLES, newProject, fingerprint, addResult, isStale, save, open };
+if (typeof module !== "undefined") module.exports = { calibSettings, seriesSettings, SERIES_MAX, derivedSettings, statsSettings, wmeanSettings, histSettings, ROLES, newProject, fingerprint, addResult, isStale, save, open };

@@ -2,6 +2,14 @@
 
 Written in plain language for people who do not read code. Newest entry on top.
 
+## 2026-10-14: Calibration line with an unknown read off (P4, P7)
+
+- **What a student can now do:** after "Anpassen" on a calibration line, the new section "Kalibriergerade: Unbekanntes ablesen" takes one or more measured values of the unknown sample (for example `1,3405 ± 0,0003; 1,3372 ± 0,0002`) and gives the concentration x₀ = (y₀ − b)/a as (value ± u) unit, for example x₀ = (5,19 ± 0,21) %. A new example "Beispiel Kalibriergerade laden" shows a refractometer calibration.
+- **In the plot:** a dashed guide runs from each measured y₀ across to the line and down to the x axis, with a marker at x₀ and its uncertainty as a horizontal bar, named in the legend.
+- **Good to know:** the uncertainty uses the covariance of a and b, because the two fit parameters are not independent. In the example it changes u(x₀) from 0,22 to 0,21 %. The details line shows the numbers used and how much y₀, a, b and the covariance each contribute. The scaled/unscaled switch above applies. If x₀ is outside the measured standards, the page warns that this is extrapolation. The fit result now also stores the covariance, so a fit made with an older version has to be run again.
+- **Messages:** no fit yet or an out-of-date fit, empty or non-numeric y₀, negative uncertainty, more than 10 values, and a slope that is not clearly different from 0 each give a plain German message. Changing a value or the y₀ text makes the result "veraltet" and the guides leave the plot.
+- **Tested:** `tests/phase2-step9-calibration.sh` against exact-fraction hand calculations (`tests/reference/calibration.py`): weighted x₀ = 5,1886 with u = 0,2125 (scaled) and 0,2266 (unscaled); unweighted x₀ = 5,1977, u = 0,2110, also by the classic inverse-regression formula. Plus undo, reload, save and open, and a hand-edited project file.
+
 ## 2026-10-14: Several measurement series with their own x range (P3 loading and unloading)
 
 - **What a student can now do:** the new section "Mehrere Messreihen in einem Diagramm" takes any number of y columns (up to 4) against the x column. For each series the student picks the y column, an optional error column and an x range ("x von", "x bis", empty = all points). "Reihen anpassen" fits one straight line per series over its range. All series appear in the main plot, each with its own marker, colour and named fit line; points outside the range are pale and not fitted. A new example "Beispiel Belastung und Entlastung laden" shows P3.

@@ -21,11 +21,13 @@ def line_fit(x, y, sy):
         raise ValueError("Die Anpassung ist nicht konvergiert. Andere Startwerte oder ein anderes Modell versuchen.")
     c = (vt.T / sv ** 2) @ vt                     # (A^T A)^-1 = covariance for known errors
     r = y - (p[0] * x + p[1]); chi2 = float(np.sum((r / s) ** 2)); dof = len(x) - 2
-    out = {"p": p.tolist(), "err_scaled": np.sqrt(np.diag(c) * chi2 / dof).tolist(), "dof": dof}
+    out = {"p": p.tolist(), "err_scaled": np.sqrt(np.diag(c) * chi2 / dof).tolist(), "dof": dof,
+           "cov_scaled": [float(c[0, 0] * chi2 / dof), float(c[0, 1] * chi2 / dof), float(c[1, 1] * chi2 / dof)]}  # [var a, cov a b, var b], for calibration read-off
     if sy is None:
         out["ssr"] = chi2
     else:
         out["err_unscaled"] = np.sqrt(np.diag(c)).tolist(); out["chi2"] = chi2
+        out["cov_unscaled"] = [float(c[0, 0]), float(c[0, 1]), float(c[1, 1])]
     return json.dumps(out)
 def run(s):
     d = json.loads(s)

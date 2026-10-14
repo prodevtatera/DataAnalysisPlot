@@ -75,6 +75,7 @@
     <button class="btn" id="example">Beispiel laden</button>
     <button class="btn alt" id="example2">Beispiel Elastizität laden</button>
     <button class="btn alt" id="example3">Beispiel Belastung und Entlastung laden</button>
+    <button class="btn alt" id="example4">Beispiel Kalibriergerade laden</button>
     <label class="btn alt">Projekt öffnen<input id="openfile" type="file" accept=".json,.plotlab" hidden></label>
     <button class="btn alt" id="saveproj" disabled>Projekt speichern</button>
     <button class="btn alt" id="undo" disabled title="Strg/Cmd+Z">Rückgängig</button>
@@ -166,6 +167,13 @@
     <button class="btn" id="derive">Berechnen</button>
   </div>
   <div id="derivemsg" class="msg" role="alert" hidden></div>
+  <h2>Kalibriergerade: Unbekanntes ablesen</h2>
+  <p class="hint">Mit der angepassten Geraden y = a·x + b aus einem gemessenen y₀ der unbekannten Probe das zugehörige x₀ = (y₀ − b)/a berechnen (P4, P7). Die Unsicherheit u(x₀)² = (u(y₀)² + x₀²·u(a)² + u(b)² + 2·x₀·cov(a,b)) / a² enthält die Kovarianz von a und b, denn beide Parameter hängen zusammen. Mehrere Proben mit „;“ trennen. Fehlt die Unsicherheit, gilt y₀ als genau.</p>
+  <div class="fitbar" id="calib">
+    <label>Gemessene Werte y₀ <input class="txt" id="c_y0" aria-label="Gemessene Werte y0 mit Unsicherheit" placeholder="1,3405 ± 0,0003; 1,3372 ± 0,0002" autocomplete="off" spellcheck="false"></label>
+    <button class="btn" id="c_go">x₀ ablesen</button>
+  </div>
+  <div id="calibmsg" class="msg" role="alert" hidden></div>
   <h2>Ergebnisse</h2>
   <div id="results"><div class="empty">Noch keine Ergebnisse.</div></div>
 </main>
@@ -187,6 +195,8 @@ const fmt = new Intl.NumberFormat("de-DE", { maximumFractionDigits: 10 });
 const EXAMPLE2 = [["F / N", "ΔL / mm", "sΔL / mm"], [[10, 0.26, 0.02], [20, 0.50, 0.02], [30, 0.77, 0.02], [40, 1.03, 0.02], [50, 1.28, 0.02], [60, 1.51, 0.02]]];
 // Loading and unloading of the same wire (P3): extension against load, once while loading and once while unloading.
 const EXAMPLE3 = [["F / N", "ΔL auf / mm", "sΔL auf / mm", "ΔL ab / mm", "sΔL ab / mm"], [[10, 0.26, 0.02, 0.30, 0.02], [20, 0.50, 0.02, 0.55, 0.02], [30, 0.77, 0.02, 0.81, 0.02], [40, 1.03, 0.02, 1.05, 0.04], [50, 1.28, 0.02, 1.31, 0.04], [60, 1.51, 0.02, 1.54, 0.04]]];
+// Refractometer calibration (P7): refractive index n against mass fraction w, standards 0 to 10 %, errors grow with the reading.
+const EXAMPLE4 = [["w / %", "n / 1", "sn / 1"], [[0, 1.3331, 0.0002], [2, 1.3358, 0.0002], [4, 1.3389, 0.0002], [6, 1.3416, 0.0004], [8, 1.3445, 0.0004], [10, 1.3474, 0.0004]]];
 const EXAMPLE = [["t / s", "U / V", "sU / V"], [[1, 2.1, 0.2], [2, 4.3, 0.2], [3, 6.2, 0.3], [4, 8.4, 0.3], [5, 9.9, 0.4]]];
 // Templates for the derived quantity. E: L in m, d in mm, a in mm/N gives GPa (1 m, 1 mm, 1 mm/N is 4/π GPa). g: a = T²/l in s²/m gives m/s².
 const DERIVED_TEMPLATES = {
@@ -293,12 +303,23 @@ function renderPlot() {
   if (e) trace.error_y = { type: "data", array: idx.map(i => e.values[i] ?? 0), visible: true, color: "#00376C", thickness: 1.6, width: 5 };
   const ax = t => ({ title: { text: t, standoff: 10 }, showline: true, linecolor: "#000", mirror: true, ticks: "outside", gridcolor: "#e4e4dc", zeroline: false, exponentformat: "none" });
   const traces = [trace], fit = freshFit();
+  let yRange = null;
   if (fit) {
     const xs = idx.map(i => x.values[i]), lo = Math.min(...xs), hi = Math.max(...xs), [a, b] = fit.params.map(q => q.value);
     traces.push({ x: [lo, hi], y: [a * lo + b, a * hi + b], mode: "lines", type: "scatter", name: "Anpassung", line: { color: "#D55E00", width: 2.5 } });
+    // Calibration read-off: dashed guides from each measured y0 across to the line and down to the x axis, a marker at x0 with its uncertainty.
+    const cal = freshCalib();
+    if (cal) {
+      const reads = calibReads(cal), ys = [...idx.map(i => y.values[i] - (e?.values[i] ?? 0)), ...idx.map(i => y.values[i] + (e?.values[i] ?? 0)), ...reads.map(q => q.y0)];
+      const yl = Math.min(...ys), yh = Math.max(...ys), pad = 0.05 * ((yh - yl) || 1);
+      yRange = [yl - pad, yh + pad];
+      reads.forEach(q => traces.push({ x: [Math.min(lo, q.x0), q.x0, q.x0], y: [q.y0, q.y0, yRange[0]], mode: "lines", type: "scatter", showlegend: false, hoverinfo: "skip", line: { color: "#009E73", width: 1.5, dash: "dash" } }));
+      traces.push({ x: reads.map(q => q.x0), y: reads.map(q => q.y0), mode: "markers", type: "scatter", name: "Ablesung x₀ (± u)", marker: { color: "#009E73", size: 11, symbol: "diamond" },
+        error_x: { type: "data", array: reads.map(q => uOf(q) ?? 0), visible: true, color: "#009E73", thickness: 1.6, width: 5 } });
+    }
   }
   Plotly.react("plot", traces, { font: { family: "Arial, Helvetica, sans-serif", size: 16, color: "#000" }, separators: ",.",
-    margin: { l: 70, r: 20, t: 20, b: 60 }, xaxis: ax(x.name), yaxis: ax(y.name), paper_bgcolor: "#fff", plot_bgcolor: "#fff",
+    margin: { l: 70, r: 20, t: 20, b: 60 }, xaxis: ax(x.name), yaxis: { ...ax(y.name), ...(yRange ? { range: yRange } : {}) }, paper_bgcolor: "#fff", plot_bgcolor: "#fff",
     showlegend: true, legend: { x: 0.02, y: 0.98, bgcolor: "#fff", bordercolor: "#999", borderwidth: 1 } }, { displaylogo: false, responsive: true });
 }
 const freshFit = () => proj.results.find(r => r.kind === "fit" && !isStale(proj, r));
@@ -321,6 +342,25 @@ function derivedDetail(r) {
   return `<div class="detail" data-how>Rechnung: ${name} = ${esc(r.formula)}; u(${name})² = Σ (∂${name}/∂xᵢ)²·u(xᵢ)² (unabhängige Eingänge). Eingesetzt: ${used2}. ` +
     `Beiträge zu u(${name})/|${name}|: ${parts || "keine (alle Unsicherheiten 0)"}. Fehler von a und b: ${un ? "unskaliert" : "skaliert bzw. aus der Streuung"}.` +
     (used.some(q => q.name === "a") && used.some(q => q.name === "b") ? " Hinweis: a und b werden als unabhängig behandelt, ihre Korrelation ist nicht berücksichtigt." : "") + "</div>";
+}
+// Calibration read-off result: the numbers behind each x0, the share of each term in u(x0)², a warning outside the calibrated range.
+// Every number goes through a number formatter and every text through esc(), so a hand-edited project file cannot inject markup.
+const calibReads = r => (Array.isArray(r.reads) ? r.reads : []).filter(q => q && [q.y0, q.x0].every(Number.isFinite)).slice(0, 10);
+const calibOk = r => Array.isArray(r.reads) && r.reads.length > 0 && r.reads.length <= 10 && r.reads.every(q => q && [q.y0, q.x0, q.uScaled].every(Number.isFinite)) && Array.isArray(r.range) && r.range.every(Number.isFinite);
+const freshCalib = () => { const r = proj.results.find(q => q.kind === "calib" && !isStale(proj, q)); return r && calibOk(r) ? r : null; };
+function calibDetail(r) {
+  const f = new Intl.NumberFormat("de-DE", { maximumSignificantDigits: 4 }), g = new Intl.NumberFormat("de-DE", { maximumSignificantDigits: 6 }), sci = new Intl.NumberFormat("de-DE", { notation: "scientific", maximumFractionDigits: 3 });
+  const pc = new Intl.NumberFormat("de-DE", { maximumFractionDigits: 0 }), un = proj.settings.errMethod === "unscaled" && r.weighted;
+  const m = (r.used || {})[un ? "unscaled" : "scaled"] || {}, u = r.used || {}, unit = esc(u.xUnit ?? ""), lo = Number((r.range || [])[0]), hi = Number((r.range || [])[1]);
+  const how = !r.weighted ? "ungewichtete Anpassung; a, b und ihre Kovarianz aus der Streuung der Messpunkte um die Gerade"
+    : un ? "gewichtete Anpassung (Gewichte 1/s²); a, b und ihre Kovarianz unskaliert, direkt aus den Fehlerwerten" : "gewichtete Anpassung (Gewichte 1/s²); a, b und ihre Kovarianz mit χ²/DoF skaliert";
+  const rows = calibReads(r).map(q => {
+    const parts = (un ? q.partsUnscaled : q.partsScaled) || {}, sh = k => parts[k] == null ? "–" : pc.format(Number(parts[k]) * 100) + " %", out = q.x0 < lo || q.x0 > hi;
+    return `<div class="detail" data-readoff>y₀ = ${fmt.format(q.y0)} ± ${fmt.format(Number(q.u0))}: x₀ = ${f.format(q.x0)}${unit ? " " + unit : ""}. Anteile an u(x₀)²: y₀ ${sh("y0")}, a ${sh("a")}, b ${sh("b")}, Kovarianz ${sh("cov")}.` +
+      (out ? ` Hinweis: x₀ liegt außerhalb des Kalibrierbereichs ${f.format(lo)} bis ${f.format(hi)}${unit ? " " + unit : ""} (Extrapolation). Die Unsicherheit ist dort größer, als die Rechnung zeigt.` : "") + "</div>";
+  }).join("");
+  return `<div class="detail" data-calibhow>Rechnung: x₀ = (y₀ − b)/a mit a = ${g.format(Number(u.a))}, b = ${g.format(Number(u.b))}, u(a) = ${g.format(Number(m.ua))}, u(b) = ${g.format(Number(m.ub))}, cov(a,b) = ${sci.format(Number(m.cov))}. ` +
+    `u(x₀)² = (u(y₀)² + x₀²·u(a)² + u(b)² + 2·x₀·cov(a,b)) / a². Methode: ${how}.</div>` + rows;
 }
 // Series result: one row per series, then every pair of slopes compared. Numbers go through formatters, text through esc().
 function seriesDetail(r) {
@@ -415,7 +455,7 @@ function renderResults() {
       const u = uOf(q), t = huRound(q.value, u);
       return `<div class="res">${esc(q.name)} = ${t ? `(${t[0]} ± ${t[1]})` : q.plain ? fmtPlain.format(q.value) : fmt.format(q.value)}${q.unit ? " " + esc(q.unit) : ""}</div>`;
     }).join("");
-    return `<div class="result${stale ? " stale" : ""}">${stale ? `<div class="msg stalemsg">Die Daten wurden geändert. Dieses Ergebnis ist veraltet. Bitte neu ${["stats", "wmean", "hist", "derived"].includes(r.kind) ? "berechnen" : "anpassen"}.</div>` : ""}${lines}${r.kind === "fit" && r.dof ? fitDetail(r) : ""}${r.kind === "derived" ? derivedDetail(r) : ""}${r.kind === "stats" ? statsDetail(r) : ""}${r.kind === "wmean" ? wmeanDetail(r) : ""}${r.kind === "hist" ? histDetail(r) : ""}${r.kind === "series" ? seriesDetail(r) : ""}</div>`;
+    return `<div class="result${stale ? " stale" : ""}">${stale ? `<div class="msg stalemsg">Die Daten wurden geändert. Dieses Ergebnis ist veraltet. Bitte neu ${["stats", "wmean", "hist", "derived", "calib"].includes(r.kind) ? "berechnen" : "anpassen"}.</div>` : ""}${lines}${r.kind === "fit" && r.dof ? fitDetail(r) : ""}${r.kind === "derived" ? derivedDetail(r) : ""}${r.kind === "stats" ? statsDetail(r) : ""}${r.kind === "wmean" ? wmeanDetail(r) : ""}${r.kind === "hist" ? histDetail(r) : ""}${r.kind === "series" ? seriesDetail(r) : ""}${r.kind === "calib" ? calibDetail(r) : ""}</div>`;
   }).join("");
 }
 // Weighting needs an error column; errors method only matters for a weighted fit.
@@ -445,6 +485,7 @@ function syncControls() {
   for (const [id, v] of [["h_w", hs.width], ["h_s", hs.start]]) { $(id).value = v === null ? "" : fmt.format(v); $(id).classList.remove("bad"); }
   const ds = derivedSettings(proj);
   for (const [id, k] of Object.entries(DKEYS)) $(id).value = ds[k];
+  $("c_y0").value = calibSettings(proj).y0; $("calibmsg").hidden = true;
 }
 // Formula columns are recomputed from the data on every change; rows that cannot be calculated are named in the message.
 function recalc() {
@@ -496,6 +537,11 @@ $("example").onclick = () => setProject(newProject(...EXAMPLE));
 $("example3").onclick = () => {
   const p = newProject(...EXAMPLE3);
   p.settings.series = [{ y: "ΔL auf / mm", err: "sΔL auf / mm", xmin: null, xmax: null }, { y: "ΔL ab / mm", err: "sΔL ab / mm", xmin: null, xmax: null }];
+  setProject(p);
+};
+$("example4").onclick = () => {
+  const p = newProject(...EXAMPLE4);
+  p.settings.calib = { y0: "1,3405 ± 0,0003" };
   setProject(p);
 };
 $("example2").onclick = () => {
@@ -557,7 +603,7 @@ if (worker) {
     if (fingerprint(proj) !== job.fp || proj.settings.weighted !== job.weightedSetting) return fitFailed("Die Daten wurden während der Berechnung geändert. Bitte erneut anpassen.");
     const out = m.result;
     change(() => addResult(proj, {
-      kind: "fit", model: "line", weighted: job.weighted, dof: out.dof, n: job.n,
+      kind: "fit", model: "line", weighted: job.weighted, dof: out.dof, n: job.n, cov: { scaled: out.cov_scaled, ...(job.weighted ? { unscaled: out.cov_unscaled } : {}) },
       ...(job.weighted ? { chi2: out.chi2 } : { ssr: out.ssr }),
       params: job.names.map(([name, unit], i) => ({ name, unit, value: out.p[i], uScaled: out.err_scaled[i], ...(job.weighted ? { uUnscaled: out.err_unscaled[i] } : {}) })),
     }));
@@ -659,6 +705,38 @@ $("derive").onclick = () => {
   change(() => addResult(proj, {
     kind: "derived", weighted: fit.weighted, formula: ds.formula.trim(), used: s.used, partsScaled: s.parts, partsUnscaled: (u || s).parts,
     params: [{ name, unit: ds.unit.trim(), value: s.value, uScaled: s.u, ...(u ? { uUnscaled: u.u } : {}) }],
+  }));
+};
+// Calibration read-off: the measured values are a text setting (typing is one undo step); the calculation needs a fresh line fit with its covariance.
+$("c_y0").addEventListener("input", e => {
+  if (editKey !== "calib.y0") { pushUndo(); editKey = "calib.y0"; }
+  proj.settings.calib = { y0: e.target.value };
+  renderPlot(); renderResults(); autosave();
+});
+$("c_y0").addEventListener("focusout", () => { editKey = null; });
+function calibFailed(why) { $("calibmsg").textContent = why; $("calibmsg").hidden = false; }
+$("c_go").onclick = () => {
+  if (!proj) return;
+  const fit = freshFit(), x = col("x"), y = col("y");
+  if (!fit) return calibFailed("Bitte zuerst „Anpassen“ drücken. Das Ergebnis der Geradenanpassung fehlt oder ist veraltet.");
+  const v = parseCalibValues(calibSettings(proj).y0);
+  if (v.error) return calibFailed(v.error);
+  const cv = k => { const c = (fit.cov || {})[k]; return Array.isArray(c) && c.length === 3 && c.every(Number.isFinite) ? c : null; };
+  const kinds = fit.weighted ? ["scaled", "unscaled"] : ["scaled"];
+  if (!kinds.every(cv)) return calibFailed("Das Ergebnis der Anpassung enthält die Kovarianz von a und b nicht (ältere Version). Bitte „Anpassen“ erneut drücken.");
+  const [pa, pb] = fit.params, xs = x.values.filter((q, i) => q !== null && y.values[i] !== null), per = k => ({ a: pa.value, b: pb.value, ua: pa[k === "scaled" ? "uScaled" : "uUnscaled"], ub: pb[k === "scaled" ? "uScaled" : "uUnscaled"], cov: cv(k)[1] });
+  const unit = (x.name.split("/")[1] || "").trim(), reads = [];
+  for (const q of v.values) {
+    const s = readOff(per("scaled"), q.y0, q.u);
+    if (s.error) return calibFailed(s.error);
+    const u = fit.weighted ? readOff(per("unscaled"), q.y0, q.u) : null;
+    reads.push({ y0: q.y0, u0: q.u, x0: s.x0, uScaled: s.u, ...(u ? { uUnscaled: u.u } : {}), partsScaled: s.parts, partsUnscaled: (u || s).parts });
+  }
+  $("calibmsg").hidden = true;
+  change(() => addResult(proj, {
+    kind: "calib", weighted: fit.weighted, range: [Math.min(...xs), Math.max(...xs)],
+    used: { a: pa.value, b: pb.value, xUnit: unit, scaled: { ua: per("scaled").ua, ub: per("scaled").ub, cov: cv("scaled")[1] }, ...(fit.weighted ? { unscaled: { ua: per("unscaled").ua, ub: per("unscaled").ub, cov: cv("unscaled")[1] } } : {}) },
+    reads, params: reads.map(q => ({ name: `x₀ (y₀ = ${fmt.format(q.y0)})`, unit, value: q.x0, uScaled: q.uScaled, ...(q.uUnscaled !== undefined ? { uUnscaled: q.uUnscaled } : {}) })),
   }));
 };
 // Typing the instrument error is one undo step; the two selects are one step each.
