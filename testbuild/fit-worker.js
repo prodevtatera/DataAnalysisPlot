@@ -29,8 +29,26 @@ def line_fit(x, y, sy):
         out["err_unscaled"] = np.sqrt(np.diag(c)).tolist(); out["chi2"] = chi2
         out["cov_unscaled"] = [float(c[0, 0]), float(c[0, 1]), float(c[1, 1])]
     return json.dumps(out)
+def gof(d):
+    # Chi-square goodness of fit of counts in integer classes against Poisson(mean) and Gauss(mean, s). edges: lower limits of the classes plus the upper limit of the last one.
+    # The first class reaches down to minus infinity and the last up to plus infinity, so the expected counts add up to n. A count k is in class [e_i, e_i+1) when e_i <= k < e_i+1.
+    from scipy import stats
+    edges, obs = d["edges"], np.array(d["counts"], dtype=float)
+    n = obs.sum(); out = {}
+    cdfs = {"poisson": (lambda e: stats.poisson.cdf(e - 1, d["mean"]), 1),                      # P(X < e) for whole numbers
+            "gauss": (lambda e: stats.norm.cdf((e - 0.5 - d["mean"]) / d["s"]), 2)}           # same with the continuity correction
+    for name, (F, npar) in cdfs.items():
+        cum = np.array([0.0] + [float(F(e)) for e in edges[1:-1]] + [1.0])
+        exp = n * np.diff(cum)
+        if not np.all(exp > 0):
+            raise ValueError("Für eine Klasse ist die erwartete Anzahl 0. Bitte weniger oder breitere Klassen wählen.")
+        chi2 = float(np.sum((obs - exp) ** 2 / exp)); dof = len(obs) - 1 - npar
+        out[name] = {"expected": exp.tolist(), "chi2": chi2, "dof": dof, "p": float(stats.chi2.sf(chi2, dof))}
+    return json.dumps(out)
 def run(s):
     d = json.loads(s)
+    if d.get("task") == "gof":
+        return gof(d)
     x, y = np.array(d["x"]), np.array(d["y"])
     sy = np.array(d["sy"]) if d["sy"] else None
     if "expr" in d:  # free formula, used by the NIST check: x plus named parameters

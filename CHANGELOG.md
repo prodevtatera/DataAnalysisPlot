@@ -2,6 +2,14 @@
 
 Written in plain language for people who do not read code. Newest entry on top.
 
+## 2026-10-14: χ² test against Poisson and Gauss (P8)
+
+- **What a student can now do:** the new section "χ²-Test: Poisson- und Gauß-Verteilung (Zählraten)" takes a column of counts per measuring interval (for example decays in 10 s), groups them into classes of whole numbers (class width and start can be typed or left automatic) and tests them against a Poisson and a Gauss distribution. For each class the page shows observed and expected counts; the result lines read for example "Poisson: χ² = 3,99 bei 8 Freiheitsgraden, p = 0,858". A plot shows the observed counts as bars and both expected distributions as lines. A short sentence per distribution says whether the counts contradict it at the 5 % level.
+- **Warning:** a class with an expected count below 5 is marked with * and a warning names the classes, because the χ² test is unreliable then.
+- **Good to know:** Poisson uses λ = mean (1 estimated parameter), Gauss uses mean and s with n−1 (2 estimated parameters) and a continuity correction of 0,5; the first and last class reach out to infinity so the expected counts add up to n. All of this is written under the result.
+- **Messages:** values that are not whole numbers from 0, all values equal, a start above the smallest count, a class width that is not a whole number, fewer than 4 or more than 100 classes each give a clear message and no result.
+- **Tested:** `tests/phase2-step11-gof.sh` with 40 hand-made counts against a separate plain-Python calculation (`tests/reference/gof.py`, p-values from closed formulas that the script itself checks against the printed χ² table, e.g. df = 3: 7,815 at p = 0,05): expected counts, χ², degrees of freedom and p for class widths 1, 2 and automatic, plus a case where Poisson is rejected (p about 1e-10) and Gauss is not. Also undo, reload, save and open, out-of-date marking, and a hand-edited project file.
+
 ## 2026-10-14: Logarithmic y axis with error bars (P8)
 
 - **What a student can now do:** the switch "Logarithmische y-Achse (halblogarithmisch)" above the plot turns the y axis logarithmic, for example for a radioactive decay series or a bacterial growth curve. The y error bars stay visible and keep their true size on the log scale. It also works for the plot of several series. The switch is saved in the project, can be undone and survives a reload.

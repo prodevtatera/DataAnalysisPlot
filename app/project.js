@@ -38,6 +38,12 @@ function histSettings(p) {
   return { col: p.columns.some(c => c.name === st.col) ? st.col : y.name, ddof: st.ddof === 0 ? 0 : 1, width: st.width > 0 ? st.width : null, start: Number.isFinite(st.start) ? st.start : null };
 }
 const histKey = p => { const st = histSettings(p); return fnv(JSON.stringify([st, p.columns.find(c => c.name === st.col).values])); };
+// Chi-square test of counts against Poisson and Gauss (P8): column of counts, class width and start as whole numbers (null = automatic).
+function gofSettings(p) {
+  const st = p.settings.gof || {}, y = p.columns.find(c => c.role === "y") || p.columns[0], whole = (v, min) => Number.isInteger(v) && v >= min ? v : null;
+  return { col: p.columns.some(c => c.name === st.col) ? st.col : y.name, width: whole(st.width, 1), start: whole(st.start, 0) };
+}
+const gofKey = p => { const st = gofSettings(p); return fnv(JSON.stringify([st, p.columns.find(c => c.name === st.col).values])); };
 // Derived quantity from the fit parameters (P3, P4, P5, P9): name, unit, formula over a and b, further quantities "L = 1 ± 0,002", expected unit of a (optional). All text.
 function derivedSettings(p) {
   const d = p.settings.derived || {}, t = k => typeof d[k] === "string" ? d[k] : "";
@@ -56,7 +62,7 @@ const seriesKey = p => {
   return fnv(JSON.stringify([st, x && [x.name, x.values], st.map(s => [by(s.y), by(s.err)])]));
 };
 // Results that depend on their own settings and columns instead of the x/y/error fingerprint.
-const KEYS = { stats: statsKey, wmean: wmeanKey, hist: histKey, series: seriesKey };
+const KEYS = { stats: statsKey, wmean: wmeanKey, hist: histKey, gof: gofKey, series: seriesKey };
 
 function addResult(p, result) {
   p.results = p.results.filter(r => r.kind !== result.kind);
@@ -83,4 +89,4 @@ function open(text) {
   return ok ? { project: p } : { error: "Das Projekt ist beschädigt: Spalten oder Werte fehlen oder sind keine Zahlen." };
 }
 
-if (typeof module !== "undefined") module.exports = { calibSettings, seriesSettings, SERIES_MAX, derivedSettings, statsSettings, wmeanSettings, histSettings, ROLES, newProject, fingerprint, addResult, isStale, save, open };
+if (typeof module !== "undefined") module.exports = { gofSettings, calibSettings, seriesSettings, SERIES_MAX, derivedSettings, statsSettings, wmeanSettings, histSettings, ROLES, newProject, fingerprint, addResult, isStale, save, open };
