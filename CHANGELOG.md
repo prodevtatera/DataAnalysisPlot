@@ -2,6 +2,11 @@
 
 Written in plain language for people who do not read code. Newest entry on top.
 
+## 2026-10-14: The calmer page is finished and checked from start to end
+
+- **What changed for a student:** nothing new on screen; this is the final check of the new home page and the calmer workbench. A first visit of the workbench now shows 4 sections and 12 buttons (it was 16 and 55), the page is 2178 px high with the finished example (it was 6441 px), and the whole plot and the result E = (201 ± 8) GPa fit into a 1200 x 800 window.
+- **Tested:** `tests/phase4-step6-gate.sh` walks a fresh browser through the home page, the finished example, an experiment template with own numbers pasted in, a dropped German CSV file and the English version; the numbers are compared with hand calculations. The report is `docs/phase4-report.md`. No real student has used it yet.
+
 ## 2026-10-14: A home page
 
 - **What changed for a student:** the web address now opens a home page instead of the workbench. It has a headline, a drop zone, three buttons ("Beispiel öffnen", "Leeres Projekt", "Datei wählen"), a picture of a finished result, three short points about the tool and 12 experiment cards. A card opens the workbench with that experiment; "Beispiel öffnen" opens the finished example; a dragged, chosen or pasted CSV file arrives in the workbench as a table. A picture, an Excel file or a text without numbers is refused on the home page with a clear message, and nothing changes. If you worked here before, a link offers to continue with your last project. German and English, the language you choose is kept.

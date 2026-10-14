@@ -15,7 +15,7 @@ Written 2026-10-13, reduced to the open items on 2026-10-14. What is done is in 
 
 ## Done
 
-Phases 0 to 2 and the built parts of Phase 3 are finished and moved to `roadmap_done.md`, with their evidence. 40 automatic checks pass.
+Phases 0 to 2, the built parts of Phase 3 and Phase 4 (the calmer page and the home page) are finished and moved to `roadmap_done.md`, with their evidence. 46 automatic checks pass.
 
 ## Open now: needs people or extra software
 

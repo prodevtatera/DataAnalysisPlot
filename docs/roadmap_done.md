@@ -1,6 +1,6 @@
 # Roadmap: what is done
 
-Moved out of `roadmap.md` on 2026-10-14. Everything here was built and checked by `bash scripts/check.sh` (40 checks, all pass). The open items from these phases (R, a real student, her real data, instructor demos) are in `roadmap.md`.
+Moved out of `roadmap.md` on 2026-10-14. Everything here was built and checked by `bash scripts/check.sh` (46 checks, all pass). The open items from these phases (R, a real student, her real data, instructor demos) are in `roadmap.md`.
 
 ## Phase 0: One-day test build. Gate passed
 
@@ -43,6 +43,14 @@ Built:
 - Own numbers can be pasted into a template.
 
 Evidence: `docs/phase3-report.md`.
+
+## Phase 4: A calmer page and a home page. Gate passed (asked by Luis on 2026-10-14)
+
+Built: a home page at the root address (headline, drop zone, example, empty project, 12 template cards, DE / EN), a workbench that shows only the table, plot and results at first and opens the other 13 tools one by one from a "Werkzeug wählen" menu, each template opening only its own tools, grouped header actions, no sideways scroll down to 375 px, and "university" instead of the university's name on every page.
+
+Gate: first view at 1200 x 800 went from 16 sections, 55 buttons and 6441 px to 4 sections, 12 buttons and 1657 px (2178 px with the finished example fitted); the walk home page, example, template, dropped file, English passes in a real browser. **Passed.** No real student has used it (open, see `roadmap.md`).
+
+Evidence: `docs/phase4-report.md`, `tests/phase4-step6-gate.sh`.
 
 ## Open questions for the daughter (asked, no answers yet)
 
