@@ -2,6 +2,12 @@
 
 Written in plain language for people who do not read code. Newest entry on top.
 
+## 2026-10-14: Save every plot as PNG or SVG
+
+- **What a student can now do:** under each plot there are two buttons, "Diagramm als PNG speichern" and "Diagramm als SVG speichern". This works for the main plot (also with the logarithmic y axis and its error bars), the histogram, the cumulative plot with the 16 % and 84 % read-off, and the χ² plot. The PNG is 2400 x 1400 pixels, sharp enough for a report. The SVG is a vector drawing: text stays text and can be edited in other programs.
+- **Good to know:** the buttons are greyed out while there is no plot, for example when a result is out of date. If saving fails, a short German message appears.
+- **Tested:** `tests/phase2-step14-export.sh` saves all plots and checks the files themselves (size, text, error bars).
+
 ## 2026-10-14: Compare a measured and a calculated value (P6)
 
 - **What a student can now do:** the new section "Messwert und Vergleichswert vergleichen" takes two values with uncertainty, for example a measured resistance `100,2 ± 0,3` and the calculated one `100,0 ± 0,4`, plus a unit. The result shows the difference as (value ± u) unit, how many combined uncertainties that is, and a plain verdict. Under 2 combined uncertainties: "stimmen im Rahmen ihrer Unsicherheiten überein". 2 or more: "unterscheiden sich deutlich", with a hint to check units, calculation and systematic errors. The relative deviation from the reference is shown too.
