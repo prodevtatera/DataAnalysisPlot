@@ -397,7 +397,9 @@ function autoNext() {
   if (auto && !auto.length && !$("fit").disabled) { auto = null; undo = []; redo = []; updateHist(); } // the example starts with a clean undo history
 }
 function startExample() {
-  setProject(TEMPLATES.find(t => t.id === "p3").build());
+  const p = TEMPLATES.find(t => t.id === "p3").build();
+  p.settings.tools = []; // the first view shows only table, plot and results; the P3 template itself opens its tools
+  setProject(p);
   $("intro").hidden = false;
   auto = ["fit", "derive", "sr_go"];
   if (worker?.ready) autoNext();

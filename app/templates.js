@@ -25,6 +25,7 @@ function _make(header, rows, { x, y, yerr, calc = [], settings = {}, id }) {
   p.columns.forEach(c => { c.role = c.name === x ? "x" : c.name === y ? "y" : c.name === yerr ? "yerr" : "unused"; });
   Object.assign(p.settings, settings);
   p.template = id;
+  p.settings.tools = [...TEMPLATES.find(q => q.id === id).tools]; // the tools this experiment needs; the page opens only these
   return p;
 }
 
@@ -41,9 +42,9 @@ const P8A_N = [9, 12, 8, 10, 7, 11, 9, 6, 10, 13, 8, 9, 15, 7, 14, 9, 12, 5, 6, 
 const P8B_ROWS = [[0, 1000, 31.6], [1, 766, 27.7], [2, 586, 24.2], [3, 449, 21.2], [4, 344, 18.5], [5, 263, 16.2], [6, 201, 14.2], [7, 154, 12.4]];
 const P9_ROWS = [[0.30, 1.101, 0.005], [0.45, 1.343, 0.005], [0.60, 1.556, 0.005], [0.80, 1.790, 0.008], [1.00, 2.009, 0.010]];
 
-// go = id of the button the step is about (the page offers "Zeigen" to jump to it); a step without go is information only.
+// tools = the tool ids (app/tools.js) the experiment needs, in menu order. go = id of the button the step is about (the page offers "Zeigen" to jump to it); a step without go is information only.
 const TEMPLATES = [
-  { id: "p1", get title() { return t("tpl_p1_title"); },
+  { id: "p1", tools: ["stats", "hist", "cum"], get title() { return t("tpl_p1_title"); },
     get note() { return t("tpl_p1_note"); },
     steps: [
       { go: "s_go", get text() { return t("tpl_p1_s1"); } },
@@ -52,7 +53,7 @@ const TEMPLATES = [
     build: () => _make(["Nr / 1", "l / mm"], P1_L.map((_, i) => [i + 1, P1_L[(i * 7) % P1_L.length]]), // 7 and 30 share no factor: the same 30 readings in a mixed order, like a real sheet
        { id: "p1", x: "Nr / 1", y: "l / mm",
       settings: { stats: { col: "l / mm", ddof: 1, instr: null }, hist: { col: "l / mm", ddof: 1, width: 0.2, start: 9.5 } } }) },
-  { id: "p2", get title() { return t("tpl_p2_title"); },
+  { id: "p2", tools: ["stats", "wmean"], get title() { return t("tpl_p2_title"); },
     get note() { return t("tpl_p2_note"); },
     steps: [
       { go: "s_go", get text() { return t("tpl_p2_s1"); } },
@@ -62,7 +63,7 @@ const TEMPLATES = [
     build: () => _make(["Nr / 1", "d / mm", "V / cm³", "u / cm³"], [[1, 20.02, 10.3, 0.2], [2, 20.00, 10.5, 0.3], [3, 19.98, 9.9, 0.1], [4, 20.01, null, null], [5, 19.99, null, null]],
       { id: "p2", x: "Nr / 1", y: "V / cm³", yerr: "u / cm³", calc: [["A / mm²", "pi*(d/2)^2", "d = 0,05"]],
         settings: { stats: { col: "d / mm", ddof: 1, instr: 0.05 }, wmean: { val: "V / cm³", unc: "u / cm³", k: 1 } } }) },
-  { id: "p3", get title() { return t("tpl_p3_title"); },
+  { id: "p3", tools: ["series", "derived"], get title() { return t("tpl_p3_title"); },
     get note() { return t("tpl_p3_note"); },
     steps: [
       { go: "sr_go", get text() { return t("tpl_p3_s1"); } },
@@ -71,7 +72,7 @@ const TEMPLATES = [
     ],
     build: () => _make(["F / N", "ΔL auf / mm", "sΔL auf / mm", "ΔL ab / mm", "sΔL ab / mm"], P3_ROWS, { id: "p3", x: "F / N", y: "ΔL auf / mm", yerr: "sΔL auf / mm",
       settings: { derived: { ...DERIVED_TEMPLATES.E }, series: [{ y: "ΔL auf / mm", err: "sΔL auf / mm", xmin: null, xmax: null }, { y: "ΔL ab / mm", err: "sΔL ab / mm", xmin: null, xmax: null }] } }) },
-  { id: "p4", get title() { return t("tpl_p4_title"); },
+  { id: "p4", tools: ["derived"], get title() { return t("tpl_p4_title"); },
     get note() { return t("tpl_p4_note"); },
     steps: [
       { go: "fit", get text() { return t("tpl_p4_s1"); } },
@@ -79,13 +80,13 @@ const TEMPLATES = [
     ],
     build: () => _make(["r / mm", "h / mm", "sh / mm"], P4_ROWS, { id: "p4", x: "r⁻¹ / mm⁻¹", y: "h / mm", yerr: "sh / mm", calc: [["r⁻¹ / mm⁻¹", "1/r", ""]],
       settings: { derived: { ...DERIVED_TEMPLATES.sigma } } }) },
-  { id: "p5a", get title() { return t("tpl_p5a_title"); },
+  { id: "p5a", tools: [], get title() { return t("tpl_p5a_title"); },
     get note() { return t("tpl_p5a_note"); },
     steps: [
       { go: "fit", get text() { return t("tpl_p5a_s1"); } },
     ],
     build: () => _make(["d / dm", "c / g·mL⁻¹", "α / °", "sα / °"], P5A_ROWS, { id: "p5a", x: "d·c / dm·g·mL⁻¹", y: "α / °", yerr: "sα / °", calc: [["d·c / dm·g·mL⁻¹", "d*c", ""]] }) },
-  { id: "p5b", get title() { return t("tpl_p5b_title"); },
+  { id: "p5b", tools: ["derived"], get title() { return t("tpl_p5b_title"); },
     get note() { return t("tpl_p5b_note"); },
     steps: [
       { go: "fit", get text() { return t("tpl_p5b_s1"); } },
@@ -93,7 +94,7 @@ const TEMPLATES = [
     ],
     build: () => _make(["k / 1", "D / mm", "sD / mm"], P5B_ROWS, { id: "p5b", x: "k / 1", y: "r² / mm²", yerr: "u(r²) / mm²", calc: [["r² / mm²", "(D/2)^2", "D = sD"]],
       settings: { derived: { ...DERIVED_TEMPLATES.R } } }) },
-  { id: "p6a", get title() { return t("tpl_p6a_title"); },
+  { id: "p6a", tools: ["wmean", "compare"], get title() { return t("tpl_p6a_title"); },
     get note() { return t("tpl_p6a_note"); },
     steps: [
       { get text() { return t("tpl_p6a_s1"); } },
@@ -103,7 +104,7 @@ const TEMPLATES = [
     build: () => _make(["Nr / 1", "R1 / Ω", "sR1 / Ω", "R2 / Ω", "sR2 / Ω", "R3 / Ω", "sR3 / Ω"], P6A_ROWS,
       { id: "p6a", x: "Nr / 1", y: "Rx / Ω", yerr: "u(Rx) / Ω", calc: [["Rx / Ω", "R1*R2/R3", "R1 = sR1; R2 = sR2; R3 = sR3"]],
         settings: { wmean: { val: "Rx / Ω", unc: "u(Rx) / Ω", k: 1 }, compare: { meas: "219,4 ± 1,0", ref: "220 ± 2,2", unit: "Ω" } } }) },
-  { id: "p6b", get title() { return t("tpl_p6b_title"); },
+  { id: "p6b", tools: ["wmean", "compare"], get title() { return t("tpl_p6b_title"); },
     get note() { return t("tpl_p6b_note"); },
     steps: [
       { get text() { return t("tpl_p6b_s1"); } },
@@ -113,7 +114,7 @@ const TEMPLATES = [
     build: () => _make(["k / 1", "x / mm", "sx / mm", "L / mm", "sL / mm"], P6B_ROWS,
       { id: "p6b", x: "k / 1", y: "λ / nm", yerr: "u(λ) / nm", calc: [["λ / nm", "(1000000/300)*x/(k*sqrt(x^2+L^2))", "x = sx; L = sL"]],
         settings: { wmean: { val: "λ / nm", unc: "u(λ) / nm", k: 1 }, compare: { meas: "632,1 ± 0,9", ref: "632,8", unit: "nm" } } }) },
-  { id: "p7", get title() { return t("tpl_p7_title"); },
+  { id: "p7", tools: ["calib"], get title() { return t("tpl_p7_title"); },
     get note() { return t("tpl_p7_note"); },
     steps: [
       { go: "fit", get text() { return t("tpl_p7_s1"); } },
@@ -121,21 +122,21 @@ const TEMPLATES = [
     ],
     build: () => _make(["w / %", "n / 1", "sn / 1"], P7_ROWS, { id: "p7", x: "w / %", y: "n / 1", yerr: "sn / 1",
       settings: { calib: { y0: "1,3505 ± 0,0003; 1,3600 ± 0,0003; 1,3780 ± 0,0003" } } }) },
-  { id: "p8a", get title() { return t("tpl_p8a_title"); },
+  { id: "p8a", tools: ["gof"], get title() { return t("tpl_p8a_title"); },
     get note() { return t("tpl_p8a_note"); },
     steps: [
       { go: "g_go", get text() { return t("tpl_p8a_s1"); } },
     ],
     build: () => _make(["Nr / 1", "N / 1"], P8A_N.map((n, i) => [i + 1, n]), { id: "p8a", x: "Nr / 1", y: "N / 1",
       settings: { gof: { col: "N / 1", width: 3, start: 3 } } }) },
-  { id: "p8b", get title() { return t("tpl_p8b_title"); },
+  { id: "p8b", tools: ["logy", "export"], get title() { return t("tpl_p8b_title"); },
     get note() { return t("tpl_p8b_note"); },
     steps: [
       { go: "logy", get text() { return t("tpl_p8b_s1"); } },
       { go: "plot_png", get text() { return t("tpl_p8b_s2"); } },
     ],
     build: () => _make(["t / min", "N / 1", "sN / 1"], P8B_ROWS, { id: "p8b", x: "t / min", y: "N / 1", yerr: "sN / 1", settings: { logy: true } }) },
-  { id: "p9", get title() { return t("tpl_p9_title"); },
+  { id: "p9", tools: ["stats", "derived"], get title() { return t("tpl_p9_title"); },
     get note() { return t("tpl_p9_note"); },
     steps: [
       { go: "s_go", get text() { return t("tpl_p9_s1"); } },

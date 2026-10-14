@@ -2,6 +2,12 @@
 
 Written in plain language for people who do not read code. Newest entry on top.
 
+## 2026-10-14: Each experiment template opens only the tools it needs
+
+- **What changed for a student:** choosing an experiment (P1 to P9) from "Vorlage laden" now opens just the tools of that experiment under the results, for example P3 opens "Mehrere Messreihen" and "Abgeleitete Größe", P8 (counts) opens "χ²-Test", P5 (polarimetry) opens none because only the fit is needed. Pasting your own numbers into a template keeps those tools open. The first visit (finished example) still shows only table, plot and results.
+- **Also fixed:** the numbered steps of the templates used old section names that no longer exist ("Anpassung", "Mehrere Messreihen in einem Diagramm"). Each step now names the tool exactly as the menu shows it, and the fit step says "Unter „Ergebnisse“ auf „Anpassen“ drücken". German and English.
+- **Tested:** `tests/phase4-step3-templates.sh` in a real browser: for all 12 templates the open tools match a hand-written list, each step names the tool that really holds its button, and the hand-calculated results still appear.
+
 ## 2026-10-14: A calmer workbench: table, plot and results first, the other tools in a "Werkzeuge" menu
 
 - **What changed for a student:** a first visit no longer shows 16 sections and 55 buttons. It shows the finished example with the table on the left, the plot on the right and the result E = (201 ± 8) GPa above them, then the results and a "Werkzeuge" (tools) section. That is 4 sections and 12 buttons, and the whole plot is in view on a 1200 x 800 screen. All other tools (paste data, formula column, mean and spread, histogram, cumulative plot, χ² test, weighted mean, several series, derived quantity, calibration line, comparison, logarithmic axis, save plot) are behind one button "Werkzeug wählen". A tool opens below the results; you can close it again with "Schließen" and have several open. A dot next to a tool's name means it already has a result. The tools you left open are kept when you reload or save the project; opening a tool is not an undo step.

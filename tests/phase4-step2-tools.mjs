@@ -149,13 +149,15 @@ eq("no message, no error", [await p.isVisible("#msg"), errors], [false, []]);
 // a template: p2 has a formula column, p8b has the log axis
 await p.selectOption("#tpl_sel", "p8b"); await p.click("#tpl_load");
 await p.waitForFunction(() => proj.template === "p8b");
-eq("template with the log axis opens it (part B will list tools per template)", (await visiblePanels()).includes("logy"), true);
+eq("template with the log axis opens it", (await visiblePanels()).includes("logy"), true);
 
 // 5. A template step names a button in a tool that is closed: "Zeigen" opens the tool and focuses the button.
 await p.click("#blank");
 await p.selectOption("#tpl_sel", "p3"); await p.click("#tpl_load");
 await p.waitForFunction(() => proj.template === "p3");
-eq("p3 loaded: no tool open yet", await visiblePanels(), []);
+eq("p3 loaded: it opens its own tools (step 3)", await visiblePanels(), ["series", "derived"]);
+await p.click('[data-close="series"]'); await p.click('[data-close="derived"]');   // close them: Zeigen must open a closed tool again
+eq("both closed", await visiblePanels(), []);
 await p.click('#tpl_info a[data-go="derive"]');
 eq("Zeigen opens the tool that holds the button", await visiblePanels(), ["derived"]);
 eq("and focuses the button", await p.evaluate(() => document.activeElement.id), "derive");
