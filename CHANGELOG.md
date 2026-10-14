@@ -2,6 +2,12 @@
 
 Written in plain language for people who do not read code. Newest entry on top.
 
+## 2026-10-14: Editable data table in the app
+
+- **What a student can now do:** open the app page, load the example or a saved project, and type straight into the table. The plot follows at once. Decimal commas work, an empty cell drops the point, rows can be added and deleted. A wrong entry turns red and says which row and column. A saved fit result is greyed out as out of date after any edit.
+- **Tested:** in a real browser with hand-typed expected values; all 9 checks pass. Screenshots looked at.
+- **Not covered yet:** undo and redo, autosave, choosing column roles, and running the fit inside the new app page.
+
 ## 2026-10-14: Save the figure as PNG or SVG
 
 - **What a student can now do:** save the plot, with data, error bars, fit line, axis labels and legend, as a sharp PNG image or as an SVG vector graphic that stays sharp at any size and can be edited in a drawing program.

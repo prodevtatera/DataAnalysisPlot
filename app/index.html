@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PlotLab</title>
+<style>
+  /* ponytail: fonts, Plotly and round.js are shared with testbuild/ for now; copy them into app/ when testbuild/ is retired. */
+  @font-face { font-family:"Barlow"; font-weight:400; src:url(../testbuild/fonts/barlow-latin-400-normal.woff2) format("woff2"); }
+  @font-face { font-family:"Barlow"; font-weight:700; src:url(../testbuild/fonts/barlow-latin-700-normal.woff2) format("woff2"); }
+  @font-face { font-family:"Source Sans 3"; font-weight:400; src:url(../testbuild/fonts/source-sans-3-latin-400-normal.woff2) format("woff2"); }
+  @font-face { font-family:"Source Sans 3"; font-weight:600; src:url(../testbuild/fonts/source-sans-3-latin-600-normal.woff2) format("woff2"); }
+  :root { --blue:#00376C; --paper:#FAFAF5; --line:#d9d9d0; --soft:#eeeee6; }
+  * { box-sizing:border-box; }
+  body { margin:0; min-height:100vh; display:flex; flex-direction:column; background:var(--paper); color:#000; font:17px/27px "Source Sans 3", system-ui, sans-serif; }
+  h1,h2,.brand,.btn { font-family:"Barlow", system-ui, sans-serif; }
+  header { background:var(--blue); color:var(--paper); height:81px; display:flex; align-items:center; padding:0 24px; }
+  .brand { font-weight:700; font-size:23px; letter-spacing:.02em; }
+  main { flex:1; width:100%; max-width:1120px; margin:0 auto; padding:24px 24px 48px; }
+  h1 { font-size:36px; line-height:1.17; font-weight:400; margin:0 0 12px; }
+  h2 { font-size:23px; font-weight:700; margin:28px 0 8px; }
+  .btns { margin:10px 0; display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+  .btn { background:var(--blue); color:var(--paper); border:0; padding:10px 18px; font-weight:700; font-size:16px; line-height:20px; border-radius:0; cursor:pointer; }
+  .btn.alt { background:#fff; color:var(--blue); border:1px solid var(--blue); }
+  .btn.small { padding:0 10px; line-height:22px; }
+  .btn:disabled { opacity:.5; cursor:default; }
+  .msg { margin:10px 0; padding:10px 14px; background:#fff; border-left:6px solid #B00020; }
+  .msg[hidden] { display:none; }
+  .scroll { overflow:auto; max-height:380px; background:#fff; border:1px solid var(--line); }
+  table { border-collapse:collapse; width:100%; font-size:15px; line-height:22px; font-variant-numeric:tabular-nums; }
+  th,td { padding:0; border-bottom:1px solid var(--soft); }
+  th { background:var(--soft); position:sticky; top:0; font-weight:600; padding:3px 10px; text-align:right; }
+  td.n { padding:3px 10px; color:#555; text-align:right; width:44px; }
+  td input { width:100%; min-width:90px; border:0; border-radius:0; padding:3px 10px; font:inherit; text-align:right; background:transparent; }
+  td input:focus { outline:2px solid var(--blue); outline-offset:-2px; background:#fff; }
+  td input.bad { background:#fde8ea; outline:2px solid #B00020; outline-offset:-2px; }
+  #plot { background:#fff; border:1px solid var(--line); height:420px; }
+  #results { background:#fff; border:1px solid var(--line); padding:12px 16px; }
+  .result.stale .res { opacity:.5; }
+  .res { font:700 20px "Barlow", system-ui, sans-serif; margin:2px 0; }
+  .empty { padding:24px 14px; color:#444; }
+  .hint { font-size:15px; color:#333; }
+  footer { background:var(--blue); color:var(--paper); padding:20px 24px; font-size:15px; }
+  @media (max-width:768px) { h1 { font-size:28px; } header,footer { padding-left:12px; padding-right:12px; } main { padding:16px 12px 40px; } }
+</style>
+</head>
+<body>
+<header><span class="brand">PlotLab</span></header>
+<main>
+  <h1>Messdaten</h1>
+  <p class="hint">Klicke in eine Zelle und tippe. Dezimalkomma ist in Ordnung. Das Diagramm folgt sofort.</p>
+  <div class="btns">
+    <button class="btn" id="example">Beispiel laden</button>
+    <label class="btn alt">Projekt öffnen<input id="openfile" type="file" accept=".json,.plotlab" hidden></label>
+    <button class="btn alt" id="saveproj" disabled>Projekt speichern</button>
+  </div>
+  <div id="msg" class="msg" role="alert" hidden></div>
+  <h2>Tabelle</h2>
+  <div class="scroll" id="table"><div class="empty">Noch keine Daten. Lade das Beispiel oder öffne ein Projekt.</div></div>
+  <div class="btns">
+    <button class="btn alt" id="addrow" disabled>Zeile hinzufügen</button>
+  </div>
+  <h2>Diagramm</h2>
+  <div id="plot"><div class="empty">Noch keine Daten.</div></div>
+  <h2>Ergebnisse</h2>
+  <div id="results"><div class="empty">Noch keine Ergebnisse.</div></div>
+</main>
+<footer>Independent student tool. Not affiliated with Humboldt-Universität zu Berlin.</footer>
+<script src="../testbuild/vendor/plotly.min.js"></script>
+<script src="../testbuild/round.js"></script>
+<script src="project.js"></script>
+<script>
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const fmt = new Intl.NumberFormat("de-DE", { maximumFractionDigits: 10 });
+const EXAMPLE = [["t / s", "U / V", "sU / V"], [[1, 2.1, 0.2], [2, 4.3, 0.2], [3, 6.2, 0.3], [4, 8.4, 0.3], [5, 9.9, 0.4]]];
+let proj = null;
+
+// "1,5" and "1.5" both work; empty means no value. Returns undefined for text that is not a number.
+function parseCell(t) {
+  t = t.trim().replace(",", ".");
+  if (t === "") return null;
+  return /^[+-]?(\d+\.?\d*|\.\d+)([eE][+-]?\d+)?$/.test(t) ? Number(t) : undefined;
+}
+const nrows = () => proj.columns[0].values.length;
+const col = role => proj.columns.find(c => c.role === role);
+
+function setProject(p) {
+  proj = p;
+  $("msg").hidden = true;
+  $("saveproj").disabled = $("addrow").disabled = false;
+  render();
+}
+function showMsg(t) { $("msg").textContent = t; $("msg").hidden = false; }
+
+function renderTable() {
+  const head = "<tr><th></th>" + proj.columns.map(c => `<th>${esc(c.name)}</th>`).join("") + "<th></th></tr>";
+  const body = Array.from({ length: nrows() }, (_, i) => `<tr><td class="n">${i + 1}</td>` +
+    proj.columns.map((c, j) => `<td><input data-r="${i}" data-c="${j}" aria-label="${esc(c.name)}, Zeile ${i + 1}" value="${c.values[i] === null ? "" : fmt.format(c.values[i])}" inputmode="decimal"></td>`).join("") +
+    `<td><button class="btn alt small" data-del="${i}" aria-label="Zeile ${i + 1} löschen">✕</button></td></tr>`).join("");
+  $("table").innerHTML = `<table><thead>${head}</thead><tbody>${body}</tbody></table>`;
+}
+function renderPlot() {
+  const x = col("x"), y = col("y"), e = col("yerr");
+  if (!x || !y) { Plotly.purge("plot"); $("plot").innerHTML = '<div class="empty">Für ein Diagramm braucht es eine x- und eine y-Spalte.</div>'; return; }
+  $("plot").querySelector(".empty")?.remove();
+  const idx = x.values.map((_, i) => i).filter(i => x.values[i] !== null && y.values[i] !== null);
+  const trace = { x: idx.map(i => x.values[i]), y: idx.map(i => y.values[i]), mode: "markers", type: "scatter", name: "Messwerte", marker: { color: "#00376C", size: 9 } };
+  if (e) trace.error_y = { type: "data", array: idx.map(i => e.values[i] ?? 0), visible: true, color: "#00376C", thickness: 1.6, width: 5 };
+  const ax = t => ({ title: { text: t, standoff: 10 }, showline: true, linecolor: "#000", mirror: true, ticks: "outside", gridcolor: "#e4e4dc", zeroline: false, exponentformat: "none" });
+  Plotly.react("plot", [trace], { font: { family: "Arial, Helvetica, sans-serif", size: 16, color: "#000" }, separators: ",.",
+    margin: { l: 70, r: 20, t: 20, b: 60 }, xaxis: ax(x.name), yaxis: ax(y.name), paper_bgcolor: "#fff", plot_bgcolor: "#fff",
+    showlegend: true, legend: { x: 0.02, y: 0.98, bgcolor: "#fff", bordercolor: "#999", borderwidth: 1 } }, { displaylogo: false, responsive: true });
+}
+function renderResults() {
+  if (!proj.results.length) { $("results").innerHTML = '<div class="empty">Noch keine Ergebnisse.</div>'; return; }
+  $("results").innerHTML = proj.results.map(r => {
+    const stale = isStale(proj, r);
+    const lines = (r.params || []).map(q => {
+      const t = huRound(q.value, q.u);
+      return `<div class="res">${esc(q.name)} = ${t ? `(${t[0]} ± ${t[1]})` : fmt.format(q.value)}${q.unit ? " " + esc(q.unit) : ""}</div>`;
+    }).join("");
+    return `<div class="result${stale ? " stale" : ""}">${stale ? '<div class="msg stalemsg">Die Daten wurden geändert. Dieses Ergebnis ist veraltet. Bitte neu anpassen.</div>' : ""}${lines}</div>`;
+  }).join("");
+}
+function render() { renderTable(); renderPlot(); renderResults(); }
+
+// An edit changes data only: keep the focused table as it is, redraw plot and results.
+$("table").addEventListener("input", e => {
+  const el = e.target, v = parseCell(el.value);
+  if (v === undefined) { el.classList.add("bad"); showMsg(`Zeile ${+el.dataset.r + 1}, Spalte ${+el.dataset.c + 1}: „${el.value}“ ist keine Zahl.`); return; }
+  el.classList.remove("bad");
+  if (!$("table").querySelector(".bad")) $("msg").hidden = true;
+  proj.columns[+el.dataset.c].values[+el.dataset.r] = v;
+  renderPlot(); renderResults();
+});
+// After leaving a cell, show the number in German format.
+$("table").addEventListener("focusout", e => {
+  const el = e.target, v = el.tagName === "INPUT" ? parseCell(el.value) : undefined;
+  if (v !== undefined) el.value = v === null ? "" : fmt.format(v);
+});
+$("table").addEventListener("click", e => {
+  const i = e.target.dataset.del;
+  if (i === undefined) return;
+  proj.columns.forEach(c => c.values.splice(+i, 1));
+  $("msg").hidden = true;
+  render();
+});
+$("addrow").onclick = () => { proj.columns.forEach(c => c.values.push(null)); render(); $("table").querySelector("tr:last-child input")?.focus(); };
+$("example").onclick = () => setProject(newProject(...EXAMPLE));
+$("saveproj").onclick = () => {
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([save(proj)], { type: "application/json" }));
+  a.download = "projekt.plotlab"; a.click();
+};
+// project.js defines open(text) as a global; it replaces window.open on this page.
+$("openfile").onchange = async e => {
+  const f = e.target.files[0]; if (!f) return;
+  const r = open(await f.text());
+  r.error ? showMsg(r.error) : setProject(r.project);
+  e.target.value = "";
+};
+</script>
+</body>
+</html>
