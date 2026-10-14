@@ -2,6 +2,14 @@
 
 Written in plain language for people who do not read code. Newest entry on top.
 
+## 2026-10-14: Any derived quantity from the fit line (P3, P4, P5, P9)
+
+- **What a student can now do:** the section "Abgeleitete Größe aus den Fit-Parametern" replaces the fixed Young's modulus form. After "Anpassen", type a name, a unit and a formula over a (slope) and b (intercept), for example `4*pi^2/a`, and optionally further quantities with their uncertainty, such as `L = 1 ± 0,002; d = 0,5 ± 0,01`. "Berechnen" gives the result as (value ± u) unit, for example g = (9,89 ± 0,09) m/s² from the slope of T² against l.
+- **Templates:** two buttons fill the form: the elasticity modulus E from P3 (same numbers as before: E = (201 ± 8) GPa) and g from the pendulum P9. "Beispiel Elastizität laden" still loads the E case.
+- **Good to know:** the uncertainty comes from Gaussian propagation and uses the scaled or unscaled error of a and b, as chosen above. The details line shows the formula, the numbers put in and how much each input contributes. If a formula uses both a and b, the page says that their correlation is not taken into account. If the slope has a different unit than the template expects, the page says so instead of giving a wrong number.
+- **Messages:** unknown name in the formula, a formula without a or b, division by zero, a root of a negative number, a missing "=" or a text instead of a number in the further quantities, and a wrong unit of a each give a plain German message.
+- **Tested:** `tests/phase2-step7-derived.sh` against hand derivatives and exact fractions (g = 9,886138, u = 0,0898 scaled and 0,1515 unscaled; unweighted g = 9,8795), with undo, reload, save and open and a hand-edited project file. The Phase 1 elasticity test still passes with the same numbers.
+
 ## 2026-10-14: Cumulative plot with 16 % and 84 % read-off (P1)
 
 - **What a student can now do:** after "Berechnen" in the histogram section, a second plot "Summenhäufigkeit mit Ablesung bei 16 % und 84 %" shows the cumulative share at each class limit with dashed guides to the x axis. The two read-off values are marked and written on the plot, for example 9,812 mm and 10,36 mm. The result list adds a line with both values, their half difference and, for comparison, x̄ − s and x̄ + s.

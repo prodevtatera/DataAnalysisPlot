@@ -62,4 +62,4 @@ function propagateColumn(c, columns, j, n) {
 }
 _F.FORMULA_HOOKS.uncert = propagateColumn;
 
-if (typeof module !== "undefined") module.exports = { parseUncertainty, propagateColumn };
+if (typeof module !== "undefined") module.exports = { parseUncertainty, propagateColumn, partial };

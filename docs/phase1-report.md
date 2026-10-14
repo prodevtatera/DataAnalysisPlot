@@ -21,6 +21,7 @@ Other Phase 1 "Build" items, all done and tested: project file with data, column
 What is measured: `tests/phase1-step8-timed.sh` drives the real page in headless Chromium on an Apple M5 (10 cores, 16 GB), local server. It pastes the six-row German-format P3 table, presses "Anpassen", types L, u(L), d, u(d), presses "E berechnen", reads the three result lines and saves the project.
 
 - **9 user actions** (a click on a button or list, or one paste or entry into one field; focusing a field is not counted): paste, "Als Tabelle übernehmen", "Anpassen", 4 entries, "E berechnen", "Projekt speichern". Roles (x, y, error) and weighting are right by default, so no action is needed for them.
+- Update after Phase 2 step 7: the E form became a template button plus one field for L and d, so the same run is now 7 actions (paste, "Als Tabelle übernehmen", "Anpassen", template, one entry, "Berechnen", "Projekt speichern").
 - **Machine time of that run: 219 to 291 ms** (four runs: 291, 267, 226, 219 ms). This is the computer's time, not a person's.
 - **Once per visit, before the first fit: 4.6 to 5.3 s** until Python is ready (local server, nothing downloaded over a network). On a first real visit add the download (about 24.7 MB compressed, see `docs/phase0-report.md`).
 - Result on screen: a = (0,02529 ± 0,00029) mm/N, b = (0,007 ± 0,011) mm, E = (201 ± 8) GPa. These equal the numbers calculated separately by hand in step 6.

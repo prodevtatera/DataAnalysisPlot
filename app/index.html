@@ -142,14 +142,19 @@
     <span class="hint" id="fitstate">Rechenmodul (SciPy) wird geladen …</span>
   </div>
   <div id="fitmsg" class="msg" role="alert" hidden></div>
-  <h2>Abgeleitete Größe: Elastizitätsmodul E</h2>
-  <p class="hint">E = 4·L / (π·d²·a) aus der Steigung a der Geraden. Dafür braucht es x in N („F / N“) und y in mm („ΔL / mm“).</p>
-  <div class="fitbar" id="young">
-    <label>L <input class="num" id="y_L" aria-label="Drahtlänge L in m" inputmode="decimal"> m</label>
-    <label>u(L) <input class="num" id="y_uL" aria-label="Unsicherheit u(L) in m" inputmode="decimal"> m</label>
-    <label>d <input class="num" id="y_d" aria-label="Drahtdurchmesser d in mm" inputmode="decimal"> mm</label>
-    <label>u(d) <input class="num" id="y_ud" aria-label="Unsicherheit u(d) in mm" inputmode="decimal"> mm</label>
-    <button class="btn" id="derive">E berechnen</button>
+  <h2>Abgeleitete Größe aus den Fit-Parametern</h2>
+  <p class="hint">Eine Größe aus der Steigung a und dem Achsenabschnitt b der Geraden rechnen, mit Fehlerfortpflanzung u(f)² = Σ (∂f/∂xᵢ)²·u(xᵢ)². Die Fehler von a und b kommen aus der Anpassung (skaliert oder unskaliert, wie oben gewählt) und werden als unabhängig behandelt. Weitere Größen mit Wert und Unsicherheit schreibst du als <code>L = 1 ± 0,002; d = 0,5 ± 0,01</code>. Die Einheiten stimmen nur, wenn die Formel die Umrechnung enthält: die Vorlagen sagen, in welchen Einheiten a und die weiteren Größen stehen müssen.</p>
+  <div class="btns">
+    <button class="btn alt" id="d_tE">Vorlage: Elastizitätsmodul E (P3)</button>
+    <button class="btn alt" id="d_tg">Vorlage: Fallbeschleunigung g aus T²(l) (P9)</button>
+  </div>
+  <div class="fitbar" id="derived">
+    <label>Name <input class="txt" id="d_name" aria-label="Name der abgeleiteten Größe" placeholder="E" autocomplete="off"></label>
+    <label>Einheit <input class="txt" id="d_unit" aria-label="Einheit der abgeleiteten Größe" placeholder="GPa" autocomplete="off"></label>
+    <label>Formel <input class="txt" id="d_formula" aria-label="Formel der abgeleiteten Größe" placeholder="4*L/(pi*d^2*a)" autocomplete="off" spellcheck="false"></label>
+    <label>Weitere Größen <input class="txt" id="d_vars" aria-label="Weitere Größen mit Wert und Unsicherheit" placeholder="L = 1 ± 0,002; d = 0,5 ± 0,01" autocomplete="off" spellcheck="false"></label>
+    <label>Einheit von a (optional) <input class="txt" id="d_aunit" aria-label="Erwartete Einheit der Steigung a" placeholder="mm/N" autocomplete="off"></label>
+    <button class="btn" id="derive">Berechnen</button>
   </div>
   <div id="derivemsg" class="msg" role="alert" hidden></div>
   <h2>Ergebnisse</h2>
@@ -162,7 +167,7 @@
 <script src="project.js"></script>
 <script src="formula.js"></script>
 <script src="propagate.js"></script>
-<script src="derive.js"></script>
+<script src="derived.js"></script>
 <script src="stats.js"></script>
 <script>
 const $ = id => document.getElementById(id);
@@ -171,6 +176,12 @@ const fmt = new Intl.NumberFormat("de-DE", { maximumFractionDigits: 10 });
 // Steel wire, load F in N against extension in mm: slope about 0.0255 mm/N, so E is about 200 GPa for L = 1 m, d = 0.5 mm.
 const EXAMPLE2 = [["F / N", "ΔL / mm", "sΔL / mm"], [[10, 0.26, 0.02], [20, 0.50, 0.02], [30, 0.77, 0.02], [40, 1.03, 0.02], [50, 1.28, 0.02], [60, 1.51, 0.02]]];
 const EXAMPLE = [["t / s", "U / V", "sU / V"], [[1, 2.1, 0.2], [2, 4.3, 0.2], [3, 6.2, 0.3], [4, 8.4, 0.3], [5, 9.9, 0.4]]];
+// Templates for the derived quantity. E: L in m, d in mm, a in mm/N gives GPa (1 m, 1 mm, 1 mm/N is 4/π GPa). g: a = T²/l in s²/m gives m/s².
+const DERIVED_TEMPLATES = {
+  E: { name: "E", unit: "GPa", formula: "4*L/(pi*d^2*a)", vars: "L = 1 ± 0,002; d = 0,5 ± 0,01", aUnit: "mm/N" },
+  g: { name: "g", unit: "m/s²", formula: "4*pi^2/a", vars: "", aUnit: "s²/m" },
+};
+const DKEYS = { d_name: "name", d_unit: "unit", d_formula: "formula", d_vars: "vars", d_aunit: "aUnit" };
 const ROLE_LABELS = { x: "x-Werte", y: "y-Werte", yerr: "Fehler von y", unused: "nicht verwendet" };
 let proj = null;
 
@@ -269,11 +280,15 @@ function fitDetail(r) {
   return `<table><thead><tr><th>Parameter</th><th>Wert</th><th>Fehler skaliert</th>${r.weighted ? "<th>Fehler unskaliert</th>" : ""}</tr></thead><tbody>${rows}</tbody></table>` +
     `<div class="detail" data-how>Methode: ${how}. Freiheitsgrade: ${f.format(r.dof)}. ` + (r.weighted ? `χ² = ${f.format(r.chi2)}, χ²/DoF = ${f.format(r.chi2 / r.dof)}.` : `Summe der Abweichungsquadrate = ${f.format(r.ssr)}.`) + "</div>";
 }
+// Every number goes through a number formatter and every text through esc(), so a hand-edited project file cannot inject markup.
 function derivedDetail(r) {
-  const f = new Intl.NumberFormat("de-DE", { maximumSignificantDigits: 3 }), un = proj.settings.errMethod === "unscaled" && r.weighted;
-  const rel = [0, 1, 2].map(i => ((un ? r.relUnscaled : r.relScaled) || [])[i]).map(v => f.format(v * 100) + " %");
-  return `<div class="detail" data-how>Rechnung: E = 4·L / (π·d²·a), u(E)/E = √((u(L)/L)² + (2·u(d)/d)² + (u(a)/a)²). ` +
-    `Beiträge: u(L)/L = ${rel[0]}, 2·u(d)/d = ${rel[1]}, u(a)/a = ${rel[2]}. Fehler von a: ${un ? "unskaliert" : "skaliert bzw. aus der Streuung"}.</div>`;
+  const f = new Intl.NumberFormat("de-DE", { maximumSignificantDigits: 3 }), g = new Intl.NumberFormat("de-DE", { maximumSignificantDigits: 6 }), un = proj.settings.errMethod === "unscaled" && r.weighted;
+  const name = esc(((r.params || [])[0] || {}).name), list = a => (Array.isArray(a) ? a : []).slice(0, 22);
+  const parts = list(un ? r.partsUnscaled : r.partsScaled).map(q => `${esc(q.name)}: ${q.share == null ? "–" : f.format(Number(q.share) * 100) + " %"}`).join(", ");
+  const used = list(r.used), used2 = used.map(q => `${esc(q.name)} = ${g.format(Number(q.value))}${q.u == null ? "" : " ± " + g.format(Number(q.u))}${q.unit ? " " + esc(q.unit) : ""}`).join("; ");
+  return `<div class="detail" data-how>Rechnung: ${name} = ${esc(r.formula)}; u(${name})² = Σ (∂${name}/∂xᵢ)²·u(xᵢ)² (unabhängige Eingänge). Eingesetzt: ${used2}. ` +
+    `Beiträge zu u(${name})/|${name}|: ${parts || "keine (alle Unsicherheiten 0)"}. Fehler von a und b: ${un ? "unskaliert" : "skaliert bzw. aus der Streuung"}.` +
+    (used.some(q => q.name === "a") && used.some(q => q.name === "b") ? " Hinweis: a und b werden als unabhängig behandelt, ihre Korrelation ist nicht berücksichtigt." : "") + "</div>";
 }
 const fmtPlain = new Intl.NumberFormat("de-DE", { maximumSignificantDigits: 3 });
 const fmtRead = new Intl.NumberFormat("de-DE", { maximumSignificantDigits: 4 }); // values read off a table: 4 digits, no uncertainty attached
@@ -350,7 +365,7 @@ function renderResults() {
       const u = uOf(q), t = huRound(q.value, u);
       return `<div class="res">${esc(q.name)} = ${t ? `(${t[0]} ± ${t[1]})` : q.plain ? fmtPlain.format(q.value) : fmt.format(q.value)}${q.unit ? " " + esc(q.unit) : ""}</div>`;
     }).join("");
-    return `<div class="result${stale ? " stale" : ""}">${stale ? `<div class="msg stalemsg">Die Daten wurden geändert. Dieses Ergebnis ist veraltet. Bitte neu ${["stats", "wmean", "hist"].includes(r.kind) ? "berechnen" : "anpassen"}.</div>` : ""}${lines}${r.kind === "fit" && r.dof ? fitDetail(r) : ""}${r.kind === "derived" ? derivedDetail(r) : ""}${r.kind === "stats" ? statsDetail(r) : ""}${r.kind === "wmean" ? wmeanDetail(r) : ""}${r.kind === "hist" ? histDetail(r) : ""}</div>`;
+    return `<div class="result${stale ? " stale" : ""}">${stale ? `<div class="msg stalemsg">Die Daten wurden geändert. Dieses Ergebnis ist veraltet. Bitte neu ${["stats", "wmean", "hist", "derived"].includes(r.kind) ? "berechnen" : "anpassen"}.</div>` : ""}${lines}${r.kind === "fit" && r.dof ? fitDetail(r) : ""}${r.kind === "derived" ? derivedDetail(r) : ""}${r.kind === "stats" ? statsDetail(r) : ""}${r.kind === "wmean" ? wmeanDetail(r) : ""}${r.kind === "hist" ? histDetail(r) : ""}</div>`;
   }).join("");
 }
 // Weighting needs an error column; errors method only matters for a weighted fit.
@@ -371,7 +386,8 @@ function syncControls() {
   $("h_col").replaceChildren(...proj.columns.map(c => Object.assign(document.createElement("option"), { value: c.name, textContent: c.name })));
   $("h_col").value = hs.col; $("h_ddof").value = hs.ddof;
   for (const [id, v] of [["h_w", hs.width], ["h_s", hs.start]]) { $(id).value = v === null ? "" : fmt.format(v); $(id).classList.remove("bad"); }
-  for (const k of ["L", "uL", "d", "ud"]) { const v = (proj.settings.young || {})[k]; $("y_" + k).value = v == null ? "" : fmt.format(v); $("y_" + k).classList.remove("bad"); }
+  const ds = derivedSettings(proj);
+  for (const [id, k] of Object.entries(DKEYS)) $(id).value = ds[k];
 }
 // Formula columns are recomputed from the data on every change; rows that cannot be calculated are named in the message.
 function recalc() {
@@ -422,7 +438,7 @@ $("addrow").onclick = () => { change(() => proj.columns.forEach(c => c.values.pu
 $("example").onclick = () => setProject(newProject(...EXAMPLE));
 $("example2").onclick = () => {
   const p = newProject(...EXAMPLE2);
-  p.settings.young = { L: 1, uL: 0.002, d: 0.5, ud: 0.01 };
+  p.settings.derived = { ...DERIVED_TEMPLATES.E };
   setProject(p);
 };
 $("f_add").onclick = () => {
@@ -497,35 +513,32 @@ $("fit").onclick = () => {
   $("fit").disabled = true; $("fitmsg").hidden = true;
   worker.postMessage({ model: "line", x: idx.map(i => x.values[i]), y: idx.map(i => y.values[i]), sy: weighted ? idx.map(i => e.values[i]) : null });
 };
-// Inputs for the derived quantity live in the project settings. Typing in one field is one undo step.
-$("young").addEventListener("input", e => {
-  if (!e.target.matches("input.num")) return;
-  const v = parseCell(e.target.value), k = e.target.id.slice(2);
-  e.target.classList.toggle("bad", v === undefined);
-  if (v === undefined) return;
-  if (editKey !== "young." + k) { pushUndo(); editKey = "young." + k; }
-  proj.settings.young = { ...(proj.settings.young || {}), [k]: v };
+// The derived quantity's text fields live in the project settings. Typing in one field is one undo step.
+$("derived").addEventListener("input", e => {
+  const k = DKEYS[e.target.id];
+  if (!k) return;
+  if (editKey !== "derived." + k) { pushUndo(); editKey = "derived." + k; }
+  proj.settings.derived = { ...derivedSettings(proj), [k]: e.target.value };
   renderResults(); autosave();
 });
-$("young").addEventListener("focusout", () => { editKey = null; });
+$("derived").addEventListener("focusout", () => { editKey = null; });
+for (const k of ["E", "g"]) $("d_t" + k).onclick = () => { if (proj) setSetting("derived", { ...DERIVED_TEMPLATES[k] }); };
 function deriveFailed(why) { $("derivemsg").textContent = why; $("derivemsg").hidden = false; }
 $("derive").onclick = () => {
-  const x = col("x"), y = col("y"), fit = freshFit(), yg = proj.settings.young || {};
+  const fit = freshFit(), ds = derivedSettings(proj), name = ds.name.trim();
   if (!fit) return deriveFailed("Bitte zuerst „Anpassen“ drücken. Das Ergebnis der Geradenanpassung fehlt oder ist veraltet.");
-  const unit = c => (c.name.split("/")[1] || "").trim();
-  if (unit(x) !== "N" || unit(y) !== "mm") return deriveFailed("Für E muss die x-Spalte in N und die y-Spalte in mm angegeben sein, zum Beispiel „F / N“ und „ΔL / mm“.");
-  for (const [k, label] of [["L", "L"], ["uL", "u(L)"], ["d", "d"], ["ud", "u(d)"]])
-    if (yg[k] == null) return deriveFailed(`Bitte ${label} eintragen.`);
-  if (!(yg.L > 0 && yg.d > 0)) return deriveFailed("L und d müssen größer als 0 sein.");
-  if (!(yg.uL >= 0 && yg.ud >= 0)) return deriveFailed("u(L) und u(d) dürfen nicht negativ sein.");
-  const a = fit.params[0];
-  if (!(a.value > 0)) return deriveFailed("Die Steigung muss größer als 0 sein, damit E berechnet werden kann.");
-  const calc = ua => youngModulus({ a: a.value, ua, L: yg.L, uL: yg.uL, d: yg.d, ud: yg.ud });
-  const s = calc(a.uScaled), u = fit.weighted ? calc(a.uUnscaled) : null;
+  if (!name) return deriveFailed("Bitte einen Namen für die Größe eintragen, zum Beispiel E.");
+  const [pa, pb] = fit.params, aUnit = ds.aUnit.trim();
+  if (aUnit && pa.unit !== aUnit) return deriveFailed(`Die Formel erwartet a in ${aUnit}, die Anpassung liefert a in ${pa.unit || "(ohne Einheit)"}. Bitte die Einheiten der x- und y-Spalte prüfen.`);
+  const v = parseDerivedVars(ds.vars);
+  if (v.error) return deriveFailed(v.error);
+  const calc = k => deriveQuantity(ds.formula, { a: { value: pa.value, u: pa[k], unit: pa.unit }, b: { value: pb.value, u: pb[k], unit: pb.unit } }, v.vars);
+  const s = calc("uScaled");
+  if (s.error) return deriveFailed(s.error);
+  const u = fit.weighted ? calc("uUnscaled") : null;
   change(() => addResult(proj, {
-    kind: "derived", weighted: fit.weighted,
-    params: [{ name: "E", unit: "GPa", value: s.E, uScaled: s.uE, ...(u ? { uUnscaled: u.uE } : {}) }],
-    relScaled: s.rel, relUnscaled: (u || s).rel,
+    kind: "derived", weighted: fit.weighted, formula: ds.formula.trim(), used: s.used, partsScaled: s.parts, partsUnscaled: (u || s).parts,
+    params: [{ name, unit: ds.unit.trim(), value: s.value, uScaled: s.u, ...(u ? { uUnscaled: u.u } : {}) }],
   }));
 };
 // Typing the instrument error is one undo step; the two selects are one step each.

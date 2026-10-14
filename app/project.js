@@ -38,6 +38,11 @@ function histSettings(p) {
   return { col: p.columns.some(c => c.name === st.col) ? st.col : y.name, ddof: st.ddof === 0 ? 0 : 1, width: st.width > 0 ? st.width : null, start: Number.isFinite(st.start) ? st.start : null };
 }
 const histKey = p => { const st = histSettings(p); return fnv(JSON.stringify([st, p.columns.find(c => c.name === st.col).values])); };
+// Derived quantity from the fit parameters (P3, P4, P5, P9): name, unit, formula over a and b, further quantities "L = 1 ± 0,002", expected unit of a (optional). All text.
+function derivedSettings(p) {
+  const d = p.settings.derived || {}, t = k => typeof d[k] === "string" ? d[k] : "";
+  return { name: t("name"), unit: t("unit"), formula: t("formula"), vars: t("vars"), aUnit: t("aUnit") };
+}
 // Results that depend on their own settings and columns instead of the x/y/error fingerprint.
 const KEYS = { stats: statsKey, wmean: wmeanKey, hist: histKey };
 
@@ -48,7 +53,7 @@ function addResult(p, result) {
 
 // Stale when the data changed, weighting was switched after the fit, or (derived results) the extra inputs changed.
 const isStale = (p, r) => KEYS[r.kind] ? r.computedFrom !== KEYS[r.kind](p) : r.computedFrom !== fingerprint(p) || (r.settings || {}).weighted !== p.settings.weighted ||
-  (r.kind === "derived" && JSON.stringify((r.settings || {}).young) !== JSON.stringify(p.settings.young));
+  (r.kind === "derived" && JSON.stringify(derivedSettings({ settings: r.settings || {} })) !== JSON.stringify(derivedSettings(p)));
 
 const save = p => JSON.stringify(p, null, 1);
 
@@ -65,4 +70,4 @@ function open(text) {
   return ok ? { project: p } : { error: "Das Projekt ist beschädigt: Spalten oder Werte fehlen oder sind keine Zahlen." };
 }
 
-if (typeof module !== "undefined") module.exports = { statsSettings, wmeanSettings, histSettings, ROLES, newProject, fingerprint, addResult, isStale, save, open };
+if (typeof module !== "undefined") module.exports = { derivedSettings, statsSettings, wmeanSettings, histSettings, ROLES, newProject, fingerprint, addResult, isStale, save, open };
