@@ -14,7 +14,8 @@ function weightedMean(x, u, k) {
   const w = u.map(q => 1 / (q * q)), sw = w.reduce((a, v) => a + v, 0), n = x.length, bad = [];
   for (let i = 0; i < n; i++) for (let j = i + 1; j < n; j++) {
     const gap = Math.abs(x[i] - x[j]) - k * (u[i] + u[j]);
-    if (gap > 0) bad.push({ i: i + 1, j: j + 1, gap });
+    // Intervals that only touch (gap exactly 0 by hand) must count as overlapping; 1e-9 of the size absorbs the rounding of 10,3 - 10,0 - 0,3.
+    if (gap > 1e-9 * (Math.abs(x[i]) + Math.abs(x[j]) + k * (u[i] + u[j]))) bad.push({ i: i + 1, j: j + 1, gap });
   }
   return { n, mean: x.reduce((a, v, i) => a + w[i] * v, 0) / sw, u: 1 / Math.sqrt(sw), w, overlap: !bad.length, bad };
 }

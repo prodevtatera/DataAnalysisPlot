@@ -26,6 +26,10 @@ const d1 = weightedMean(x, u, 1), d2 = weightedMean(x, u, 2);
 near("mean", d1.mean, 10.022448979591836); near("u", d1.u, 3 / 35); near("w sum", d1.w.reduce((a, v) => a + v, 0), 1225 / 9);
 eq("k=1 overlap", d1.overlap, false); eq("k=1 pairs", d1.bad.map(b => [b.i, b.j]), [[1, 3], [2, 3]]);
 near("gap 1-3", d1.bad[0].gap, 0.1, 1e-9); near("gap 2-3", d1.bad[1].gap, 0.2, 1e-9);
+{ // touching intervals: hand gap = 0,3 - (0,2 + 0,1) = 0 exactly; floating point gives 7e-17, which must not count as a gap
+  const t = weightedMean([10.3, 10.0], [0.2, 0.1], 1); eq("touching intervals overlap", [t.overlap, t.bad], [true, []]);
+  const t2 = weightedMean([10.3, 10.0], [0.2, 0.0999], 1); eq("a real gap of 0,0001 is still found", t2.overlap, false);
+}
 eq("k=2 overlap", d2.overlap, true); eq("k=2 no pairs", d2.bad, []);
 // Equal uncertainties: the weighted mean is the plain mean, u = u0/√n (5,0 and 5,05 with 0,1: mean 5,025, u 0,0707107).
 const e = weightedMean([5, 5.05], [0.1, 0.1], 1);

@@ -2,6 +2,12 @@
 
 Written in plain language for people who do not read code. Newest entry on top.
 
+## 2026-10-14: Phase 3 finished as far as it can be alone; a rounding bug in the overlap check is fixed
+
+- **What changed for a student:** in "Gewichteter Mittelwert und Überlappung", two results whose intervals only touch (for example 10,3 ± 0,2 and 10,0 ± 0,1, where the intervals meet at exactly 10,1 to 10,2) were wrongly listed as not overlapping, with a gap like 0,0000000000000000667. They now count as overlapping. A real gap, even 0,0001, is still found.
+- **Tested:** `tests/phase3-step4-gate.sh` runs one student journey in a real browser: finished example without a click, English on, a German CSV dropped and fitted, a picture dropped (clear message), own numbers pasted into the P2 template and the weighted mean read as (10,02 ± 0,06) cm³ in German and (10.02 ± 0.06) cm³ in English, back to German with nothing changed. Numbers are hand calculations.
+- **Not done, needs people:** no lab instructor has seen the app yet, no real student data, no timed student run, no R comparison. `docs/phase3-report.md` says so, and `docs/progress.md` lists what to do next (start the app, host it, what to ask the daughter and the instructors).
+
 ## 2026-10-14: English, third part (messages, templates, export): the whole page is in English now
 
 - **What a student can now do:** with the "EN" button, nothing on the page stays German any more. The note at the top that said "not everything is translated yet" is gone.

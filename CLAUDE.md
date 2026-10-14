@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 A free, browser-based data analysis and plotting app for university students. It is inspired by QtiPlot (https://www.qtiplot.com), but it is not a clone.
 
-Status on 2026-10-13: planning only. There is no code yet.
+Status on 2026-10-14: the app exists in `app/` (the one-day test build in `testbuild/` is finished). Roadmap phases 0 to 3 are done as far as they can be alone, and `bash scripts/check.sh` passes. What is left needs people: instructor demos (the Phase 3 gate), real data from Luis's daughter, a timed student run and the R cross-check. See `docs/phase3-report.md` and `docs/progress.md`.
 
 ## Who it is for
 
@@ -60,14 +60,12 @@ These choices still need to pass the one-day test build (see Next steps):
 
 ## Next steps
 
-1. Get real HU biology material from Luis's daughter. The checklist lists exactly what to ask for, including BioB 6 statistics sheets and the BioB 8, 11, 13 and 15–18 lab instructions. Also ask which software she uses (QtiPlot, Excel, R?) and what annoys her most. Add her assignments to the checklist.
-2. Run a one-day test build: one page where you paste German-format data (decimal commas) and plot it with error bars. Fit it two ways with SciPy in the browser:
-   - a weighted linear fit, showing scaled and unscaled errors and χ²/DoF;
-   - a Michaelis-Menten fit.
+Done as far as it can be alone: the HU material research, the one-day test build (checked against NIST and hand calculations), the roadmap phases 0 to 3 in code (`app/`).
 
-   Check the results against NIST datasets and R. Measure load time and test figure export.
-3. Write the launch specification, using the checklist as acceptance tests.
-4. Show the test build to 3–5 lab instructors early.
+1. Get real HU biology and Physics 2 material from Luis's daughter. The checklist lists exactly what to ask for, including BioB 6 statistics sheets and the BioB 8, 11, 13 and 15–18 lab instructions. Also ask which software she uses (QtiPlot, Excel, R?) and what annoys her most. Add her assignments to the checklist, and run one of her real datasets through the app.
+2. Show the app to 3–5 lab instructors (script and questions are under "For Luis" in `docs/progress.md`). This is the Phase 3 gate; it cannot pass without them.
+3. Time one real student on one experiment, in the app and in her usual tool. Install R (`brew install r`) for the R cross-check.
+4. Decide hosting (long cache headers, compression). Then write the launch specification, using the checklist and the instructors' answers as acceptance tests.
 
 ## Documents
 
