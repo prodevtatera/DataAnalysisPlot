@@ -164,6 +164,7 @@ await drop("notes.txt", "text/plain", "Hello world");
 eq("drop: no numbers", await text("#msg"), "“notes.txt” contains no numbers. Please drag a CSV or text file with measurements onto the page.");
 writeFileSync(dir + "/broken.plotlab", "this is not a project");
 await p.setInputFiles("#openfile", dir + "/broken.plotlab");
+await p.waitForFunction(() => !document.getElementById("msg").textContent.includes("notes.txt"));
 eq("open: damaged file", await text("#msg"), "The file is not a valid project (not readable JSON).");
 await paste("a;b\n1;2\n3");
 eq("paste: ragged", await text("#msg"), "Row 3 has 1 instead of 2 columns. Check the separator (; or tab).");
