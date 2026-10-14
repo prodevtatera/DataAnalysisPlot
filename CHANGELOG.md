@@ -2,6 +2,13 @@
 
 Written in plain language for people who do not read code. Newest entry on top.
 
+## 2026-10-14: Formula columns (Physics 2 experiments P2, P5, P6)
+
+- **What a student can now do:** add a new column that is calculated from other columns, for example r² = (D/2)^2 for Newton's rings or d·c for polarimetry. Type a name and a formula under "Formelspalte" and press "Spalte berechnen". Decimal commas, brackets, + − * / ^ and the functions sqrt, ln, log10, exp, abs, sin, cos, tan and pi work. The column updates by itself when a number is changed, can be used as the x or y column of the plot, is saved with the project, and can be removed again.
+- **Messages:** an unknown column name, an unknown function, a missing bracket, a duplicate name or a division by zero gives a plain German message (division by zero names the row and leaves that cell empty).
+- **Safe:** the formula is read by a small parser and never run as code. Attempts such as "alert(1)" are just reported as unknown.
+- **Tested:** `tests/phase2-step1-formula.sh` against values worked out by hand (for example r² = 1; 2,25; 4; 6,25), in the real page, including undo, save, reopen and a hand-edited project file. **Not covered yet:** uncertainties of formula results (next step).
+
 ## 2026-10-14: Elasticity (P3) works start to finish, and you can paste your own data
 
 - **What a student can now do:** paste a table from Excel or a CSV file (semicolon or tab, decimal comma) into the new box "Daten einfügen", press "Als Tabelle übernehmen", fit, enter wire length and diameter, and get E = (201 ± 8) GPa, then save the project. That is 9 clicks and entries. The same work in Excel is about 40 by my count of the steps (an estimate, not timed with a person). Before, the app could only load two examples or a saved project.

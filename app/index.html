@@ -42,6 +42,10 @@
   #results th { position:static; padding:3px 12px; }
   #results td { padding:3px 12px; text-align:right; }
   input.num { width:90px; padding:6px 8px; font:16px "Source Sans 3", system-ui, sans-serif; text-align:right; border:1px solid var(--blue); border-radius:0; background:#fff; }
+  input.txt { padding:6px 8px; font:16px "Source Sans 3", system-ui, sans-serif; border:1px solid var(--blue); border-radius:0; background:#fff; width:230px; max-width:100%; }
+  .fx { font-weight:400; font-size:13px; line-height:18px; color:#444; }
+  td.calc { padding:3px 10px; text-align:right; background:#f6f6ef; }
+  #fmsg { white-space:pre-line; }
   input.num.bad { background:#fde8ea; border-color:#B00020; }
   td.n { padding:3px 10px; color:#555; text-align:right; width:44px; }
   td input { width:100%; min-width:90px; border:0; border-radius:0; padding:3px 10px; font:inherit; text-align:right; background:transparent; }
@@ -82,6 +86,14 @@
   <div class="btns">
     <button class="btn alt" id="addrow" disabled>Zeile hinzufügen</button>
   </div>
+  <h2>Formelspalte</h2>
+  <p class="hint">Eine neue Spalte aus anderen Spalten rechnen, zum Beispiel r² aus dem Durchmesser D. Erlaubt: + − * / ^ und Klammern, Zahlen mit Komma, die Namen der Spalten links davon (der Teil vor „ / “, sonst in eckigen Klammern) und die Funktionen sqrt, ln, log10, exp, abs, sin, cos, tan (Bogenmaß) sowie pi.</p>
+  <div class="fitbar">
+    <label>Name <input class="txt" id="f_name" aria-label="Name der neuen Spalte" placeholder="r² / mm²" autocomplete="off"></label>
+    <label>Formel <input class="txt" id="f_expr" aria-label="Formel der neuen Spalte" placeholder="(D/2)^2" autocomplete="off" spellcheck="false"></label>
+    <button class="btn" id="f_add" disabled>Spalte berechnen</button>
+  </div>
+  <div id="fmsg" class="msg" role="alert" hidden></div>
   <h2>Diagramm</h2>
   <div id="plot"><div class="empty">Noch keine Daten.</div></div>
   <h2>Anpassung (Gerade y = a·x + b)</h2>
@@ -110,6 +122,7 @@
 <script src="../testbuild/round.js"></script>
 <script src="../testbuild/parse.js"></script>
 <script src="project.js"></script>
+<script src="formula.js"></script>
 <script src="derive.js"></script>
 <script>
 const $ = id => document.getElementById(id);
@@ -145,7 +158,7 @@ $("undo").onclick = undoStep;
 $("redo").onclick = redoStep;
 // Always take over Ctrl/Cmd+Z so the browser's own per-cell undo cannot disagree with ours.
 document.addEventListener("keydown", e => {
-  if (!(e.ctrlKey || e.metaKey) || e.altKey) return;
+  if (!(e.ctrlKey || e.metaKey) || e.altKey || e.target.matches?.("input.txt")) return;
   const k = e.key.toLowerCase();
   if (k === "z" || k === "y") { e.preventDefault(); (k === "y" || e.shiftKey) ? redoStep() : undoStep(); }
 });
@@ -171,17 +184,19 @@ function restoreAutosave() {
 function setProject(p) {
   proj = p; undo = []; redo = []; editKey = null; updateHist();
   $("msg").hidden = true;
-  $("saveproj").disabled = $("addrow").disabled = false; if (worker?.ready && !pending) $("fit").disabled = false;
+  $("saveproj").disabled = $("addrow").disabled = $("f_add").disabled = false; if (worker?.ready && !pending) $("fit").disabled = false;
   render();
 }
 function showMsg(t) { $("msg").textContent = t; $("msg").hidden = false; }
 
+const fmtCalc = new Intl.NumberFormat("de-DE", { maximumSignificantDigits: 8 });
+const calcText = (c, i) => c.values[i] === null ? "" : fmtCalc.format(c.values[i]);
 function renderTable() {
   const roleSel = (c, j) => `<select class="role" data-role="${j}" aria-label="Rolle von ${esc(c.name)}">` +
     Object.entries(ROLE_LABELS).map(([r, t]) => `<option value="${r}"${c.role === r ? " selected" : ""}>${t}</option>`).join("") + "</select>";
-  const head = "<tr><th></th>" + proj.columns.map((c, j) => `<th>${esc(c.name)}${roleSel(c, j)}</th>`).join("") + "<th></th></tr>";
+  const head = "<tr><th></th>" + proj.columns.map((c, j) => `<th>${esc(c.name)}${c.formula !== undefined ? `<div class="fx">= ${esc(c.formula)}</div>` : ""}${roleSel(c, j)}${c.formula !== undefined ? `<button class="btn alt small" data-delcol="${j}" aria-label="Spalte ${esc(c.name)} entfernen">Spalte entfernen</button>` : ""}</th>`).join("") + "<th></th></tr>";
   const body = Array.from({ length: nrows() }, (_, i) => `<tr><td class="n">${i + 1}</td>` +
-    proj.columns.map((c, j) => `<td><input data-r="${i}" data-c="${j}" aria-label="${esc(c.name)}, Zeile ${i + 1}" value="${c.values[i] === null ? "" : fmt.format(c.values[i])}" inputmode="decimal"></td>`).join("") +
+    proj.columns.map((c, j) => c.formula !== undefined ? `<td class="calc" data-calc="${j}">${calcText(c, i)}</td>` : `<td><input data-r="${i}" data-c="${j}" aria-label="${esc(c.name)}, Zeile ${i + 1}" value="${c.values[i] === null ? "" : fmt.format(c.values[i])}" inputmode="decimal"></td>`).join("") +
     `<td><button class="btn alt small" data-del="${i}" aria-label="Zeile ${i + 1} löschen">✕</button></td></tr>`).join("");
   $("table").innerHTML = `<table><thead>${head}</thead><tbody>${body}</tbody></table>`;
 }
@@ -240,7 +255,12 @@ function syncControls() {
   $("fitmsg").hidden = true; $("derivemsg").hidden = true;
   for (const k of ["L", "uL", "d", "ud"]) { const v = (proj.settings.young || {})[k]; $("y_" + k).value = v == null ? "" : fmt.format(v); $("y_" + k).classList.remove("bad"); }
 }
-function render() { renderTable(); renderPlot(); renderResults(); syncControls(); autosave(); }
+// Formula columns are recomputed from the data on every change; rows that cannot be calculated are named in the message.
+function recalc() {
+  const m = recalcFormulas(proj);
+  $("fmsg").textContent = m.join("\n"); $("fmsg").hidden = !m.length;
+}
+function render() { recalc(); renderTable(); renderPlot(); renderResults(); syncControls(); autosave(); }
 
 // An edit changes data only: keep the focused table as it is, redraw plot and results.
 $("table").addEventListener("input", e => {
@@ -253,6 +273,8 @@ $("table").addEventListener("input", e => {
   const key = el.dataset.r + "," + el.dataset.c;
   if (editKey !== key) { pushUndo(); editKey = key; }
   proj.columns[+el.dataset.c].values[+el.dataset.r] = v;
+  recalc();
+  $("table").querySelectorAll("td.calc").forEach(td => { td.textContent = calcText(proj.columns[+td.dataset.calc], +td.parentNode.rowIndex - 1); });
   renderPlot(); renderResults(); autosave();
 });
 // Choosing a role: x, y and error each belong to one column, so taking a role frees it from its old column.
@@ -271,6 +293,8 @@ $("table").addEventListener("focusout", e => {
   if (v !== undefined) el.value = v === null ? "" : fmt.format(v);
 });
 $("table").addEventListener("click", e => {
+  const dc = e.target.dataset.delcol;
+  if (dc !== undefined) { $("msg").hidden = true; change(() => proj.columns.splice(+dc, 1)); return; }
   const i = e.target.dataset.del;
   if (i === undefined) return;
   $("msg").hidden = true;
@@ -282,6 +306,15 @@ $("example2").onclick = () => {
   const p = newProject(...EXAMPLE2);
   p.settings.young = { L: 1, uL: 0.002, d: 0.5, ud: 0.01 };
   setProject(p);
+};
+$("f_add").onclick = () => {
+  const name = $("f_name").value.trim(), expr = $("f_expr").value, fail = t => { $("fmsg").textContent = t; $("fmsg").hidden = false; };
+  if (!name) return fail("Bitte einen Namen für die neue Spalte eingeben, zum Beispiel „r² / mm²“.");
+  if (proj.columns.some(c => c.name === name)) return fail(`Es gibt schon eine Spalte „${name}“. Bitte einen anderen Namen wählen.`);
+  const r = parseFormula(expr, proj.columns);
+  if (r.error) return fail(r.error);
+  change(() => proj.columns.push({ name, role: "unused", values: [], formula: expr.trim() }));
+  $("f_name").value = $("f_expr").value = "";
 };
 $("pastego").onclick = () => {
   const r = parseTable($("paste").value);
