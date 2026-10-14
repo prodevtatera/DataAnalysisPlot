@@ -69,7 +69,7 @@ near("intercept error scaled", num(rows[1][2]), ub * k, 1e-5);
 near("intercept error unscaled", num(rows[1][3]), ub, 1e-5);
 let text = await p.textContent("#results");
 near("chi2/DoF", num(/χ²\/DoF = ([\d.,]+)/.exec(text)[1]), chi2 / 3, 1e-5);
-eq("method named (scaled)", text.includes("skaliert (absolute_sigma=False)") && text.includes("Freiheitsgrade: 3"), true);
+eq("method named (scaled)", text.includes("gewichtete Methode der kleinsten Quadrate (Gewichte 1/s²); Fehler mit √(χ²/DoF) skaliert") && !text.includes("absolute_sigma") && text.includes("Freiheitsgrade: 3"), true);
 const line = await p.$eval("#results .res", e => e.textContent);
 eq("result line shape (value ± u) unit", /^a = \(\d+,\d+ ± 0,\d+\) V\/s$/.test(line), true);
 // By hand: a = 2,0094, scaled u = 0,0625 -> leading digit 6, one digit: 0,06; value to the same place: 2,01.
@@ -81,7 +81,7 @@ await p.screenshot({ path: "evidence/phase1-step5-fit.png", fullPage: true });
 // 2. Unscaled errors: the result line uses the other error and says so.
 await p.selectOption("#errm", "unscaled");
 text = await p.textContent("#results");
-eq("method named (unscaled)", text.includes("unskaliert (absolute_sigma=True)"), true);
+eq("method named (unscaled)", text.includes("Fehler unskaliert, direkt aus den Fehlerwerten") && !text.includes("absolute_sigma"), true);
 eq("fit is not stale after changing only the error method", await p.$$eval(".stalemsg", e => e.length), 0);
 const uline = await p.$eval("#results .res", e => e.textContent);
 eq("unscaled line differs from scaled", uline !== line, true);

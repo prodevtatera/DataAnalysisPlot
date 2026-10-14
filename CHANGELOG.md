@@ -2,6 +2,13 @@
 
 Written in plain language for people who do not read code. Newest entry on top.
 
+## 2026-10-14: Elasticity (P3) works start to finish, and you can paste your own data
+
+- **What a student can now do:** paste a table from Excel or a CSV file (semicolon or tab, decimal comma) into the new box "Daten einfügen", press "Als Tabelle übernehmen", fit, enter wire length and diameter, and get E = (201 ± 8) GPa, then save the project. That is 9 clicks and entries. The same work in Excel is about 40 by my count of the steps (an estimate, not timed with a person). Before, the app could only load two examples or a saved project.
+- **Also changed:** the fit details now say exactly what is done ("gewichtete Methode der kleinsten Quadrate (Gewichte 1/s²); Fehler mit √(χ²/DoF) skaliert", or unscaled) instead of naming a SciPy setting that the straight-line fit no longer uses.
+- **Tested:** `tests/phase1-step8-timed.sh` runs the whole task in the real page (219 to 291 ms of computer time, plus about 5 s once for Python to start), then changes a cell and undoes it, then saves and reopens the project in a fresh browser: nothing is lost. Empty or non-numeric pasted data shows a clear message. Phase 1 report: `docs/phase1-report.md`.
+- **Not covered yet:** no comparison with R (not installed) and no timing with a real student. Pasting replaces the table and clears undo. Phase 2 (all Physics 2 experiments, assuming P1 to P9) starts next.
+
 ## 2026-10-14: Line fit checked against official reference numbers, and made more exact
 
 - **What changed for a student:** the straight-line fit now gives the same numbers as the official NIST reference data set "Norris" to 9 digits (before: 5 to 7 digits for some values, which would not show in a lab report but is not good enough for a tool that claims correct numbers). Michaelis-Menten is unchanged.

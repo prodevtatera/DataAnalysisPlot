@@ -47,6 +47,7 @@
   td input { width:100%; min-width:90px; border:0; border-radius:0; padding:3px 10px; font:inherit; text-align:right; background:transparent; }
   td input:focus { outline:2px solid var(--blue); outline-offset:-2px; background:#fff; }
   td input.bad { background:#fde8ea; outline:2px solid #B00020; outline-offset:-2px; }
+  textarea { width:100%; height:120px; font:15px/22px ui-monospace, Menlo, Consolas, monospace; padding:10px; border:1px solid var(--blue); border-radius:0; background:#fff; resize:vertical; }
   #plot { background:#fff; border:1px solid var(--line); height:420px; }
   #results { background:#fff; border:1px solid var(--line); padding:12px 16px; }
   .result.stale .res { opacity:.5; }
@@ -70,6 +71,9 @@
     <button class="btn alt" id="undo" disabled title="Strg/Cmd+Z">Rückgängig</button>
     <button class="btn alt" id="redo" disabled title="Umschalt+Strg/Cmd+Z">Wiederholen</button>
   </div>
+  <h2>Daten einfügen</h2>
+  <textarea id="paste" aria-label="Daten einfügen" spellcheck="false" placeholder="F / N;ΔL / mm;sΔL / mm&#10;10;0,26;0,02"></textarea>
+  <div class="btns"><button class="btn" id="pastego">Als Tabelle übernehmen</button><span class="hint">Aus Excel oder einer CSV-Datei kopieren. Trennzeichen ; oder Tab, Dezimalkomma ist in Ordnung. Die ersten drei Spalten sind x, y und Fehler von y.</span></div>
   <div id="note" class="msg note" role="status" hidden></div>
   <div id="storewarn" class="msg" role="alert" hidden>Automatisches Speichern ist in diesem Browser nicht möglich. Bitte speichere das Projekt mit „Projekt speichern“.</div>
   <div id="msg" class="msg" role="alert" hidden></div>
@@ -104,6 +108,7 @@
 <footer>Independent student tool. Not affiliated with Humboldt-Universität zu Berlin.</footer>
 <script src="../testbuild/vendor/plotly.min.js"></script>
 <script src="../testbuild/round.js"></script>
+<script src="../testbuild/parse.js"></script>
 <script src="project.js"></script>
 <script src="derive.js"></script>
 <script>
@@ -201,8 +206,9 @@ const freshFit = () => proj.results.find(r => r.kind === "fit" && !isStale(proj,
 const uOf = q => (proj.settings.errMethod === "unscaled" && q.uUnscaled !== undefined) ? q.uUnscaled : (q.uScaled ?? q.u);
 function fitDetail(r) {
   const f = new Intl.NumberFormat("de-DE", { maximumSignificantDigits: 6 }), un = proj.settings.errMethod === "unscaled" && r.weighted;
-  const how = !r.weighted ? "ungewichtet; Fehler aus der Streuung der Messpunkte um die Gerade"
-    : un ? "gewichtet mit den Fehlerwerten; Fehler unskaliert (absolute_sigma=True)" : "gewichtet mit den Fehlerwerten; Fehler mit √(χ²/DoF) skaliert (absolute_sigma=False)";
+  const how = !r.weighted ? "Methode der kleinsten Quadrate, ungewichtet; Fehler aus der Streuung der Messpunkte um die Gerade"
+    : un ? "gewichtete Methode der kleinsten Quadrate (Gewichte 1/s²); Fehler unskaliert, direkt aus den Fehlerwerten"
+    : "gewichtete Methode der kleinsten Quadrate (Gewichte 1/s²); Fehler mit √(χ²/DoF) skaliert";
   const rows = r.params.map(q => `<tr><td>${esc(q.name)}</td><td>${f.format(q.value)}</td><td>${f.format(q.uScaled)}</td>${r.weighted ? `<td>${f.format(q.uUnscaled)}</td>` : ""}</tr>`).join("");
   return `<table><thead><tr><th>Parameter</th><th>Wert</th><th>Fehler skaliert</th>${r.weighted ? "<th>Fehler unskaliert</th>" : ""}</tr></thead><tbody>${rows}</tbody></table>` +
     `<div class="detail" data-how>Methode: ${how}. Freiheitsgrade: ${f.format(r.dof)}. ` + (r.weighted ? `χ² = ${f.format(r.chi2)}, χ²/DoF = ${f.format(r.chi2 / r.dof)}.` : `Summe der Abweichungsquadrate = ${f.format(r.ssr)}.`) + "</div>";
@@ -276,6 +282,11 @@ $("example2").onclick = () => {
   const p = newProject(...EXAMPLE2);
   p.settings.young = { L: 1, uL: 0.002, d: 0.5, ud: 0.01 };
   setProject(p);
+};
+$("pastego").onclick = () => {
+  const r = parseTable($("paste").value);
+  if (r.error) return showMsg(r.error);
+  setProject(newProject(r.header, r.rows));
 };
 $("saveproj").onclick = () => {
   const a = document.createElement("a");
