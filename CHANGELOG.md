@@ -2,6 +2,12 @@
 
 Written in plain language for people who do not read code. Newest entry on top.
 
+## 2026-10-14: Save the figure as PNG or SVG
+
+- **What a student can now do:** save the plot, with data, error bars, fit line, axis labels and legend, as a sharp PNG image or as an SVG vector graphic that stays sharp at any size and can be edited in a drawing program.
+- **Tested:** the saved files were opened and checked, and looked at. The legend was too narrow in the first export; fixed.
+- **Not covered yet:** PDF export, choosing the picture size.
+
 ## 2026-10-14: Fit results checked against NIST
 
 - **What changed for a student:** a fit that does not converge now says so in German instead of showing a wrong number or an error code. Fit results are also more precise.

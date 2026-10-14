@@ -65,6 +65,10 @@
   </div>
   <h2>Diagramm</h2>
   <div id="plot"><div class="empty">Noch keine Daten.</div></div>
+  <div class="btns">
+    <button class="btn alt" id="png" disabled>Diagramm als PNG speichern</button>
+    <button class="btn alt" id="svg" disabled>Diagramm als SVG speichern</button>
+  </div>
   <h2>Anpassung</h2>
   <div class="fitbar">
     <select id="model" aria-label="Modell"><option value="line">Gerade y = a·x + b</option><option value="mm">Michaelis-Menten y = Vmax·x / (Km + x)</option></select>
@@ -98,7 +102,7 @@ function render() {
     "</tr></thead><tbody>" + r.rows.map(row => "<tr>" + row.map(v => `<td>${v === null ? "" : fmt.format(v)}</td>`).join("") + "</tr>").join("") + "</tbody></table>";
   drawPlot(r);
 }
-function clearPlot() { lastTable = null; Plotly.purge("plot"); $("plot").innerHTML = '<div class="empty">Noch keine Daten.</div>'; }
+function clearPlot() { lastTable = null; $("png").disabled = $("svg").disabled = true; Plotly.purge("plot"); $("plot").innerHTML = '<div class="empty">Noch keine Daten.</div>'; }
 // Column 1 = x, column 2 = y, column 3 (optional) = y error. Rows with an empty x or y are skipped.
 let lastFit = null, lastTable = null;
 function drawPlot(r) {
@@ -107,7 +111,7 @@ function drawPlot(r) {
   $("plot").querySelector(".empty")?.remove();
   const rows = r.rows.filter(w => w[0] !== null && w[1] !== null);
   const hasErr = r.header.length > 2;
-  const f = { family: '"Source Sans 3", system-ui, sans-serif', size: 16, color: "#000" };
+  const f = { family: "Arial, Helvetica, sans-serif", size: 16, color: "#000" }; // a font every viewer has, so the exported PNG and SVG look the same as the page
   const ax = t => ({ title: { text: t, standoff: 10 }, showline: true, linecolor: "#000", mirror: true, ticks: "outside", gridcolor: "#e4e4dc", zeroline: false, exponentformat: "none" });
   const trace = { x: rows.map(w => w[0]), y: rows.map(w => w[1]), mode: "markers", type: "scatter", name: "Messwerte",
     marker: { color: "#00376C", size: 9, symbol: "circle" } };
@@ -121,7 +125,15 @@ function drawPlot(r) {
   Plotly.newPlot("plot", traces, { font: f, separators: ",.", margin: { l: 70, r: 20, t: 20, b: 60 },
     xaxis: ax(r.header[0]), yaxis: ax(r.header[1]), paper_bgcolor: "#fff", plot_bgcolor: "#fff",
     showlegend: true, legend: { x: 0.02, y: 0.98, bgcolor: "#fff", bordercolor: "#999", borderwidth: 1 } }, { displaylogo: false, responsive: true });
+  $("png").disabled = $("svg").disabled = false;
 }
+// PNG: 2400 x 1400 px (sharp in a report). SVG: vector, text stays text.
+async function exportPlot(fmt) {
+  const url = await Plotly.toImage($("plot"), { format: fmt, width: 1200, height: 700, scale: fmt === "png" ? 2 : 1 });
+  const a = document.createElement("a"); a.href = url; a.download = "diagramm." + fmt; a.click();
+}
+$("png").onclick = () => exportPlot("png");
+$("svg").onclick = () => exportPlot("svg");
 const MODELS = { line: (x, [a, b]) => a * x + b, mm: (x, [v, k]) => v * x / (k + x) };
 // A module worker cannot start from a file:// page; the table and plot still work then, only the fit is off.
 let worker = null;
