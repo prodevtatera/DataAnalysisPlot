@@ -2,6 +2,12 @@
 
 Written in plain language for people who do not read code. Newest entry on top.
 
+## 2026-10-14: Line fit checked against official reference numbers, and made more exact
+
+- **What changed for a student:** the straight-line fit now gives the same numbers as the official NIST reference data set "Norris" to 9 digits (before: 5 to 7 digits for some values, which would not show in a lab report but is not good enough for a tool that claims correct numbers). Michaelis-Menten is unchanged.
+- **Tested:** `tests/phase1-step7-reference.sh` compares slope, intercept, their errors and the sum of squares with the NIST certified values, and weighted fits (equal and unequal errors) with a separate hand calculation in exact fractions. Everything matches to 9 digits, and all older tests still pass.
+- **Not covered yet:** no comparison with R (not installed here). NIST publishes no certified weighted straight-line data, so the weighted check rests on the separate hand calculation.
+
 ## 2026-10-14: Young's modulus from the fitted slope (P3 Elasticity)
 
 - **What a student can now do:** fit load against extension, enter the wire length and diameter with their uncertainties and get the Young's modulus, for example E = (201 ± 8) GPa. The page shows the formula and how much each input adds to the uncertainty. An example ("Beispiel Elastizität") is built in.

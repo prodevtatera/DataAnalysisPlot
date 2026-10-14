@@ -10,6 +10,23 @@ MODELS = {
   "line": (lambda x, a, b: a * x + b, lambda x, y: [1.0, 0.0]),
   "mm":   (lambda x, v, k: v * x / (k + x), lambda x, y: [float(np.max(y)), float(np.median(x))]),
 }
+def line_fit(x, y, sy):
+    # A straight line is linear in a and b: solve it directly (SVD least squares on the error-weighted design matrix).
+    # curve_fit iterates and only reaches about 6 digits on NIST Norris; this reaches 9 or more.
+    s = np.ones_like(y) if sy is None else sy
+    A = np.column_stack([x, np.ones_like(x)]) / s[:, None]
+    p = np.linalg.lstsq(A, y / s, rcond=None)[0]
+    _, sv, vt = np.linalg.svd(A, full_matrices=False)
+    if sv[-1] < 1e-12 * sv[0]:
+        raise ValueError("Die Anpassung ist nicht konvergiert. Andere Startwerte oder ein anderes Modell versuchen.")
+    c = (vt.T / sv ** 2) @ vt                     # (A^T A)^-1 = covariance for known errors
+    r = y - (p[0] * x + p[1]); chi2 = float(np.sum((r / s) ** 2)); dof = len(x) - 2
+    out = {"p": p.tolist(), "err_scaled": np.sqrt(np.diag(c) * chi2 / dof).tolist(), "dof": dof}
+    if sy is None:
+        out["ssr"] = chi2
+    else:
+        out["err_unscaled"] = np.sqrt(np.diag(c)).tolist(); out["chi2"] = chi2
+    return json.dumps(out)
 def run(s):
     d = json.loads(s)
     x, y = np.array(d["x"]), np.array(d["y"])
@@ -20,6 +37,8 @@ def run(s):
     else:
         f, start = MODELS[d["model"]]
         p0 = start(x, y)
+    if "expr" not in d and d["model"] == "line":
+        return line_fit(x, y, sy)
     p, c = curve_fit(f, x, y, p0=p0, sigma=sy, absolute_sigma=False, maxfev=5000, ftol=1e-14, xtol=1e-14)
     if not (np.all(np.isfinite(p)) and np.all(np.isfinite(c))):
         raise ValueError("Die Anpassung ist nicht konvergiert. Andere Startwerte oder ein anderes Modell versuchen.")
