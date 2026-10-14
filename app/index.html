@@ -465,7 +465,7 @@ const pct = new Intl.NumberFormat("de-DE", { minimumFractionDigits: 1, maximumFr
 const histOk = r => Array.isArray(r.counts) && r.counts.length > 0 && r.counts.length <= 200 && r.counts.every(Number.isFinite) && [r.start, r.width, r.mean, r.s, r.n].every(Number.isFinite) && r.width > 0 && r.s > 0 && r.n > 0;
 function histDetail(r) {
   const i = r.inputs || {}, n = Number(r.n), w = Number(r.width), s0 = Number(r.start), c = (Array.isArray(r.counts) ? r.counts : []).slice(0, 200).map(Number);
-  const e = j => fmt.format(Number((s0 + j * w).toPrecision(12))), unit = (String(i.col).split("/")[1] || "").trim();
+  const e = j => fmt.format(Number((s0 + j * w).toPrecision(12))), unit = colUnit(i.col);
   let cum = 0;
   const rows = c.map((k, j) => { cum += k; return `<tr><td>${e(j)} bis unter ${e(j + 1)}</td><td>${fmt.format(k)}</td><td>${pct.format(k / n * 100)} %</td><td>${fmt.format(cum)}</td><td>${pct.format(cum / n * 100)} %</td></tr>`; }).join("");
   return `<table data-freq><thead><tr><th>Klasse${unit ? " / " + esc(unit) : ""}</th><th>absolut</th><th>relativ</th><th>kumuliert absolut</th><th>kumuliert relativ</th></tr></thead><tbody>${rows}</tbody></table>` +
@@ -712,7 +712,7 @@ $("fit").onclick = () => {
   if (idx.length < 3) return fitFailed("Es braucht mindestens drei Messpunkte mit x und y.");
   const badRow = weighted ? idx.find(i => !(e.values[i] > 0)) : undefined;
   if (badRow !== undefined) return fitFailed(`Alle Fehlerwerte müssen größer als 0 sein (Zeile ${badRow + 1}).`);
-  const unit = c => (c.name.split("/")[1] || "").trim(), ux = unit(x), uy = unit(y);
+  const unit = c => colUnit(c.name), ux = unit(x), uy = unit(y);
   const per = ux ? (uy ? uy + "/" + ux : "1/" + ux) : uy;
   pending = { fp: fingerprint(proj), weighted, weightedSetting: proj.settings.weighted, n: idx.length, names: [["a", per], ["b", uy]] };
   busy(true); $("fitmsg").hidden = true;
@@ -820,7 +820,7 @@ $("c_go").onclick = () => {
   const kinds = fit.weighted ? ["scaled", "unscaled"] : ["scaled"];
   if (!kinds.every(cv)) return calibFailed("Das Ergebnis der Anpassung enthält die Kovarianz von a und b nicht (ältere Version). Bitte „Anpassen“ erneut drücken.");
   const [pa, pb] = fit.params, xs = x.values.filter((q, i) => q !== null && y.values[i] !== null), per = k => ({ a: pa.value, b: pb.value, ua: pa[k === "scaled" ? "uScaled" : "uUnscaled"], ub: pb[k === "scaled" ? "uScaled" : "uUnscaled"], cov: cv(k)[1] });
-  const unit = (x.name.split("/")[1] || "").trim(), reads = [];
+  const unit = colUnit(x.name), reads = [];
   for (const q of v.values) {
     const s = readOff(per("scaled"), q.y0, q.u);
     if (s.error) return calibFailed(s.error);
@@ -878,7 +878,7 @@ $("s_go").onclick = () => {
   if ($("s_instr").classList.contains("bad")) return statsFailed("Der Gerätefehler ist keine Zahl.");
   if (st.instr != null && !(st.instr >= 0)) return statsFailed("Der Gerätefehler darf nicht negativ sein.");
   const d = describe(vals, st.ddof, st.instr), df = d.n - 1, t = st.conf ? tCrit(st.conf, df) : null;
-  const ci = st.conf ? { level: st.conf, df, t, lo: d.mean - t * d.sem, hi: d.mean + t * d.sem } : null, unit = (c.name.split("/")[1] || "").trim(), p = (name, value, u) => ({ name, unit, value, ...(u === undefined ? { plain: true } : { u }) });
+  const ci = st.conf ? { level: st.conf, df, t, lo: d.mean - t * d.sem, hi: d.mean + t * d.sem } : null, unit = colUnit(c.name), p = (name, value, u) => ({ name, unit, value, ...(u === undefined ? { plain: true } : { u }) });
   change(() => addResult(proj, {
     kind: "stats", inputs: st, n: d.n,
     params: [p("Mittelwert x̄", d.mean, d.sem), p(st.ddof === 0 ? "Standardabweichung σ (Teiler n)" : "Standardabweichung s (Teiler n−1)", d.s), p("Standardfehler des Mittelwerts s/√n", d.sem),
@@ -910,7 +910,7 @@ $("w_go").onclick = () => {
   const zero = rows.find(i => !(cu.values[i] > 0));
   if (zero !== undefined) return wmeanFailed(`Alle Unsicherheiten müssen größer als 0 sein (Zeile ${zero + 1}). Das Gewicht 1/u² ist sonst nicht definiert.`);
   if (rows.length < 2) return wmeanFailed(`Es gibt ${rows.length} Zeile${rows.length === 1 ? "" : "n"} mit Ergebnis und Unsicherheit. Ein gewichteter Mittelwert braucht mindestens zwei.`);
-  const unit = (cv.name.split("/")[1] || "").trim(), d = weightedMean(rows.map(i => cv.values[i]), rows.map(i => cu.values[i]), st.k), nr = j => rows[j - 1] + 1;
+  const unit = colUnit(cv.name), d = weightedMean(rows.map(i => cv.values[i]), rows.map(i => cu.values[i]), st.k), nr = j => rows[j - 1] + 1;
   const verdict = d.overlap ? "Alle Intervalle haben einen gemeinsamen Bereich. Die Ergebnisse stimmen im Rahmen ihrer Unsicherheiten überein."
     : "Die Ergebnisse stimmen nicht überein: " + d.bad.map(b => `Zeile ${nr(b.i)} und Zeile ${nr(b.j)} (Lücke ${fmtPlain.format(b.gap)}${unit ? " " + unit : ""})`).join("; ") + ". Der gewichtete Mittelwert ist dann mit Vorsicht zu lesen.";
   change(() => addResult(proj, { kind: "wmean", inputs: st, n: d.n, verdict, params: [{ name: "Gewichteter Mittelwert", unit, value: d.mean, u: d.u }] }));
@@ -942,7 +942,7 @@ $("h_go").onclick = () => {
   if (start > lo) return histFailed(`Der Beginn ${fmt.format(start)} liegt über dem kleinsten Wert ${fmt.format(lo)}. Bitte einen Beginn kleiner oder gleich dem kleinsten Wert wählen.`);
   const k = Math.floor((hi - start) / width + 1e-9) + 1;
   if (k > 100) return histFailed(`Mit Klassenbreite ${fmt.format(width)} gäbe es ${fmt.format(k)} Klassen. Das sind zu viele (höchstens 100). Bitte eine größere Klassenbreite wählen.`);
-  const h = histogram(vals, start, width), d = describe(vals, st.ddof), unit = (c.name.split("/")[1] || "").trim();
+  const h = histogram(vals, start, width), d = describe(vals, st.ddof), unit = colUnit(c.name);
   change(() => addResult(proj, {
     kind: "hist", inputs: st, n: d.n, start, width, counts: h.counts, mean: d.mean, s: d.s,
     params: [{ name: "Mittelwert x̄", unit, value: d.mean, u: d.sem }, { name: st.ddof === 0 ? "Standardabweichung σ (Teiler n)" : "Standardabweichung s (Teiler n−1)", unit, value: d.s, plain: true }],

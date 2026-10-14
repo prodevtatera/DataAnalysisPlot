@@ -95,4 +95,7 @@ function open(text) {
   return ok ? { project: p } : { error: "Das Projekt ist beschädigt: Spalten oder Werte fehlen oder sind keine Zahlen." };
 }
 
-if (typeof module !== "undefined") module.exports = { compareSettings, gofSettings, calibSettings, seriesSettings, SERIES_MAX, derivedSettings, statsSettings, wmeanSettings, histSettings, ROLES, newProject, fingerprint, addResult, isStale, save, open };
+// Unit of a column header "name / unit": everything after the first "/", so "gi / m/s²" has the unit "m/s²" (split("/")[1] would cut it to "m").
+const colUnit = name => { const s = String(name), i = s.indexOf("/"); return i < 0 ? "" : s.slice(i + 1).trim(); };
+
+if (typeof module !== "undefined") module.exports = { colUnit, compareSettings, gofSettings, calibSettings, seriesSettings, SERIES_MAX, derivedSettings, statsSettings, wmeanSettings, histSettings, ROLES, newProject, fingerprint, addResult, isStale, save, open };

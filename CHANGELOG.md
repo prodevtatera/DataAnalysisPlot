@@ -2,6 +2,14 @@
 
 Written in plain language for people who do not read code. Newest entry on top.
 
+## 2026-10-14: Ready-made projects for P6 to P9, and a unit bug fixed
+
+- **What a student can now do:** the "Vorlage laden" list has six more templates: P6 Wheatstone-Brücke, P6 Gitter, P7 Refraktometer, P8 Radioaktivität: Zählraten, P8 Radioaktivität: Zerfallskurve and P9 Pendel. Each one is a finished project with the table, the calculated columns, the roles and the settings, plus a list of steps to press. Wheatstone and grating compute Rx or the wavelength with uncertainty, take the weighted mean and compare it with the nominal or literature value. The refractometer fits the calibration line and reads three unknown concentrations (the third lies outside the standards and gets a warning). The counts template runs the chi-square test against Poisson and Gauss. The decay template is drawn on a semi-log axis with error bars. The pendulum gives g per row with mean, s and 95 % interval, and g from the slope of T² against l.
+- **Important:** the numbers in all templates are invented example data, not real student data, and the box says so in an orange note.
+- **What comes out (invented data):** Wheatstone Rx weighted (219,4 ± 1,0) Ω; grating (632,1 ± 0,9) nm, agreeing with 632,8 nm; refractometer unknowns (11,21 ± 0,19) %, (17,30 ± 0,20) %, (28,84 ± 0,21) %; counts: Poisson chi-square 1,43 (p = 0,698), Gauss 0,775 (p = 0,679); pendulum mean g (9,81 ± 0,05) m/s² with 95 % interval, and g = (9,83 ± 0,06) m/s² from the slope.
+- **Fixed:** a column unit that itself contains a slash, such as "m/s²", was cut to "m" in result lines (mean, histogram, weighted mean, fit, calibration, series, chi-square). The whole unit is now used.
+- **Tested:** `tests/phase2-step16-templates.sh` loads each template in a real browser, presses its steps and compares with a separate hand calculation (`tests/reference/templates2.py`: exact fractions, hand-derived partial derivatives, closed-form p-values). Also: wrong clicks and a zero on the log axis or in a divisor give clear messages.
+
 ## 2026-10-14: One ready-made project per experiment, P1 to P5
 
 - **What a student can now do:** under "Vorlage laden" there is a list with six templates: P1 Fehlerverteilung, P2 Volumenmessung, P3 Elastizität, P4 Oberflächenspannung, P5 Polarimetrie (Saccharose) and P5 Newtonsche Ringe. One click gives a finished project: the table, the calculated columns (for example r² with its uncertainty, or 1/r), the column roles and all settings. A box above the table names the experiment and lists the steps in order ("Auf Anpassen drücken", then "Berechnen" for E, σ or R). Each step has a "Zeigen" button that jumps to the right place. Then the student replaces the numbers with their own measurement.

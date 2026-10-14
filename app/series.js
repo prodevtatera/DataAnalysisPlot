@@ -1,5 +1,6 @@
 // Several y series against one x column, each fitted over its own x range (P3 loading and unloading), and the comparison of two slopes.
 // Pure functions: the page does the SciPy call and the drawing.
+const _colUnit = typeof module !== "undefined" ? require("./project.js").colUnit : colUnit; // project.js is loaded first on the page
 const SERIES_K = 2; // slopes count as equal when they differ by less than this many combined uncertainties
 
 // Is the x value inside the series' range? Empty ends are open; the tolerance keeps 0,1 + 0,2 inside a range that ends at 0,3.
@@ -10,7 +11,7 @@ function prepareSeries(p, list) {
   const x = p.columns.find(c => c.role === "x");
   if (!x) return { error: "Für die Anpassung braucht es eine x-Spalte. Wähle die Rolle „x-Werte“ in der Tabelle." };
   if (!list.length) return { error: "Es gibt noch keine Reihe. Bitte mit „Reihe hinzufügen“ eine y-Spalte wählen." };
-  const de = v => String(v).replace(".", ","), unit = c => (c.name.split("/")[1] || "").trim(), by = n => p.columns.find(c => c.name === n), jobs = [];
+  const de = v => String(v).replace(".", ","), unit = c => _colUnit(c.name), by = n => p.columns.find(c => c.name === n), jobs = [];
   for (const [k, s] of list.entries()) {
     const yc = by(s.y), ec = s.err === null ? null : by(s.err), who = `Reihe ${k + 1} („${s.y}“)`;
     if (yc === x) return { error: `${who}: Die y-Spalte ist die x-Spalte. Bitte eine andere Spalte wählen.` };

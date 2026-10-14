@@ -15,7 +15,7 @@ const eq = (name, got, want) => { got = JSON.stringify(got); want = JSON.stringi
 const near = (name, got, want, tol = 1e-7) => { if (!(Math.abs(got - want) <= tol * Math.abs(want))) { console.log(`FAIL ${name}: got ${got}, want ${want}`); bad++; } };
 
 // Pure: every template builds a project the page's own opener accepts, with the id stored and equal column lengths.
-eq("template ids", TEMPLATES.map(t => t.id), ["p1", "p2", "p3", "p4", "p5a", "p5b"]);
+eq("template ids (P1 to P5 first; P6 to P9 are in phase2-step16-templates.mjs)", TEMPLATES.map(t => t.id).slice(0, 6), ["p1", "p2", "p3", "p4", "p5a", "p5b"]);
 for (const t of TEMPLATES) {
   const p = t.build(), r = open(save(p));
   eq(`${t.id} opens`, [!!r.project, r.project?.template], [true, t.id]);
@@ -47,7 +47,7 @@ const INVENTED = "Erfundene Beispieldaten, keine echten Messwerte von Studierend
 eq("no box at the start", await info(), null);
 await p.click("#tpl_load");
 eq("nothing chosen", [await p.textContent("#tplmsg"), await info()], ["Bitte zuerst einen Versuch in der Liste wählen.", null]);
-eq("list has all six", await p.$$eval("#tpl_sel option", o => o.map(x => x.textContent)), ["(bitte wählen)", "P1 Fehlerverteilung", "P2 Volumenmessung", "P3 Elastizität", "P4 Oberflächenspannung", "P5 Polarimetrie (Saccharose)", "P5 Newtonsche Ringe"]);
+eq("list starts with P1 to P5", (await p.$$eval("#tpl_sel option", o => o.map(x => x.textContent))).slice(0, 7), ["(bitte wählen)", "P1 Fehlerverteilung", "P2 Volumenmessung", "P3 Elastizität", "P4 Oberflächenspannung", "P5 Polarimetrie (Saccharose)", "P5 Newtonsche Ringe"]);
 
 // ---- P1: 30 readings; mean, s, table, histogram, cumulative plot with the 16 % and 84 % read-off (hand values of tests/reference/histogram.py and templates.py).
 await load("p1");

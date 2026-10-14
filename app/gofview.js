@@ -51,7 +51,7 @@ function gofRun() {
   const prep = gofPrepare(c.name, c.values, st);
   if (prep.error) return gofFailed(prep.error);
   $("gofmsg").hidden = true; busy(true);
-  pending = { gof: true, fp: gofKey(proj), prep, st, unit: (c.name.split("/")[1] || "").trim() };
+  pending = { gof: true, fp: gofKey(proj), prep, st, unit: colUnit(c.name) };
   worker.postMessage({ task: "gof", edges: prep.edges, counts: prep.counts, mean: prep.mean, s: prep.s });
 }
 function gofStep(job, m) {
