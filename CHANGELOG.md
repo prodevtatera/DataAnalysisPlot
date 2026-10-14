@@ -2,6 +2,12 @@
 
 Written in plain language for people who do not read code. Newest entry on top.
 
+## 2026-10-14: Young's modulus from the fitted slope (P3 Elasticity)
+
+- **What a student can now do:** fit load against extension, enter the wire length and diameter with their uncertainties and get the Young's modulus, for example E = (201 ± 8) GPa. The page shows the formula and how much each input adds to the uncertainty. An example ("Beispiel Elastizität") is built in.
+- **Tested:** `tests/phase1-step6-elasticity.sh` compares the result with numbers calculated separately by hand. It passed, together with all older tests. Clear messages for a missing fit, empty or wrong inputs and wrong column units.
+- **Not covered yet:** the shear modulus from oscillation periods and the comparison of loading and unloading from the lab sheet; no free formulas yet.
+
 ## 2026-10-14: Safer project files
 
 - **What was fixed:** a project file that someone had edited by hand could make the page run unwanted code when its fit result was shown. Numbers from a file are now always shown as numbers.
