@@ -189,7 +189,7 @@ function fitDetail(r) {
     : un ? "gewichtet mit den Fehlerwerten; Fehler unskaliert (absolute_sigma=True)" : "gewichtet mit den Fehlerwerten; Fehler mit √(χ²/DoF) skaliert (absolute_sigma=False)";
   const rows = r.params.map(q => `<tr><td>${esc(q.name)}</td><td>${f.format(q.value)}</td><td>${f.format(q.uScaled)}</td>${r.weighted ? `<td>${f.format(q.uUnscaled)}</td>` : ""}</tr>`).join("");
   return `<table><thead><tr><th>Parameter</th><th>Wert</th><th>Fehler skaliert</th>${r.weighted ? "<th>Fehler unskaliert</th>" : ""}</tr></thead><tbody>${rows}</tbody></table>` +
-    `<div class="detail" data-how>Methode: ${how}. Freiheitsgrade: ${r.dof}. ` + (r.weighted ? `χ² = ${f.format(r.chi2)}, χ²/DoF = ${f.format(r.chi2 / r.dof)}.` : `Summe der Abweichungsquadrate = ${f.format(r.ssr)}.`) + "</div>";
+    `<div class="detail" data-how>Methode: ${how}. Freiheitsgrade: ${f.format(r.dof)}. ` + (r.weighted ? `χ² = ${f.format(r.chi2)}, χ²/DoF = ${f.format(r.chi2 / r.dof)}.` : `Summe der Abweichungsquadrate = ${f.format(r.ssr)}.`) + "</div>";
 }
 function renderResults() {
   if (!proj.results.length) { $("results").innerHTML = '<div class="empty">Noch keine Ergebnisse.</div>'; return; }

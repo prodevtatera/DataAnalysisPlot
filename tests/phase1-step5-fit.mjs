@@ -2,7 +2,10 @@
 // Expected values are closed-form textbook formulas (Taylor, "An Introduction to Error Analysis", ch. 8; ordinary least squares), never SciPy.
 import { createRequire } from "node:module";
 import { resolve } from "node:path";
+import { writeFileSync, mkdtempSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { serve } from "./serve.mjs";
+const { newProject, addResult, save } = createRequire(import.meta.url)("../app/project.js");
 const { chromium } = createRequire(resolve("testbuild/x.js"))("playwright-core");
 let bad = 0;
 const eq = (name, got, want) => {
@@ -137,6 +140,19 @@ for (const r of [4, 3, 2]) await p.click(`[data-del="${r}"]`);
 await fit();
 eq("two points", await p.textContent("#fitmsg"), "Die Anpassung ist fehlgeschlagen. Es braucht mindestens drei Messpunkte mit x und y.");
 eq("no raw Python text", /Traceback|File "/.test(await p.textContent("#fitmsg")), false);
+// 8. Security: a hand-edited project file must not be able to inject HTML or script through any result field.
+const evil = '<img src=x onerror="window.__xss=1">';
+const ep = newProject(["t " + evil, "U / V", "s / V"], [[1, 2, 0.1], [2, 4, 0.1], [3, 6, 0.1]]);
+addResult(ep, { kind: "fit", model: "line", weighted: true, dof: evil, chi2: evil, n: evil,
+  params: [{ name: evil, unit: evil, value: 1, uScaled: 0.1, uUnscaled: evil }] });
+const dir = mkdtempSync(resolve(tmpdir(), "p1s5-"));
+writeFileSync(dir + "/evil.plotlab", save(ep));
+await p.setInputFiles("#openfile", dir + "/evil.plotlab");
+await p.waitForSelector("#results .res");
+await p.waitForTimeout(300);
+eq("no injected element in page", await p.evaluate(() => [document.querySelectorAll("img").length, window.__xss ?? null]), [0, null]);
+await p.reload(); await p.waitForSelector("#results .res"); await p.waitForTimeout(300);
+eq("no injected element after autosave restore", await p.evaluate(() => [document.querySelectorAll("img").length, window.__xss ?? null]), [0, null]);
 eq("no external requests", external, []);
 await br.close(); close();
 if (bad) process.exit(1);

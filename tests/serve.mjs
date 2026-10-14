@@ -11,7 +11,7 @@ export async function serve() {
       const f = resolve(root, "." + decodeURIComponent(req.url.split("?")[0]));
       if (!allowed.some(d => f.startsWith(d))) throw new Error("outside");
       res.writeHead(200, { "content-type": types[extname(f)] || "application/octet-stream" }); res.end(await readFile(f));
-    } catch { res.writeHead(404); res.end(); }
+    } catch { if (!res.headersSent) res.writeHead(404); res.end(); }
   }).listen(0, "127.0.0.1");
   await new Promise(r => srv.once("listening", r));
   return { base: `http://localhost:${srv.address().port}/`, close: () => srv.close() };

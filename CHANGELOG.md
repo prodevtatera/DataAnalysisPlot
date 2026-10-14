@@ -2,6 +2,12 @@
 
 Written in plain language for people who do not read code. Newest entry on top.
 
+## 2026-10-14: Safer project files
+
+- **What was fixed:** a project file that someone had edited by hand could make the page run unwanted code when its fit result was shown. Numbers from a file are now always shown as numbers.
+- **Tested:** `tests/phase1-step5-fit.sh` opens a project file with script text in every result field, also after reloading. It failed with the old code and passes now.
+- **Not covered yet:** no other part of the app has had a separate security review.
+
 ## 2026-10-14: Straight-line fit in the app, with column roles
 
 - **What a student can now do:** choose in the table header which column is x, y or the y error, then press "Anpassen" to fit a straight line. The result reads (value ± u) unit, for example a = (2,01 ± 0,06) V/s. A weighted fit shows the errors both scaled with √(χ²/DoF) and unscaled, plus χ²/DoF, and says which method is shown. The student can switch weighting and error method. The fitted line appears in the plot. After any change to the data the result is marked out of date and the line disappears; undo brings them back.
