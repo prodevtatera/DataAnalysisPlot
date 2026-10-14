@@ -16,10 +16,10 @@ const fnv = s => { let h = 2166136261; for (let i = 0; i < s.length; i++) h = Ma
 function fingerprint(p, usedRoles = ["x", "y", "yerr"]) {
   return fnv(JSON.stringify(p.columns.filter(c => usedRoles.includes(c.role)).map(c => [c.name, c.role, c.values])));
 }
-// Mean and spread of one chosen column: the settings are {col, ddof, instr}; the default column is y, else the first one.
+// Mean and spread of one chosen column: the settings are {col, ddof, instr, conf (optional confidence level for the t interval)}; the default column is y, else the first one.
 function statsSettings(p) {
   const st = p.settings.stats || {}, y = p.columns.find(c => c.role === "y") || p.columns[0];
-  return { col: p.columns.some(c => c.name === st.col) ? st.col : y.name, ddof: st.ddof === 0 ? 0 : 1, instr: Number.isFinite(st.instr) ? st.instr : null };
+  return { col: p.columns.some(c => c.name === st.col) ? st.col : y.name, ddof: st.ddof === 0 ? 0 : 1, instr: Number.isFinite(st.instr) ? st.instr : null, ...([0.9, 0.95, 0.99].includes(st.conf) ? { conf: st.conf } : {}) };
 }
 // The result depends on the current settings and on that column's values.
 const statsKey = p => { const st = statsSettings(p); return fnv(JSON.stringify([st, p.columns.find(c => c.name === st.col).values])); };

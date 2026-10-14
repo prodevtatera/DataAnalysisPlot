@@ -111,11 +111,12 @@
   <div id="plotmsg" class="msg note" role="status" hidden></div>
   <div id="plot"><div class="empty">Noch keine Daten.</div></div>
   <h2>Mittelwert und Streuung einer Spalte</h2>
-  <p class="hint">Mittelwert x̄, Standardabweichung (Teiler n oder n−1) und Standardfehler s/√n der gewählten Spalte. Der Standardfehler nutzt immer s mit n−1, auch wenn du für die Standardabweichung n wählst. Mit einem Gerätefehler (Ablesefehler, in der Einheit der Spalte) wird zusätzlich u = √(u<sub>zufällig</sub>² + u<sub>Gerät</sub>²) angegeben.</p>
+  <p class="hint">Mittelwert x̄, Standardabweichung (Teiler n oder n−1) und Standardfehler s/√n der gewählten Spalte. Der Standardfehler nutzt immer s mit n−1, auch wenn du für die Standardabweichung n wählst. Mit einem Gerätefehler (Ablesefehler, in der Einheit der Spalte) wird zusätzlich u = √(u<sub>zufällig</sub>² + u<sub>Gerät</sub>²) angegeben. Mit einem Vertrauensniveau wird das Vertrauensintervall x̄ ± t·s/√n mit dem Faktor t der Student-Verteilung (n−1 Freiheitsgrade) angegeben; der Gerätefehler ist darin nicht enthalten.</p>
   <div class="fitbar" id="stats">
     <label>Spalte <select id="s_col" aria-label="Spalte für Mittelwert und Streuung"></select></label>
     <label>Standardabweichung mit <select id="s_ddof" aria-label="Teiler der Standardabweichung"><option value="1">n−1 (Stichprobe, s)</option><option value="0">n (σ)</option></select></label>
     <label>Gerätefehler (optional) <input class="num" id="s_instr" aria-label="Gerätefehler in der Einheit der Spalte" inputmode="decimal"></label>
+    <label>Vertrauensintervall <select id="s_conf" aria-label="Vertrauensniveau des t-Intervalls"><option value="">keines</option><option value="0.9">90 %</option><option value="0.95">95 %</option><option value="0.99">99 %</option></select></label>
     <button class="btn" id="s_go" disabled>Berechnen</button>
   </div>
   <div id="statsmsg" class="msg" role="alert" hidden></div>
@@ -417,7 +418,15 @@ const fmtRead = new Intl.NumberFormat("de-DE", { maximumSignificantDigits: 4 });
 function statsDetail(r) {
   const i = r.inputs || {}, n = fmt.format(Number(r.n));
   return `<div class="detail" data-how>Spalte „${esc(i.col)}“, n = ${n} Werte. Standardabweichung mit Teiler ${i.ddof === 0 ? "n" : "n−1"}. Mittelwert ± Standardfehler s/√n (s mit n−1).` +
-    (i.instr != null ? ` Mit Gerätefehler ${fmt.format(Number(i.instr))}: u = √(u<sub>zufällig</sub>² + u<sub>Gerät</sub>²).` : "") + "</div>";
+    (i.instr != null ? ` Mit Gerätefehler ${fmt.format(Number(i.instr))}: u = √(u<sub>zufällig</sub>² + u<sub>Gerät</sub>²).` : "") + "</div>" + ciDetail(r);
+}
+const fmtT = new Intl.NumberFormat("de-DE", { maximumSignificantDigits: 4 });
+function ciDetail(r) {
+  const c = r.ci, i = r.inputs || {};
+  if (!c || !(c.level > 0 && c.level < 1) || !Number.isFinite(c.t) || !Number.isFinite(c.lo) || !Number.isFinite(c.hi) || !Number.isFinite(c.df)) return "";
+  const u = (c.hi - c.lo) / 2, a = huRound(c.lo, u), b = huRound(c.hi, u), pct = fmt.format(Math.round(c.level * 100)), unit = r.params && r.params[0] && r.params[0].unit ? " " + esc(r.params[0].unit) : "";
+  return `<div class="detail" data-ci>${pct} %-Vertrauensintervall: x̄ ± t·s/√n mit t(${fmtT.format((1 + c.level) / 2)}; ${fmt.format(c.df)}) = ${fmtT.format(c.t)} (zweiseitig, Student-Verteilung, ${fmt.format(c.df)} Freiheitsgrad${c.df === 1 ? "" : "e"}).` +
+    (a && b ? ` Intervall: [${a[0]}; ${b[0]}]${unit}.` : "") + "</div>";
 }
 function wmeanDetail(r) {
   const i = r.inputs || {}, k = fmt.format(Number(i.k));
@@ -508,7 +517,7 @@ function syncControls() {
   $("fitmsg").hidden = true; $("derivemsg").hidden = true; $("statsmsg").hidden = true; $("wmsg").hidden = true; $("hmsg").hidden = true; $("gofmsg").hidden = true;
   const st = statsSettings(proj);
   $("s_col").replaceChildren(...proj.columns.map(c => Object.assign(document.createElement("option"), { value: c.name, textContent: c.name })));
-  $("s_col").value = st.col; $("s_ddof").value = st.ddof; $("s_instr").value = st.instr == null ? "" : fmt.format(st.instr); $("s_instr").classList.remove("bad");
+  $("s_col").value = st.col; $("s_ddof").value = st.ddof; $("s_conf").value = st.conf ? String(st.conf) : ""; $("s_instr").value = st.instr == null ? "" : fmt.format(st.instr); $("s_instr").classList.remove("bad");
   const wm = wmeanSettings(proj), opts = (none) => [...(none ? [Object.assign(document.createElement("option"), { value: "", textContent: "(keine)" })] : []), ...proj.columns.map(c => Object.assign(document.createElement("option"), { value: c.name, textContent: c.name }))];
   $("w_val").replaceChildren(...opts(false)); $("w_unc").replaceChildren(...opts(true));
   $("w_val").value = wm.val; $("w_unc").value = wm.unc ?? ""; $("w_k").value = fmt.format(wm.k); $("w_k").classList.remove("bad");
@@ -788,17 +797,21 @@ $("s_instr").addEventListener("input", e => {
 $("s_instr").addEventListener("focusout", () => { editKey = null; });
 $("s_col").onchange = e => setSetting("stats", { ...statsSettings(proj), col: e.target.value });
 $("s_ddof").onchange = e => setSetting("stats", { ...statsSettings(proj), ddof: +e.target.value });
+$("s_conf").onchange = e => { const st = { ...statsSettings(proj) }; if (e.target.value) st.conf = +e.target.value; else delete st.conf; setSetting("stats", st); };
 function statsFailed(why) { $("statsmsg").textContent = why; $("statsmsg").hidden = false; }
 $("s_go").onclick = () => {
   const st = statsSettings(proj), c = proj.columns.find(k => k.name === st.col), vals = c.values.filter(v => v !== null);
   if (vals.length < 2) return statsFailed(`Die Spalte „${c.name}“ hat ${vals.length} Wert${vals.length === 1 ? "" : "e"}. Mittelwert und Streuung brauchen mindestens zwei Werte.`);
   if ($("s_instr").classList.contains("bad")) return statsFailed("Der Gerätefehler ist keine Zahl.");
   if (st.instr != null && !(st.instr >= 0)) return statsFailed("Der Gerätefehler darf nicht negativ sein.");
-  const d = describe(vals, st.ddof, st.instr), unit = (c.name.split("/")[1] || "").trim(), p = (name, value, u) => ({ name, unit, value, ...(u === undefined ? { plain: true } : { u }) });
+  const d = describe(vals, st.ddof, st.instr), df = d.n - 1, t = st.conf ? tCrit(st.conf, df) : null;
+  const ci = st.conf ? { level: st.conf, df, t, lo: d.mean - t * d.sem, hi: d.mean + t * d.sem } : null, unit = (c.name.split("/")[1] || "").trim(), p = (name, value, u) => ({ name, unit, value, ...(u === undefined ? { plain: true } : { u }) });
   change(() => addResult(proj, {
     kind: "stats", inputs: st, n: d.n,
     params: [p("Mittelwert x̄", d.mean, d.sem), p(st.ddof === 0 ? "Standardabweichung σ (Teiler n)" : "Standardabweichung s (Teiler n−1)", d.s), p("Standardfehler des Mittelwerts s/√n", d.sem),
-      ...(d.uTotal === null ? [] : [p("Mittelwert x̄ mit Gerätefehler", d.mean, d.uTotal)])],
+      ...(d.uTotal === null ? [] : [p("Mittelwert x̄ mit Gerätefehler", d.mean, d.uTotal)]),
+      ...(ci ? [p(`Mittelwert x̄ mit ${fmt.format(Math.round(st.conf * 100))} %-Vertrauensintervall`, d.mean, ci.t * d.sem)] : [])],
+    ...(ci ? { ci } : {}),
   }));
 };
 // Weighted mean: the three settings live in the project (undo works); typing k is one undo step.

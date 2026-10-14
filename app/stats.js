@@ -44,4 +44,18 @@ function cumRead(counts, start, width, p) {
   }
   return start + width * counts.length;
 }
-if (typeof module !== "undefined") module.exports = { describe, weightedMean, histogram, autoBins, normalCount, cumRead };
+// Student t distribution (P9), closed forms for whole degrees of freedom v (Abramowitz & Stegun 26.7.3, 26.7.4):
+// tCentral(t, v) = P(-t < T < t). tCrit(conf, v) is the t with tCentral = conf, e.g. conf 0,95 -> t(0,975; v).
+function tCentral(t, v) {
+  const th = Math.atan(t / Math.sqrt(v)), c = Math.cos(th), s = Math.sin(th);
+  let sum = v % 2 ? c : 1, term = sum;
+  for (let k = v % 2 ? 3 : 2; k <= v - 2; k += 2) { term *= c * c * (k - 1) / k; sum += term; }
+  return v === 1 ? 2 * th / Math.PI : v % 2 ? 2 / Math.PI * (th + s * sum) : s * sum;
+}
+function tCrit(conf, v) {
+  let lo = 0, hi = 1;
+  while (tCentral(hi, v) < conf) hi *= 2;
+  for (let i = 0; i < 200; i++) { const mid = (lo + hi) / 2; if (tCentral(mid, v) < conf) lo = mid; else hi = mid; }
+  return (lo + hi) / 2;
+}
+if (typeof module !== "undefined") module.exports = { tCentral, tCrit, describe, weightedMean, histogram, autoBins, normalCount, cumRead };

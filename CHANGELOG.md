@@ -2,6 +2,12 @@
 
 Written in plain language for people who do not read code. Newest entry on top.
 
+## 2026-10-14: Confidence interval of a mean with the t distribution (P9)
+
+- **What a student can now do:** in "Mittelwert und Streuung einer Spalte" there is a new choice "Vertrauensintervall" (keines, 90 %, 95 %, 99 %). With a level chosen, the result gets one more line in HU format, for example "Mittelwert x̄ mit 95 %-Vertrauensintervall = (10,02 ± 0,24) mm", and below it the factor and the interval: "t(0,975; 4) = 2,776 (zweiseitig, Student-Verteilung, 4 Freiheitsgrade). Intervall: [9,78; 10,26] mm."
+- **Good to know:** u = t·s/√n, where t depends on the number of readings (n−1 degrees of freedom), so few readings give a wide interval (two readings: t = 12,71). The instrument error is not part of this interval; the line with the instrument error stays separate. The level is saved in the project, can be undone and survives a reload. Without a level nothing changes.
+- **Tested:** `tests/phase2-step12-ci.sh`: t factors against the printed Student table for 15 combinations of level and degrees of freedom (6 digits, e.g. t(0,975; 4) = 2,776445), the closed forms for 1 and 2 degrees of freedom, and the 5-reading sample 9,8 10,1 10,0 10,3 9,9 against an exact-fraction hand calculation (`tests/reference/ci_t.py`) at 90, 95 and 99 %. Also undo, reload, save and open, one reading only (clear message), and a hand-edited project file.
+
 ## 2026-10-14: χ² test against Poisson and Gauss (P8)
 
 - **What a student can now do:** the new section "χ²-Test: Poisson- und Gauß-Verteilung (Zählraten)" takes a column of counts per measuring interval (for example decays in 10 s), groups them into classes of whole numbers (class width and start can be typed or left automatic) and tests them against a Poisson and a Gauss distribution. For each class the page shows observed and expected counts; the result lines read for example "Poisson: χ² = 3,99 bei 8 Freiheitsgraden, p = 0,858". A plot shows the observed counts as bars and both expected distributions as lines. A short sentence per distribution says whether the counts contradict it at the 5 % level.
