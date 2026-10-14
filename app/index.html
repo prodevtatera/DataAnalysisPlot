@@ -26,6 +26,7 @@
   .btn:disabled { opacity:.5; cursor:default; }
   .msg { margin:10px 0; padding:10px 14px; background:#fff; border-left:6px solid #B00020; }
   .msg[hidden] { display:none; }
+  .msg.note { border-left-color:var(--blue); }
   .scroll { overflow:auto; max-height:380px; background:#fff; border:1px solid var(--line); }
   table { border-collapse:collapse; width:100%; font-size:15px; line-height:22px; font-variant-numeric:tabular-nums; }
   th,td { padding:0; border-bottom:1px solid var(--soft); }
@@ -56,6 +57,8 @@
     <button class="btn alt" id="undo" disabled title="Strg/Cmd+Z">Rückgängig</button>
     <button class="btn alt" id="redo" disabled title="Umschalt+Strg/Cmd+Z">Wiederholen</button>
   </div>
+  <div id="note" class="msg note" role="status" hidden></div>
+  <div id="storewarn" class="msg" role="alert" hidden>Automatisches Speichern ist in diesem Browser nicht möglich. Bitte speichere das Projekt mit „Projekt speichern“.</div>
   <div id="msg" class="msg" role="alert" hidden></div>
   <h2>Tabelle</h2>
   <div class="scroll" id="table"><div class="empty">Noch keine Daten. Lade das Beispiel oder öffne ein Projekt.</div></div>
@@ -107,6 +110,24 @@ document.addEventListener("keydown", e => {
   if (k === "z" || k === "y") { e.preventDefault(); (k === "y" || e.shiftKey) ? redoStep() : undoStep(); }
 });
 
+// Autosave: the whole project goes to this browser's storage after every change.
+const KEY = "plotlab-autosave";
+function autosave() {
+  $("note").hidden = true;
+  try { localStorage.setItem(KEY, save(proj)); $("storewarn").hidden = true; }
+  catch { $("storewarn").hidden = false; }
+}
+function restoreAutosave() {
+  let t = null;
+  try { t = localStorage.getItem(KEY); } catch { return; }
+  if (t === null) return;
+  const r = open(t);
+  if (r.error) { try { localStorage.removeItem(KEY); } catch {} showMsg("Der automatisch gespeicherte Stand war beschädigt und wurde verworfen."); return; }
+  setProject(r.project);
+  $("note").textContent = "Wiederhergestellt: Dein letzter Stand wurde automatisch geladen.";
+  $("note").hidden = false;
+}
+
 function setProject(p) {
   proj = p; undo = []; redo = []; editKey = null; updateHist();
   $("msg").hidden = true;
@@ -145,7 +166,7 @@ function renderResults() {
     return `<div class="result${stale ? " stale" : ""}">${stale ? '<div class="msg stalemsg">Die Daten wurden geändert. Dieses Ergebnis ist veraltet. Bitte neu anpassen.</div>' : ""}${lines}</div>`;
   }).join("");
 }
-function render() { renderTable(); renderPlot(); renderResults(); }
+function render() { renderTable(); renderPlot(); renderResults(); autosave(); }
 
 // An edit changes data only: keep the focused table as it is, redraw plot and results.
 $("table").addEventListener("input", e => {
@@ -156,7 +177,7 @@ $("table").addEventListener("input", e => {
   const key = el.dataset.r + "," + el.dataset.c;
   if (editKey !== key) { pushUndo(); editKey = key; }
   proj.columns[+el.dataset.c].values[+el.dataset.r] = v;
-  renderPlot(); renderResults();
+  renderPlot(); renderResults(); autosave();
 });
 // After leaving a cell, show the number in German format.
 $("table").addEventListener("focusout", e => {
@@ -184,6 +205,7 @@ $("openfile").onchange = async e => {
   r.error ? showMsg(r.error) : setProject(r.project);
   e.target.value = "";
 };
+restoreAutosave();
 </script>
 </body>
 </html>

@@ -2,6 +2,12 @@
 
 Written in plain language for people who do not read code. Newest entry on top.
 
+## 2026-10-14: Autosave
+
+- **What a student can now do:** close the tab or reload the page and find the work as it was, with the note "Wiederhergestellt". Data, column roles and fit results come back, and a result that was out of date stays marked as out of date. If the browser cannot store anything (private window, full disk), a warning says so and asks to use "Projekt speichern".
+- **Tested:** `tests/phase1-step4-autosave.sh` reloads the real page after edits, opens a second tab, and tries a damaged saved state and a browser that refuses to store. All passed, as did every older test.
+- **Not covered yet:** the undo history is lost on reload. There is one saved slot per browser, and no "start empty" button.
+
 ## 2026-10-14: Undo and redo
 
 - **What a student can now do:** take back a mistake with "Rückgängig" (or Ctrl/Cmd+Z) and bring it back with "Wiederholen" (or Shift+Ctrl/Cmd+Z). It works for typed values, added or deleted rows and fit settings. A fit result turns up to date again when the data is put back, and out of date again when the change returns.
