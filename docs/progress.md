@@ -1,4 +1,4 @@
-STATUS: RUNNING
+STATUS: DONE
 PHASE: 0
 
 Read by every round of the loop (see docs/loop-prompt.md). Keep the first line exactly as `STATUS: RUNNING`, `STATUS: DONE` or `STATUS: BLOCKED`.
@@ -11,11 +11,14 @@ Read by every round of the loop (see docs/loop-prompt.md). Keep the first line e
 - [x] 4. Check the fit against 3 NIST datasets, one each of lower, average and higher difficulty. Record certified values, app values and the difference. Check in an automatic script.
 - [x] 5. Measure first load time and download size (state device, browser, dataset size), and the time of a repeat visit.
 - [x] 6. Export the figure as PNG and SVG. Look at both and say if they are fit for a lab report.
-- [ ] 7. Write `docs/phase0-report.md`: gate results and a recommendation to keep or change Pyodide + Plotly. Set STATUS: DONE.
+- [x] 7. Write `docs/phase0-report.md`: gate results and a recommendation to keep or change Pyodide + Plotly. Set STATUS: DONE.
 
 ## For Luis
 
-(things only a person can do, filled in when the loop finishes)
+- Phase 0 passed (see `docs/phase0-report.md`). Decision: keep Pyodide + Plotly. Say go to start Phase 1.
+- Ask your daughter for the real HU material listed in the checklist, and show the test build (run `bash testbuild/setup.sh`, then serve `testbuild/` with any web server) to 3-5 lab instructors.
+- Decide where the app will be hosted. It must send long cache headers and compress files (see `docs/phase0-timing.md`).
+- Optional: install R if you want the R cross-check from the roadmap.
 
 ## Blocked
 
@@ -32,3 +35,4 @@ Read by every round of the loop (see docs/loop-prompt.md). Keep the first line e
 - 2026-10-14, step 4: SciPy in the browser was checked against 3 official NIST datasets (lower: Misra1a, average: Misra1d, higher: BoxBOD), each from both NIST starting points. Misra1a and Misra1d: parameters correct to 8.4 to 8.6 digits, standard errors to 6 digits or more. BoxBOD from the easy start: 9 digits. BoxBOD from the hard start: SciPy diverges, and the app now says so in German instead of showing a wrong number (found and fixed: it used to crash on "Infinity"). Also tightened SciPy's stopping tolerance (first run gave only 5.1 digits on BoxBOD). Table of certified vs app values: `docs/nist-results.md`, written by `tests/step4-nist.sh`. R is not installed, so the R cross-check from the roadmap is still open.
 - 2026-10-14, step 5: Measured on an Apple M5 (10 cores, 16 GB), Chromium 145 headless, local server, 5-point example. First visit: 35.4 MB stored (about 24.7 MB with gzip), page ready to fit after 2.9 s (plus download: about 4 s at 50 Mbit/s, about 20 s at 10 Mbit/s). Repeat visit: 0 MB downloaded, ready after 2.8 s. One fit takes about 35 ms. Needs long cache headers and compression on the real host; in a private window the two biggest files (23.6 MB) are downloaded again. Written to `docs/phase0-timing.md` by `tests/step5-load.sh`. Not measured: a real phone, a slow laptop, real network.
 - 2026-10-14, step 6: A student can now save the figure as PNG (2400 x 1400 pixels, sharp for a report) or SVG (vector; text stays text, error bars and fit line are paths, no embedded raster). Buttons are off until there is a plot. Tested in a real browser: the downloaded files were checked as files (PNG signature and size, SVG text "t / s", "U / V", "Messwerte", "Anpassung") and both were looked at. Found and fixed: the legend box was too narrow in the export because the exported image used a fallback font; the figure now uses Arial so page, PNG and SVG match. Verdict: fit for a lab report. Limits: this is a normal 2D chart (3D or WebGL charts would not be true vector); the SVG names the font Arial, so another program without Arial will substitute. Evidence: `evidence/step6-export.png`, `evidence/step6-export.svg`.
+- 2026-10-14, step 7: Wrote `docs/phase0-report.md`. All four Phase 0 gate checks pass, with evidence. Recommendation: keep Pyodide + Plotly. All 7 checks in `scripts/check.sh` pass. Phase 0 done; Phase 1 waits for Luis.
