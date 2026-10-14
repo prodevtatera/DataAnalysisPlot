@@ -30,6 +30,13 @@
   th,td { text-align:right; padding:3px 10px; border-bottom:1px solid var(--soft); }
   th { background:var(--soft); position:sticky; top:0; font-weight:600; }
   #plot { background:#fff; border:1px solid var(--line); height:420px; }
+  .fitbar { display:flex; gap:14px; flex-wrap:wrap; align-items:center; margin-bottom:10px; }
+  select { font:16px "Source Sans 3", system-ui, sans-serif; padding:8px 10px; border:1px solid var(--blue); border-radius:0; background:#fff; }
+  .btn:disabled { opacity:.5; cursor:default; }
+  #fitres { background:#fff; border:1px solid var(--line); padding:12px 16px; }
+  #fitres.stale { opacity:.55; }
+  #fitres table { width:auto; margin:8px 0; }
+  .res { font:700 20px "Barlow", system-ui, sans-serif; margin:2px 0; }
   .empty { padding:24px 14px; color:#444; }
   .hint { font-size:15px; color:#333; }
   footer { background:var(--blue); color:var(--paper); padding:20px 24px; font-size:15px; }
@@ -58,10 +65,19 @@
   </div>
   <h2>Diagramm</h2>
   <div id="plot"><div class="empty">Noch keine Daten.</div></div>
+  <h2>Anpassung</h2>
+  <div class="fitbar">
+    <select id="model" aria-label="Modell"><option value="line">Gerade y = a·x + b</option><option value="mm">Michaelis-Menten y = Vmax·x / (Km + x)</option></select>
+    <select id="errm" aria-label="Fehlermethode"><option value="scaled">Fehler skaliert mit √(χ²/DoF)</option><option value="unscaled">Fehler unskaliert (aus den sU-Werten)</option></select>
+    <button class="btn" id="fit" disabled>Anpassen</button>
+    <span class="hint" id="fitstate">Rechenmodul (SciPy) wird geladen …</span>
+  </div>
+  <div id="fitres"><div class="empty">Noch keine Anpassung.</div></div>
 </main>
 <footer>Independent student tool. Not affiliated with Humboldt-Universität zu Berlin.</footer>
 <script src="vendor/plotly.min.js"></script>
 <script src="parse.js"></script>
+<script src="round.js"></script>
 <script>
 const $ = id => document.getElementById(id);
 const EXAMPLE = "t / s;U / V;sU / V\n1,0;2,1;0,2\n2,0;4,3;0,2\n3,0;6,2;0,3\n4,0;8,4;0,3\n5,0;9,9;0,4";
@@ -69,6 +85,7 @@ const fmt = new Intl.NumberFormat("de-DE", { maximumFractionDigits: 10 });
 const esc = s => s.replace(/[&<>]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]));
 
 function render() {
+  markStale();
   const r = parseTable($("in").value), msg = $("msg");
   msg.hidden = !r.error || !$("in").value.trim();
   if (r.error) {
@@ -81,9 +98,11 @@ function render() {
     "</tr></thead><tbody>" + r.rows.map(row => "<tr>" + row.map(v => `<td>${v === null ? "" : fmt.format(v)}</td>`).join("") + "</tr>").join("") + "</tbody></table>";
   drawPlot(r);
 }
-function clearPlot() { Plotly.purge("plot"); $("plot").innerHTML = '<div class="empty">Noch keine Daten.</div>'; }
+function clearPlot() { lastTable = null; Plotly.purge("plot"); $("plot").innerHTML = '<div class="empty">Noch keine Daten.</div>'; }
 // Column 1 = x, column 2 = y, column 3 (optional) = y error. Rows with an empty x or y are skipped.
+let lastFit = null, lastTable = null;
 function drawPlot(r) {
+  lastTable = r;
   if (r.header.length < 2) { clearPlot(); $("plot").innerHTML = '<div class="empty">Für ein Diagramm braucht es mindestens zwei Spalten (x und y).</div>'; return; }
   $("plot").querySelector(".empty")?.remove();
   const rows = r.rows.filter(w => w[0] !== null && w[1] !== null);
@@ -93,9 +112,75 @@ function drawPlot(r) {
   const trace = { x: rows.map(w => w[0]), y: rows.map(w => w[1]), mode: "markers", type: "scatter", name: "Messwerte",
     marker: { color: "#00376C", size: 9, symbol: "circle" } };
   if (hasErr) trace.error_y = { type: "data", array: rows.map(w => w[2] ?? 0), visible: true, color: "#00376C", thickness: 1.6, width: 5 };
-  Plotly.newPlot("plot", [trace], { font: f, separators: ",.", margin: { l: 70, r: 20, t: 20, b: 60 },
+  const traces = [trace];
+  if (lastFit) {
+    const xs = rows.map(w => w[0]), lo = Math.min(...xs), hi = Math.max(...xs);
+    const gx = Array.from({ length: 101 }, (_, i) => lo + (hi - lo) * i / 100);
+    traces.push({ x: gx, y: gx.map(x => MODELS[lastFit.model](x, lastFit.p)), mode: "lines", type: "scatter", name: "Anpassung", line: { color: "#D55E00", width: 2.5 } });
+  }
+  Plotly.newPlot("plot", traces, { font: f, separators: ",.", margin: { l: 70, r: 20, t: 20, b: 60 },
     xaxis: ax(r.header[0]), yaxis: ax(r.header[1]), paper_bgcolor: "#fff", plot_bgcolor: "#fff",
     showlegend: true, legend: { x: 0.02, y: 0.98, bgcolor: "#fff", bordercolor: "#999", borderwidth: 1 } }, { displaylogo: false, responsive: true });
+}
+const MODELS = { line: (x, [a, b]) => a * x + b, mm: (x, [v, k]) => v * x / (k + x) };
+// A module worker cannot start from a file:// page; the table and plot still work then, only the fit is off.
+let worker = null;
+try { worker = new Worker("fit-worker.js", { type: "module" }); } catch { $("fitstate").textContent = "Die Anpassung braucht die Seite von einem Webserver (nicht als Datei geöffnet)."; }
+let fitOut = null;
+if (worker) worker.onmessage = ev => {
+  const m = ev.data;
+  if (m.ready) { $("fit").disabled = false; $("fitstate").textContent = "Bereit."; }
+  else if (m.loadError) $("fitstate").textContent = "Das Rechenmodul konnte nicht geladen werden. Bitte die Seite neu laden.";
+  else { $("fit").disabled = false; m.error ? fitFailed(m.error) : showFit(m.result); }
+};
+function fitFailed(why) {
+  lastFit = null; fitOut = null;
+  $("fitres").classList.remove("stale");
+  $("fitres").innerHTML = `<div class="msg">Die Anpassung ist fehlgeschlagen. Prüfe, ob das Modell zu den Daten passt. (${esc(why)})</div>`;
+  if (lastTable && !lastTable.error) drawPlot(lastTable);
+}
+function units(model) {
+  const u = h => (h.split("/")[1] || "").trim(), ux = u(lastTable.header[0]), uy = u(lastTable.header[1]);
+  const per = ux ? (uy ? uy + "/" + ux : "1/" + ux) : uy;
+  return model === "line" ? [["a", per], ["b", uy]] : [["Vmax", uy], ["Km", ux]];
+}
+function showFit(out) {
+  if ($("model").value === "mm" && (out.p[0] <= 0 || out.p[1] <= 0)) { fitFailed("Vmax und Km müssen größer als 0 sein, die Daten zeigen keine Sättigungskurve."); return; }
+  fitOut = out; lastFit = { model: $("model").value, p: out.p };
+  $("fitres").classList.remove("stale");
+  const weighted = out.err_unscaled !== undefined, un = weighted && $("errm").value === "unscaled";
+  const err = un ? out.err_unscaled : out.err_scaled;
+  const names = units(lastFit.model), f = new Intl.NumberFormat("de-DE", { maximumSignificantDigits: 6 });
+  const lines = names.map(([n, unit], i) => {
+    const r = huRound(out.p[i], err[i]);
+    return r ? `<div class="res">${n} = (${r[0]} ± ${r[1]})${unit ? " " + esc(unit) : ""}</div>` : `<div class="res">${n} = ${f.format(out.p[i])} (Fehler nicht bestimmbar)</div>`;
+  }).join("");
+  const how = !weighted ? "ungewichtet; Fehler aus der Streuung der Messpunkte um die Kurve"
+    : un ? "gewichtet mit sU; Fehler unskaliert (absolute_sigma=True)" : "gewichtet mit sU; Fehler mit √(χ²/DoF) skaliert (absolute_sigma=False)";
+  const rows = names.map(([n], i) => `<tr><td>${n}</td><td>${f.format(out.p[i])}</td><td>${f.format(out.err_scaled[i])}</td>${weighted ? `<td>${f.format(out.err_unscaled[i])}</td>` : ""}</tr>`).join("");
+  $("fitres").innerHTML = lines +
+    `<table><thead><tr><th>Parameter</th><th>Wert</th><th>Fehler skaliert</th>${weighted ? "<th>Fehler unskaliert</th>" : ""}</tr></thead><tbody>${rows}</tbody></table>` +
+    `<div id="how">Methode: ${how}. Freiheitsgrade: ${out.dof}.` + (weighted ? ` χ² = ${f.format(out.chi2)}, χ²/DoF = ${f.format(out.chi2 / out.dof)}.` : ` Summe der Abweichungsquadrate = ${f.format(out.ssr)}.`) + "</div>";
+  drawPlot(lastTable);
+}
+$("errm").onchange = () => { if (fitOut) showFit(fitOut); };
+$("fit").onclick = () => {
+  const r = lastTable;
+  if (!r) { fitFailed("Es sind keine gültigen Daten vorhanden."); return; }
+  const rows = r.rows.filter(w => w[0] !== null && w[1] !== null);
+  const weighted = r.header.length > 2;
+  if (r.header.length < 2 || rows.length <= 2) { fitFailed("Es braucht mindestens drei Messpunkte mit x und y für zwei Parameter."); return; }
+  if (weighted && rows.some(w => !(w[2] > 0))) { fitFailed("Alle Fehlerwerte (dritte Spalte) müssen größer als 0 sein."); return; }
+  $("fit").disabled = true;
+  worker.postMessage({ model: $("model").value, x: rows.map(w => w[0]), y: rows.map(w => w[1]), sy: weighted ? rows.map(w => w[2]) : null });
+};
+// Old results stay visible but greyed out and labelled until the student fits again.
+function markStale() {
+  lastFit = null;
+  if (!fitOut) return;
+  fitOut = null;
+  $("fitres").classList.add("stale");
+  $("fitres").insertAdjacentHTML("afterbegin", '<div class="msg">Die Daten wurden geändert. Dieses Ergebnis ist veraltet. Bitte neu anpassen.</div>');
 }
 $("in").addEventListener("input", render);
 $("example").onclick = () => { $("in").value = EXAMPLE; render(); };
