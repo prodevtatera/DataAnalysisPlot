@@ -2,6 +2,14 @@
 
 Written in plain language for people who do not read code. Newest entry on top.
 
+## 2026-10-14: English, second part (all sections of the page)
+
+- **What a student can now do:** with the "EN" button, every section of the page is in English now: formula column, mean and spread (with the confidence interval), frequency table and histogram, cumulative frequency, chi-square test, weighted mean, several series, derived quantity, calibration line and the comparison of two values. This covers headings, hints, field labels, buttons, example entries in the fields, plot legends and axis titles, result lines, detail lines and the messages of these sections.
+- **Result lines switch with the language:** a result you calculated in German reads in English after you press "EN" and the other way round, for example `Mean x̄ = (10.110 ± 0.008) mL` and `Poisson: χ² = 3.99 with 8 degrees of freedom, p = 0.858`, or "Mittelwert x̄ = (10,110 ± 0,008) mL". Only the words and the decimal sign change; the numbers and the format (value ± u) unit stay the same. The verdicts "results agree / do not agree" and "measured value and reference value agree / differ" switch too.
+- **Saved projects:** a project file still holds the German names, so older files and files from other computers keep working; nothing in a file can put markup on the page.
+- **Not yet in English:** the texts inside the templates, the error messages that come from the calculation files (for example a formula with an unknown column, the comparison with a missing value, the chi-square verdict sentences) and the messages when a file cannot be read. A note at the top says so while English is on. That is the next step.
+- **Tested:** `tests/phase3-step3b-sections.sh` in a real browser, each section in English with the hand values of its German test (for example `Weighted mean = (10.02 ± 0.09) cm³`, `x₀ (y₀ = 1.3405) = (5.19 ± 0.21) %`, `The difference is 2.4 combined uncertainties (2 or more)`), the same results switched to German, wrong input in English, and a check that no German word is left in the fixed texts of these sections.
+
 ## 2026-10-14: English, first part (DE / EN switch)
 
 - **What a student can now do:** switch the page between German and English with the "DE" and "EN" buttons in the header. German stays the default, also when the browser is set to English. The choice is remembered. The data, the table and your results do not change when you switch.

@@ -123,57 +123,57 @@
   <div class="btns">
     <button class="btn alt" id="addrow" data-i18n="b_addrow" disabled>Zeile hinzufügen</button>
   </div>
-  <h2>Formelspalte</h2>
-  <p class="hint">Eine neue Spalte aus anderen Spalten rechnen, zum Beispiel r² aus dem Durchmesser D. Erlaubt: + − * / ^ und Klammern, Zahlen mit Komma, die Namen der Spalten links davon (der Teil vor „ / “, sonst in eckigen Klammern) und die Funktionen sqrt, ln, log10, exp, abs, sin, cos, tan (Bogenmaß) sowie pi.</p>
+  <h2 data-i18n="h_formula">Formelspalte</h2>
+  <p class="hint" data-i18n="hint_formula">Eine neue Spalte aus anderen Spalten rechnen, zum Beispiel r² aus dem Durchmesser D. Erlaubt: + − * / ^ und Klammern, Zahlen mit Komma, die Namen der Spalten links davon (der Teil vor „ / “, sonst in eckigen Klammern) und die Funktionen sqrt, ln, log10, exp, abs, sin, cos, tan (Bogenmaß) sowie pi.</p>
   <div class="fitbar">
-    <label>Name <input class="txt" id="f_name" aria-label="Name der neuen Spalte" placeholder="r² / mm²" autocomplete="off"></label>
-    <label>Formel <input class="txt" id="f_expr" aria-label="Formel der neuen Spalte" placeholder="(D/2)^2" autocomplete="off" spellcheck="false"></label>
-    <label>Unsicherheiten (optional) <input class="txt" id="f_unc" aria-label="Unsicherheiten der Eingangsgrößen" placeholder="D = sD; c = 0,01" autocomplete="off" spellcheck="false"></label>
-    <button class="btn" id="f_add" disabled>Spalte berechnen</button>
+    <label><span data-i18n="l_name">Name</span> <input class="txt" id="f_name" aria-label="Name der neuen Spalte" data-i18n-aria="aria_fname" placeholder="r² / mm²" autocomplete="off"></label>
+    <label><span data-i18n="l_formula">Formel</span> <input class="txt" id="f_expr" aria-label="Formel der neuen Spalte" data-i18n-aria="aria_fexpr" placeholder="(D/2)^2" autocomplete="off" spellcheck="false"></label>
+    <label><span data-i18n="l_func">Unsicherheiten (optional)</span> <input class="txt" id="f_unc" aria-label="Unsicherheiten der Eingangsgrößen" data-i18n-aria="aria_func" placeholder="D = sD; c = 0,01" data-i18n-ph="ph_func" autocomplete="off" spellcheck="false"></label>
+    <button class="btn" id="f_add" data-i18n="b_fadd" disabled>Spalte berechnen</button>
   </div>
-  <p class="hint">Mit Unsicherheiten entsteht zusätzlich die Spalte „u(Name)“ mit der Gaußschen Fehlerfortpflanzung u(f)² = Σ (∂f/∂xᵢ)²·u(xᵢ)². Pro Eingangsgröße steht links vom „=“ die Spalte und rechts ihre Unsicherheit (eine Spalte, eine Zahl oder ein Ausdruck wie 0,01*D), getrennt durch „;“. Eingangsgrößen ohne Angabe gelten als genau. Die Eingangsgrößen müssen voneinander unabhängig sein.</p>
+  <p class="hint" data-i18n="hint_func">Mit Unsicherheiten entsteht zusätzlich die Spalte „u(Name)“ mit der Gaußschen Fehlerfortpflanzung u(f)² = Σ (∂f/∂xᵢ)²·u(xᵢ)². Pro Eingangsgröße steht links vom „=“ die Spalte und rechts ihre Unsicherheit (eine Spalte, eine Zahl oder ein Ausdruck wie 0,01*D), getrennt durch „;“. Eingangsgrößen ohne Angabe gelten als genau. Die Eingangsgrößen müssen voneinander unabhängig sein.</p>
   <div id="fmsg" class="msg" role="alert" hidden></div>
-  <h2>Mittelwert und Streuung einer Spalte</h2>
-  <p class="hint">Mittelwert x̄, Standardabweichung (Teiler n oder n−1) und Standardfehler s/√n der gewählten Spalte. Der Standardfehler nutzt immer s mit n−1, auch wenn du für die Standardabweichung n wählst. Mit einem Gerätefehler (Ablesefehler, in der Einheit der Spalte) wird zusätzlich u = √(u<sub>zufällig</sub>² + u<sub>Gerät</sub>²) angegeben. Mit einem Vertrauensniveau wird das Vertrauensintervall x̄ ± t·s/√n mit dem Faktor t der Student-Verteilung (n−1 Freiheitsgrade) angegeben; der Gerätefehler ist darin nicht enthalten.</p>
+  <h2 data-i18n="h_stats">Mittelwert und Streuung einer Spalte</h2>
+  <p class="hint" data-i18n-html="hint_stats">Mittelwert x̄, Standardabweichung (Teiler n oder n−1) und Standardfehler s/√n der gewählten Spalte. Der Standardfehler nutzt immer s mit n−1, auch wenn du für die Standardabweichung n wählst. Mit einem Gerätefehler (Ablesefehler, in der Einheit der Spalte) wird zusätzlich u = √(u<sub>zufällig</sub>² + u<sub>Gerät</sub>²) angegeben. Mit einem Vertrauensniveau wird das Vertrauensintervall x̄ ± t·s/√n mit dem Faktor t der Student-Verteilung (n−1 Freiheitsgrade) angegeben; der Gerätefehler ist darin nicht enthalten.</p>
   <div class="fitbar" id="stats">
-    <label>Spalte <select id="s_col" aria-label="Spalte für Mittelwert und Streuung"></select></label>
-    <label>Standardabweichung mit <select id="s_ddof" aria-label="Teiler der Standardabweichung"><option value="1">n−1 (Stichprobe, s)</option><option value="0">n (σ)</option></select></label>
-    <label>Gerätefehler (optional) <input class="num" id="s_instr" aria-label="Gerätefehler in der Einheit der Spalte" inputmode="decimal"></label>
-    <label>Vertrauensintervall <select id="s_conf" aria-label="Vertrauensniveau des t-Intervalls"><option value="">keines</option><option value="0.9">90 %</option><option value="0.95">95 %</option><option value="0.99">99 %</option></select></label>
-    <button class="btn" id="s_go" disabled>Berechnen</button>
+    <label><span data-i18n="l_col">Spalte</span> <select id="s_col" aria-label="Spalte für Mittelwert und Streuung" data-i18n-aria="aria_scol"></select></label>
+    <label><span data-i18n="l_ddof">Standardabweichung mit</span> <select id="s_ddof" aria-label="Teiler der Standardabweichung" data-i18n-aria="aria_sddof"><option value="1" data-i18n="o_ddof1">n−1 (Stichprobe, s)</option><option value="0" data-i18n="o_ddof0">n (σ)</option></select></label>
+    <label><span data-i18n="l_instr">Gerätefehler (optional)</span> <input class="num" id="s_instr" aria-label="Gerätefehler in der Einheit der Spalte" data-i18n-aria="aria_instr" inputmode="decimal"></label>
+    <label><span data-i18n="l_conf">Vertrauensintervall</span> <select id="s_conf" aria-label="Vertrauensniveau des t-Intervalls" data-i18n-aria="aria_conf"><option value="" data-i18n="o_noci">keines</option><option value="0.9">90 %</option><option value="0.95">95 %</option><option value="0.99">99 %</option></select></label>
+    <button class="btn" id="s_go" data-i18n="b_calc" disabled>Berechnen</button>
   </div>
   <div id="statsmsg" class="msg" role="alert" hidden></div>
-  <h2>Häufigkeitstabelle und Histogramm</h2>
-  <p class="hint">Teilt die Werte einer Spalte in Klassen [von, bis) ein und zählt sie: absolute, relative und kumulierte Häufigkeit. Die Klassen sind links geschlossen, ein Wert genau auf einer Grenze gehört zur oberen Klasse. Das Histogramm zeigt die Anzahl je Klasse und dazu die Normalverteilung mit dem Mittelwert x̄ und der Standardabweichung s (Teiler n oder n−1): erwartete Anzahl je Klasse = n·Klassenbreite·φ(x). Bleiben Klassenbreite und Beginn leer, werden sie automatisch gewählt.</p>
+  <h2 data-i18n="h_hist">Häufigkeitstabelle und Histogramm</h2>
+  <p class="hint" data-i18n="hint_hist">Teilt die Werte einer Spalte in Klassen [von, bis) ein und zählt sie: absolute, relative und kumulierte Häufigkeit. Die Klassen sind links geschlossen, ein Wert genau auf einer Grenze gehört zur oberen Klasse. Das Histogramm zeigt die Anzahl je Klasse und dazu die Normalverteilung mit dem Mittelwert x̄ und der Standardabweichung s (Teiler n oder n−1): erwartete Anzahl je Klasse = n·Klassenbreite·φ(x). Bleiben Klassenbreite und Beginn leer, werden sie automatisch gewählt.</p>
   <div class="fitbar" id="hist">
-    <label>Spalte <select id="h_col" aria-label="Spalte für das Histogramm"></select></label>
-    <label>Standardabweichung mit <select id="h_ddof" aria-label="Teiler der Standardabweichung für die Normalverteilung"><option value="1">n−1 (s)</option><option value="0">n (σ)</option></select></label>
-    <label>Klassenbreite <input class="num" id="h_w" aria-label="Klassenbreite in der Einheit der Spalte, leer für automatisch" inputmode="decimal" placeholder="automatisch"></label>
-    <label>Beginn <input class="num" id="h_s" aria-label="Beginn der ersten Klasse in der Einheit der Spalte, leer für automatisch" inputmode="decimal" placeholder="automatisch"></label>
-    <button class="btn" id="h_go" disabled>Berechnen</button>
+    <label><span data-i18n="l_col">Spalte</span> <select id="h_col" aria-label="Spalte für das Histogramm" data-i18n-aria="aria_hcol"></select></label>
+    <label><span data-i18n="l_ddof">Standardabweichung mit</span> <select id="h_ddof" aria-label="Teiler der Standardabweichung für die Normalverteilung" data-i18n-aria="aria_hddof"><option value="1" data-i18n="o_ddof1h">n−1 (s)</option><option value="0" data-i18n="o_ddof0">n (σ)</option></select></label>
+    <label><span data-i18n="l_width">Klassenbreite</span> <input class="num" id="h_w" aria-label="Klassenbreite in der Einheit der Spalte, leer für automatisch" data-i18n-aria="aria_hw" inputmode="decimal" placeholder="automatisch" data-i18n-ph="ph_auto"></label>
+    <label><span data-i18n="l_start">Beginn</span> <input class="num" id="h_s" aria-label="Beginn der ersten Klasse in der Einheit der Spalte, leer für automatisch" data-i18n-aria="aria_hs" inputmode="decimal" placeholder="automatisch" data-i18n-ph="ph_auto"></label>
+    <button class="btn" id="h_go" data-i18n="b_calc" disabled>Berechnen</button>
   </div>
   <div id="hmsg" class="msg" role="alert" hidden></div>
-  <div id="histplot"><div class="empty">Noch kein Histogramm. Wähle eine Spalte und drücke „Berechnen“.</div></div>
-  <h2>Summenhäufigkeit mit Ablesung bei 16 % und 84 %</h2>
-  <p class="hint">Aus derselben Klasseneinteilung: die kumulierte relative Häufigkeit an den Klassengrenzen, mit geraden Linien dazwischen. Bei 16 % und 84 % wird der Wert x abgelesen; bei normalverteilten Messwerten liegen diese Werte bei x̄ − s und x̄ + s, und die halbe Differenz (x₈₄ − x₁₆)/2 ist eine Abschätzung für s.</p>
-  <div id="cumplot"><div class="empty">Noch keine Summenhäufigkeit. Berechne zuerst das Histogramm.</div></div>
-  <h2>χ²-Test: Poisson- und Gauß-Verteilung (Zählraten)</h2>
-  <p class="hint">Prüft, ob Zählwerte je Messintervall (zum Beispiel Zerfälle in 10 s, P8) zu einer Poisson- oder einer Gauß-Verteilung passen. Die Zählwerte werden in Klassen aus ganzen Zahlen eingeteilt. Für jede Klasse wird die erwartete Anzahl berechnet, daraus χ², die Freiheitsgrade und der p-Wert. Ist die erwartete Anzahl einer Klasse kleiner als 5, erscheint eine Warnung. Bleiben Klassenbreite und Beginn leer, werden sie automatisch gewählt.</p>
+  <div id="histplot"><div class="empty" data-i18n="hist_none">Noch kein Histogramm. Wähle eine Spalte und drücke „Berechnen“.</div></div>
+  <h2 data-i18n="h_cum">Summenhäufigkeit mit Ablesung bei 16 % und 84 %</h2>
+  <p class="hint" data-i18n="hint_cum">Aus derselben Klasseneinteilung: die kumulierte relative Häufigkeit an den Klassengrenzen, mit geraden Linien dazwischen. Bei 16 % und 84 % wird der Wert x abgelesen; bei normalverteilten Messwerten liegen diese Werte bei x̄ − s und x̄ + s, und die halbe Differenz (x₈₄ − x₁₆)/2 ist eine Abschätzung für s.</p>
+  <div id="cumplot"><div class="empty" data-i18n="cum_none">Noch keine Summenhäufigkeit. Berechne zuerst das Histogramm.</div></div>
+  <h2 data-i18n="h_gof">χ²-Test: Poisson- und Gauß-Verteilung (Zählraten)</h2>
+  <p class="hint" data-i18n="hint_gof">Prüft, ob Zählwerte je Messintervall (zum Beispiel Zerfälle in 10 s, P8) zu einer Poisson- oder einer Gauß-Verteilung passen. Die Zählwerte werden in Klassen aus ganzen Zahlen eingeteilt. Für jede Klasse wird die erwartete Anzahl berechnet, daraus χ², die Freiheitsgrade und der p-Wert. Ist die erwartete Anzahl einer Klasse kleiner als 5, erscheint eine Warnung. Bleiben Klassenbreite und Beginn leer, werden sie automatisch gewählt.</p>
   <div class="fitbar" id="gof">
-    <label>Spalte mit Zählwerten <select id="g_col" aria-label="Spalte mit den Zählwerten"></select></label>
-    <label>Klassenbreite <input class="num" id="g_w" aria-label="Klassenbreite als ganze Zahl, leer für automatisch" inputmode="numeric" placeholder="automatisch"></label>
-    <label>Beginn <input class="num" id="g_s" aria-label="Beginn der ersten Klasse als ganze Zahl, leer für automatisch" inputmode="numeric" placeholder="automatisch"></label>
-    <button class="btn" id="g_go" disabled>Berechnen</button>
+    <label><span data-i18n="l_gcol">Spalte mit Zählwerten</span> <select id="g_col" aria-label="Spalte mit den Zählwerten" data-i18n-aria="aria_gcol"></select></label>
+    <label><span data-i18n="l_width">Klassenbreite</span> <input class="num" id="g_w" aria-label="Klassenbreite als ganze Zahl, leer für automatisch" data-i18n-aria="aria_gw" inputmode="numeric" placeholder="automatisch" data-i18n-ph="ph_auto"></label>
+    <label><span data-i18n="l_start">Beginn</span> <input class="num" id="g_s" aria-label="Beginn der ersten Klasse als ganze Zahl, leer für automatisch" data-i18n-aria="aria_gs" inputmode="numeric" placeholder="automatisch" data-i18n-ph="ph_auto"></label>
+    <button class="btn" id="g_go" data-i18n="b_calc" disabled>Berechnen</button>
   </div>
   <div id="gofmsg" class="msg" role="alert" hidden></div>
-  <div id="gofplot"><div class="empty">Noch kein χ²-Test. Wähle die Spalte mit den Zählwerten und drücke „Berechnen“.</div></div>
-  <h2>Gewichteter Mittelwert und Überlappung mehrerer Ergebnisse</h2>
-  <p class="hint">Jede Zeile ist ein Ergebnis x mit seiner Unsicherheit u (zum Beispiel drei Volumenmessungen). Gewichte w = 1/u², Mittelwert = Σ(w·x)/Σw, Unsicherheit = 1/√Σw. Die Unsicherheit wird so übernommen, wie sie in der Tabelle steht. Überlappung: Die Intervalle x ± k·u müssen sich alle gemeinsam schneiden.</p>
+  <div id="gofplot"><div class="empty" data-i18n="gof_none">Noch kein χ²-Test. Wähle die Spalte mit den Zählwerten und drücke „Berechnen“.</div></div>
+  <h2 data-i18n="h_wm">Gewichteter Mittelwert und Überlappung mehrerer Ergebnisse</h2>
+  <p class="hint" data-i18n="hint_wm">Jede Zeile ist ein Ergebnis x mit seiner Unsicherheit u (zum Beispiel drei Volumenmessungen). Gewichte w = 1/u², Mittelwert = Σ(w·x)/Σw, Unsicherheit = 1/√Σw. Die Unsicherheit wird so übernommen, wie sie in der Tabelle steht. Überlappung: Die Intervalle x ± k·u müssen sich alle gemeinsam schneiden.</p>
   <div class="fitbar" id="wmean">
-    <label>Ergebnisse x <select id="w_val" aria-label="Spalte mit den Ergebnissen"></select></label>
-    <label>Unsicherheit u <select id="w_unc" aria-label="Spalte mit den Unsicherheiten"></select></label>
-    <label>Faktor k <input class="num" id="w_k" aria-label="Faktor k für die Überlappung" inputmode="decimal"></label>
-    <button class="btn" id="w_go" disabled>Berechnen</button>
+    <label><span data-i18n="l_wval">Ergebnisse x</span> <select id="w_val" aria-label="Spalte mit den Ergebnissen" data-i18n-aria="aria_wval"></select></label>
+    <label><span data-i18n="l_wunc">Unsicherheit u</span> <select id="w_unc" aria-label="Spalte mit den Unsicherheiten" data-i18n-aria="aria_wunc"></select></label>
+    <label><span data-i18n="l_wk">Faktor k</span> <input class="num" id="w_k" aria-label="Faktor k für die Überlappung" data-i18n-aria="aria_wk" inputmode="decimal"></label>
+    <button class="btn" id="w_go" data-i18n="b_calc" disabled>Berechnen</button>
   </div>
   <div id="wmsg" class="msg" role="alert" hidden></div>
   <h2 data-i18n="h_fit">Anpassung (Gerade y = a·x + b)</h2>
@@ -184,43 +184,43 @@
     <span class="hint" id="fitstate" data-i18n="fs_loading">Rechenmodul (SciPy) wird geladen …</span>
   </div>
   <div id="fitmsg" class="msg" role="alert" hidden></div>
-  <h2>Mehrere Messreihen in einem Diagramm</h2>
-  <p class="hint">Jede Reihe ist eine y-Spalte gegen die x-Spalte, zum Beispiel Belastung und Entlastung (P3). Pro Reihe wird eine Gerade y = a·x + b über den gewählten x-Bereich angepasst (leer = alle Punkte). Mit Fehlerspalte wird gewichtet (1/s²), ohne Fehlerspalte ungewichtet. Alle Reihen erscheinen im Diagramm oben, jede mit ihrer Anpassungslinie; Punkte außerhalb des Bereichs sind blass und werden nicht angepasst. Danach werden die Steigungen verglichen: der Unterschied in kombinierten Unsicherheiten √(u₁² + u₂²) (unabhängige Reihen); unter 2 gelten sie als gleich.</p>
+  <h2 data-i18n="h_series">Mehrere Messreihen in einem Diagramm</h2>
+  <p class="hint" data-i18n="hint_series">Jede Reihe ist eine y-Spalte gegen die x-Spalte, zum Beispiel Belastung und Entlastung (P3). Pro Reihe wird eine Gerade y = a·x + b über den gewählten x-Bereich angepasst (leer = alle Punkte). Mit Fehlerspalte wird gewichtet (1/s²), ohne Fehlerspalte ungewichtet. Alle Reihen erscheinen im Diagramm oben, jede mit ihrer Anpassungslinie; Punkte außerhalb des Bereichs sind blass und werden nicht angepasst. Danach werden die Steigungen verglichen: der Unterschied in kombinierten Unsicherheiten √(u₁² + u₂²) (unabhängige Reihen); unter 2 gelten sie als gleich.</p>
   <div id="sr_rows"></div>
   <div class="btns">
-    <button class="btn alt" id="sr_add" disabled>Reihe hinzufügen</button>
-    <button class="btn" id="sr_go" disabled>Reihen anpassen</button>
+    <button class="btn alt" id="sr_add" data-i18n="b_sradd" disabled>Reihe hinzufügen</button>
+    <button class="btn" id="sr_go" data-i18n="b_srgo" disabled>Reihen anpassen</button>
   </div>
   <div id="srmsg" class="msg" role="alert" hidden></div>
-  <h2>Abgeleitete Größe aus den Fit-Parametern</h2>
-  <p class="hint">Eine Größe aus der Steigung a und dem Achsenabschnitt b der Geraden rechnen, mit Fehlerfortpflanzung u(f)² = Σ (∂f/∂xᵢ)²·u(xᵢ)². Die Fehler von a und b kommen aus der Anpassung (skaliert oder unskaliert, wie oben gewählt) und werden als unabhängig behandelt. Weitere Größen mit Wert und Unsicherheit schreibst du als <code>L = 1 ± 0,002; d = 0,5 ± 0,01</code>. Die Einheiten stimmen nur, wenn die Formel die Umrechnung enthält: die Vorlagen sagen, in welchen Einheiten a und die weiteren Größen stehen müssen.</p>
+  <h2 data-i18n="h_derived">Abgeleitete Größe aus den Fit-Parametern</h2>
+  <p class="hint" data-i18n-html="hint_derived">Eine Größe aus der Steigung a und dem Achsenabschnitt b der Geraden rechnen, mit Fehlerfortpflanzung u(f)² = Σ (∂f/∂xᵢ)²·u(xᵢ)². Die Fehler von a und b kommen aus der Anpassung (skaliert oder unskaliert, wie oben gewählt) und werden als unabhängig behandelt. Weitere Größen mit Wert und Unsicherheit schreibst du als <code>L = 1 ± 0,002; d = 0,5 ± 0,01</code>. Die Einheiten stimmen nur, wenn die Formel die Umrechnung enthält: die Vorlagen sagen, in welchen Einheiten a und die weiteren Größen stehen müssen.</p>
   <div class="btns">
-    <button class="btn alt" id="d_tE">Vorlage: Elastizitätsmodul E (P3)</button>
-    <button class="btn alt" id="d_tg">Vorlage: Fallbeschleunigung g aus T²(l) (P9)</button>
+    <button class="btn alt" id="d_tE" data-i18n="b_dtE">Vorlage: Elastizitätsmodul E (P3)</button>
+    <button class="btn alt" id="d_tg" data-i18n="b_dtg">Vorlage: Fallbeschleunigung g aus T²(l) (P9)</button>
   </div>
   <div class="fitbar" id="derived">
-    <label>Name <input class="txt" id="d_name" aria-label="Name der abgeleiteten Größe" placeholder="E" autocomplete="off"></label>
-    <label>Einheit <input class="txt" id="d_unit" aria-label="Einheit der abgeleiteten Größe" placeholder="GPa" autocomplete="off"></label>
-    <label>Formel <input class="txt" id="d_formula" aria-label="Formel der abgeleiteten Größe" placeholder="4*L/(pi*d^2*a)" autocomplete="off" spellcheck="false"></label>
-    <label>Weitere Größen <input class="txt" id="d_vars" aria-label="Weitere Größen mit Wert und Unsicherheit" placeholder="L = 1 ± 0,002; d = 0,5 ± 0,01" autocomplete="off" spellcheck="false"></label>
-    <label>Einheit von a (optional) <input class="txt" id="d_aunit" aria-label="Erwartete Einheit der Steigung a" placeholder="mm/N" autocomplete="off"></label>
-    <button class="btn" id="derive">Berechnen</button>
+    <label><span data-i18n="l_name">Name</span> <input class="txt" id="d_name" aria-label="Name der abgeleiteten Größe" data-i18n-aria="aria_dname" placeholder="E" autocomplete="off"></label>
+    <label><span data-i18n="l_unit">Einheit</span> <input class="txt" id="d_unit" aria-label="Einheit der abgeleiteten Größe" data-i18n-aria="aria_dunit" placeholder="GPa" autocomplete="off"></label>
+    <label><span data-i18n="l_formula">Formel</span> <input class="txt" id="d_formula" aria-label="Formel der abgeleiteten Größe" data-i18n-aria="aria_dformula" placeholder="4*L/(pi*d^2*a)" autocomplete="off" spellcheck="false"></label>
+    <label><span data-i18n="l_dvars">Weitere Größen</span> <input class="txt" id="d_vars" aria-label="Weitere Größen mit Wert und Unsicherheit" data-i18n-aria="aria_dvars" placeholder="L = 1 ± 0,002; d = 0,5 ± 0,01" data-i18n-ph="ph_dvars" autocomplete="off" spellcheck="false"></label>
+    <label><span data-i18n="l_daunit">Einheit von a (optional)</span> <input class="txt" id="d_aunit" aria-label="Erwartete Einheit der Steigung a" data-i18n-aria="aria_daunit" placeholder="mm/N" autocomplete="off"></label>
+    <button class="btn" id="derive" data-i18n="b_calc">Berechnen</button>
   </div>
   <div id="derivemsg" class="msg" role="alert" hidden></div>
-  <h2>Kalibriergerade: Unbekanntes ablesen</h2>
-  <p class="hint">Mit der angepassten Geraden y = a·x + b aus einem gemessenen y₀ der unbekannten Probe das zugehörige x₀ = (y₀ − b)/a berechnen (P4, P7). Die Unsicherheit u(x₀)² = (u(y₀)² + x₀²·u(a)² + u(b)² + 2·x₀·cov(a,b)) / a² enthält die Kovarianz von a und b, denn beide Parameter hängen zusammen. Mehrere Proben mit „;“ trennen. Fehlt die Unsicherheit, gilt y₀ als genau.</p>
+  <h2 data-i18n="h_calib">Kalibriergerade: Unbekanntes ablesen</h2>
+  <p class="hint" data-i18n="hint_calib">Mit der angepassten Geraden y = a·x + b aus einem gemessenen y₀ der unbekannten Probe das zugehörige x₀ = (y₀ − b)/a berechnen (P4, P7). Die Unsicherheit u(x₀)² = (u(y₀)² + x₀²·u(a)² + u(b)² + 2·x₀·cov(a,b)) / a² enthält die Kovarianz von a und b, denn beide Parameter hängen zusammen. Mehrere Proben mit „;“ trennen. Fehlt die Unsicherheit, gilt y₀ als genau.</p>
   <div class="fitbar" id="calib">
-    <label>Gemessene Werte y₀ <input class="txt" id="c_y0" aria-label="Gemessene Werte y0 mit Unsicherheit" placeholder="1,3405 ± 0,0003; 1,3372 ± 0,0002" autocomplete="off" spellcheck="false"></label>
-    <button class="btn" id="c_go">x₀ ablesen</button>
+    <label><span data-i18n="l_cy0">Gemessene Werte y₀</span> <input class="txt" id="c_y0" aria-label="Gemessene Werte y0 mit Unsicherheit" data-i18n-aria="aria_cy0" placeholder="1,3405 ± 0,0003; 1,3372 ± 0,0002" data-i18n-ph="ph_cy0" autocomplete="off" spellcheck="false"></label>
+    <button class="btn" id="c_go" data-i18n="b_cgo">x₀ ablesen</button>
   </div>
   <div id="calibmsg" class="msg" role="alert" hidden></div>
-  <h2>Messwert und Vergleichswert vergleichen</h2>
-  <p class="hint">Zwei Werte mit Unsicherheit vergleichen, zum Beispiel einen gemessenen Widerstand mit dem berechneten (P6). Der Unterschied d = Messwert − Vergleichswert hat die Unsicherheit √(u₁² + u₂²) (die Werte gelten als unabhängig). Unter 2 solchen Unsicherheiten stimmen die Werte überein. Fehlt die Unsicherheit eines Werts, gilt er als genau (zum Beispiel ein Literaturwert).</p>
+  <h2 data-i18n="h_cmp">Messwert und Vergleichswert vergleichen</h2>
+  <p class="hint" data-i18n="hint_cmp">Zwei Werte mit Unsicherheit vergleichen, zum Beispiel einen gemessenen Widerstand mit dem berechneten (P6). Der Unterschied d = Messwert − Vergleichswert hat die Unsicherheit √(u₁² + u₂²) (die Werte gelten als unabhängig). Unter 2 solchen Unsicherheiten stimmen die Werte überein. Fehlt die Unsicherheit eines Werts, gilt er als genau (zum Beispiel ein Literaturwert).</p>
   <div class="fitbar" id="compare">
-    <label>Messwert <input class="txt" id="k_meas" aria-label="Messwert mit Unsicherheit" placeholder="100,2 ± 0,3" autocomplete="off" spellcheck="false"></label>
-    <label>Vergleichswert <input class="txt" id="k_ref" aria-label="Berechneter oder Literaturwert mit Unsicherheit" placeholder="100,0 ± 0,4" autocomplete="off" spellcheck="false"></label>
-    <label>Einheit <input class="txt" id="k_unit" aria-label="Einheit beider Werte" placeholder="Ω" autocomplete="off"></label>
-    <button class="btn" id="k_go">Vergleichen</button>
+    <label><span data-i18n="l_kmeas">Messwert</span> <input class="txt" id="k_meas" aria-label="Messwert mit Unsicherheit" data-i18n-aria="aria_kmeas" placeholder="100,2 ± 0,3" data-i18n-ph="ph_kmeas" autocomplete="off" spellcheck="false"></label>
+    <label><span data-i18n="l_kref">Vergleichswert</span> <input class="txt" id="k_ref" aria-label="Berechneter oder Literaturwert mit Unsicherheit" data-i18n-aria="aria_kref" placeholder="100,0 ± 0,4" data-i18n-ph="ph_kref" autocomplete="off" spellcheck="false"></label>
+    <label><span data-i18n="l_unit">Einheit</span> <input class="txt" id="k_unit" aria-label="Einheit beider Werte" data-i18n-aria="aria_kunit" placeholder="Ω" autocomplete="off"></label>
+    <button class="btn" id="k_go" data-i18n="b_kgo">Vergleichen</button>
   </div>
   <div id="comparemsg" class="msg" role="alert" hidden></div>
 </main>
@@ -329,12 +329,12 @@ const isCalc = c => c.formula !== undefined || c.uncert !== undefined;
 const fmtCalc = nf({ maximumSignificantDigits: 8 });
 const calcText = (c, i) => c.values[i] === null ? "" : fmtCalc.format(c.values[i]);
 function renderTable() {
-  const roleSel = (c, j) => `<select class="role" data-role="${j}" aria-label="Rolle von ${esc(c.name)}">` +
+  const roleSel = (c, j) => `<select class="role" data-role="${j}" aria-label="${t("aria_role", { name: esc(c.name) })}">` +
     ROLES.map(r => `<option value="${r}"${c.role === r ? " selected" : ""}>${t("role_" + r)}</option>`).join("") + "</select>";
-  const head = "<tr><th></th>" + proj.columns.map((c, j) => `<th>${esc(c.name)}${c.formula !== undefined ? `<div class="fx">= ${esc(c.formula)}</div>` : ""}${c.uncert ? `<div class="fx">${esc(t("fx_prop", { f: c.uncert.formula, m: c.uncert.map }))}</div>` : ""}${roleSel(c, j)}${isCalc(c) ? `<button class="btn alt small" data-delcol="${j}" aria-label="Spalte ${esc(c.name)} entfernen">${t("delcol")}</button>` : ""}</th>`).join("") + "<th></th></tr>";
+  const head = "<tr><th></th>" + proj.columns.map((c, j) => `<th>${esc(c.name)}${c.formula !== undefined ? `<div class="fx">= ${esc(c.formula)}</div>` : ""}${c.uncert ? `<div class="fx">${esc(t("fx_prop", { f: c.uncert.formula, m: c.uncert.map }))}</div>` : ""}${roleSel(c, j)}${isCalc(c) ? `<button class="btn alt small" data-delcol="${j}" aria-label="${t("aria_delcol", { name: esc(c.name) })}">${t("delcol")}</button>` : ""}</th>`).join("") + "<th></th></tr>";
   const body = Array.from({ length: nrows() }, (_, i) => `<tr><td class="n">${i + 1}</td>` +
-    proj.columns.map((c, j) => isCalc(c) ? `<td class="calc" data-calc="${j}">${calcText(c, i)}</td>` : `<td><input data-r="${i}" data-c="${j}" aria-label="${esc(c.name)}, Zeile ${i + 1}" value="${c.values[i] === null ? "" : fmt.format(c.values[i])}" inputmode="decimal"></td>`).join("") +
-    `<td><button class="btn alt small" data-del="${i}" aria-label="Zeile ${i + 1} löschen">✕</button></td></tr>`).join("");
+    proj.columns.map((c, j) => isCalc(c) ? `<td class="calc" data-calc="${j}">${calcText(c, i)}</td>` : `<td><input data-r="${i}" data-c="${j}" aria-label="${t("aria_cell", { name: esc(c.name), i: i + 1 })}" value="${c.values[i] === null ? "" : fmt.format(c.values[i])}" inputmode="decimal"></td>`).join("") +
+    `<td><button class="btn alt small" data-del="${i}" aria-label="${t("aria_rowdel", { i: i + 1 })}">✕</button></td></tr>`).join("");
   $("table").innerHTML = `<table><thead>${head}</thead><tbody>${body}</tbody></table>`;
 }
 const SERIES_STYLE = [{ c: "#00376C", sym: "circle", dash: "solid" }, { c: "#D55E00", sym: "square", dash: "dash" }, { c: "#009E73", sym: "diamond", dash: "dot" }, { c: "#CC79A7", sym: "triangle-up", dash: "dashdot" }];
@@ -412,9 +412,9 @@ function derivedDetail(r) {
   const name = esc(((r.params || [])[0] || {}).name), list = a => (Array.isArray(a) ? a : []).slice(0, 22);
   const parts = list(un ? r.partsUnscaled : r.partsScaled).map(q => `${esc(q.name)}: ${q.share == null ? "–" : f.format(Number(q.share) * 100) + " %"}`).join(", ");
   const used = list(r.used), used2 = used.map(q => `${esc(q.name)} = ${g.format(Number(q.value))}${q.u == null ? "" : " ± " + g.format(Number(q.u))}${q.unit ? " " + esc(q.unit) : ""}`).join("; ");
-  return `<div class="detail" data-how>Rechnung: ${name} = ${esc(r.formula)}; u(${name})² = Σ (∂${name}/∂xᵢ)²·u(xᵢ)² (unabhängige Eingänge). Eingesetzt: ${used2}. ` +
-    `Beiträge zu u(${name})/|${name}|: ${parts || "keine (alle Unsicherheiten 0)"}. Fehler von a und b: ${un ? "unskaliert" : "skaliert bzw. aus der Streuung"}.` +
-    (used.some(q => q.name === "a") && used.some(q => q.name === "b") ? " Hinweis: a und b werden als unabhängig behandelt, ihre Korrelation ist nicht berücksichtigt." : "") + "</div>";
+  return `<div class="detail" data-how>${t("dv_how1", { name, formula: esc(r.formula), used: used2 })}` +
+    t("dv_how2", { name, parts: parts || t("dv_noparts"), err: t(un ? "dv_err_un" : "dv_err_sc") }) +
+    (used.some(q => q.name === "a") && used.some(q => q.name === "b") ? t("dv_note") : "") + "</div>";
 }
 // Calibration read-off result: the numbers behind each x0, the share of each term in u(x0)², a warning outside the calibrated range.
 // Every number goes through a number formatter and every text through esc(), so a hand-edited project file cannot inject markup.
@@ -425,59 +425,68 @@ function calibDetail(r) {
   const f = nf({ maximumSignificantDigits: 4 }), g = nf({ maximumSignificantDigits: 6 }), sci = nf({ notation: "scientific", maximumFractionDigits: 3 });
   const pc = nf({ maximumFractionDigits: 0 }), un = proj.settings.errMethod === "unscaled" && r.weighted;
   const m = (r.used || {})[un ? "unscaled" : "scaled"] || {}, u = r.used || {}, unit = esc(u.xUnit ?? ""), lo = Number((r.range || [])[0]), hi = Number((r.range || [])[1]);
-  const how = !r.weighted ? "ungewichtete Anpassung; a, b und ihre Kovarianz aus der Streuung der Messpunkte um die Gerade"
-    : un ? "gewichtete Anpassung (Gewichte 1/s²); a, b und ihre Kovarianz unskaliert, direkt aus den Fehlerwerten" : "gewichtete Anpassung (Gewichte 1/s²); a, b und ihre Kovarianz mit χ²/DoF skaliert";
+  const how = t(!r.weighted ? "cal_how_ols" : un ? "cal_how_wun" : "cal_how_wsc");
   const rows = calibReads(r).map(q => {
-    const parts = (un ? q.partsUnscaled : q.partsScaled) || {}, sh = k => parts[k] == null ? "–" : pc.format(Number(parts[k]) * 100) + " %", out = q.x0 < lo || q.x0 > hi;
-    return `<div class="detail" data-readoff>y₀ = ${fmt.format(q.y0)} ± ${fmt.format(Number(q.u0))}: x₀ = ${f.format(q.x0)}${unit ? " " + unit : ""}. Anteile an u(x₀)²: y₀ ${sh("y0")}, a ${sh("a")}, b ${sh("b")}, Kovarianz ${sh("cov")}.` +
-      (out ? ` Hinweis: x₀ liegt außerhalb des Kalibrierbereichs ${f.format(lo)} bis ${f.format(hi)}${unit ? " " + unit : ""} (Extrapolation). Die Unsicherheit ist dort größer, als die Rechnung zeigt.` : "") + "</div>";
+    const parts = (un ? q.partsUnscaled : q.partsScaled) || {}, sh = k => parts[k] == null ? "–" : pc.format(Number(parts[k]) * 100) + " %", out = q.x0 < lo || q.x0 > hi, us = unit ? " " + unit : "";
+    return `<div class="detail" data-readoff>${t("cal_row", { y0: fmt.format(q.y0), u0: fmt.format(Number(q.u0)), x0: f.format(q.x0), unit: us, sy: sh("y0"), sa: sh("a"), sb: sh("b"), sc: sh("cov") })}` +
+      (out ? t("cal_out", { lo: f.format(lo), hi: f.format(hi), unit: us }) : "") + "</div>";
   }).join("");
-  return `<div class="detail" data-calibhow>Rechnung: x₀ = (y₀ − b)/a mit a = ${g.format(Number(u.a))}, b = ${g.format(Number(u.b))}, u(a) = ${g.format(Number(m.ua))}, u(b) = ${g.format(Number(m.ub))}, cov(a,b) = ${sci.format(Number(m.cov))}. ` +
-    `u(x₀)² = (u(y₀)² + x₀²·u(a)² + u(b)² + 2·x₀·cov(a,b)) / a². Methode: ${how}.</div>` + rows;
+  return `<div class="detail" data-calibhow>${t("cal_calc", { a: g.format(Number(u.a)), b: g.format(Number(u.b)), ua: g.format(Number(m.ua)), ub: g.format(Number(m.ub)), cov: sci.format(Number(m.cov)), how })}</div>` + rows;
 }
 // Series result: one row per series, then every pair of slopes compared. Numbers go through formatters, text through esc().
 function seriesDetail(r) {
   const fits = (Array.isArray(r.fits) ? r.fits : []).filter(f => f && f.a && f.b).slice(0, 4), g = nf({ maximumSignificantDigits: 4 }), un = proj.settings.errMethod === "unscaled";
   const short = f => esc(String(f.y).split(" / ")[0]), end = v => v === null || v === undefined ? null : g.format(Number(v));
-  const rows = fits.map(f => `<tr><td>${esc(f.y)}</td><td>${end(f.xmin) ?? "Anfang"} bis ${end(f.xmax) ?? "Ende"}</td><td>${g.format(Number(f.n))}</td>` +
-    `<td>${f.weighted ? `gewichtet (Fehlerspalte „${esc(f.err)}“)` : "ungewichtet"}</td><td>${f.weighted ? `χ²/DoF = ${g.format(Number(f.chi2) / Number(f.dof))}` : `Summe der Abweichungsquadrate = ${g.format(Number(f.ssr))}`}</td></tr>`).join("");
+  const rows = fits.map(f => `<tr><td>${esc(f.y)}</td><td>${t("sr_rangecell", { lo: end(f.xmin) ?? t("sr_begin"), hi: end(f.xmax) ?? t("sr_end") })}</td><td>${g.format(Number(f.n))}</td>` +
+    `<td>${f.weighted ? t("sr_weighted", { err: esc(f.err) }) : t("sr_unweighted")}</td><td>${f.weighted ? t("sr_chi", { v: g.format(Number(f.chi2) / Number(f.dof)) }) : t("sr_ssr", { v: g.format(Number(f.ssr)) })}</td></tr>`).join("");
   const cmp = [];
   for (let i = 0; i < fits.length; i++) for (let j = i + 1; j < fits.length; j++) {
     const A = fits[i].a, B = fits[j].a, who = `a (${short(fits[i])}) − a (${short(fits[j])})`;
-    if (A.unit !== B.unit) { cmp.push(`${who}: nicht vergleichbar, die Einheiten sind verschieden (${esc(A.unit)} und ${esc(B.unit)}).`); continue; }
+    if (A.unit !== B.unit) { cmp.push(t("sr_units", { who, a: esc(A.unit), b: esc(B.unit) })); continue; }
     const c = compareSlopes(Number(A.value), uOf(A), Number(B.value), uOf(B)), h = huRound(c.diff, c.u), unit = A.unit ? " " + esc(A.unit) : "";
-    cmp.push(`${who} = ${h ? `(${h[0]} ± ${h[1]})` : fmt.format(c.diff)}${unit}. ` + (c.z === null ? "Die kombinierte Unsicherheit ist 0 oder keine Zahl, der Vergleich ist nicht möglich."
-      : `Das sind ${g.format(c.z)} kombinierte Unsicherheiten. ` + (c.z < SERIES_K ? `Die Steigungen stimmen im Rahmen ihrer Unsicherheiten überein (unter ${SERIES_K}).` : `Die Steigungen unterscheiden sich deutlich (${SERIES_K} oder mehr).`)));
+    cmp.push(t("sr_val", { who, val: h ? `(${h[0]} ± ${h[1]})` : fmt.format(c.diff), unit }) + (c.z === null ? t("sr_nocmp")
+      : t("sr_z", { z: g.format(c.z) }) + (c.z < SERIES_K ? t("sr_same", { k: SERIES_K }) : t("sr_diff", { k: SERIES_K }))));
   }
-  return `<table data-series><thead><tr><th>Reihe</th><th>x-Bereich</th><th>Punkte</th><th>Methode</th><th>Güte</th></tr></thead><tbody>${rows}</tbody></table>` +
-    `<div class="detail" data-how>Jede Reihe: Gerade y = a·x + b, gewichtete Reihen mit Gewichten 1/s²; die Fehler von a und b sind ${un ? "unskaliert, direkt aus den Fehlerwerten" : "mit √(χ²/DoF) skaliert"} (ungewichtete Reihen: aus der Streuung der Punkte).</div>` +
-    cmp.map(c => `<div class="detail" data-compare>Steigungen: ${c}</div>`).join("");
+  return `<table data-series><thead><tr><th>${t("th_sr")}</th><th>${t("th_srrange")}</th><th>${t("th_srpoints")}</th><th>${t("th_srmethod")}</th><th>${t("th_srquality")}</th></tr></thead><tbody>${rows}</tbody></table>` +
+    `<div class="detail" data-how>${t("sr_how", { err: t(un ? "sr_err_un" : "sr_err_sc") })}</div>` +
+    cmp.map(c => `<div class="detail" data-compare>${t("sr_cmp", { c })}</div>`).join("");
 }
 const fmtPlain = nf({ maximumSignificantDigits: 3 });
 const fmtRead = nf({ maximumSignificantDigits: 4 }); // values read off a table: 4 digits, no uncertainty attached
 function statsDetail(r) {
   const i = r.inputs || {}, n = fmt.format(Number(r.n));
-  return `<div class="detail" data-how>Spalte „${esc(i.col)}“, n = ${n} Werte. Standardabweichung mit Teiler ${i.ddof === 0 ? "n" : "n−1"}. Mittelwert ± Standardfehler s/√n (s mit n−1).` +
-    (i.instr != null ? ` Mit Gerätefehler ${fmt.format(Number(i.instr))}: u = √(u<sub>zufällig</sub>² + u<sub>Gerät</sub>²).` : "") + "</div>" + ciDetail(r);
+  return `<div class="detail" data-how>${t("stats_how", { col: esc(i.col), n, div: i.ddof === 0 ? "n" : "n−1" })}` +
+    (i.instr != null ? t("stats_instr", { u: fmt.format(Number(i.instr)) }) : "") + "</div>" + ciDetail(r);
 }
 const fmtT = nf({ maximumSignificantDigits: 4 });
 function ciDetail(r) {
   const c = r.ci, i = r.inputs || {};
   if (!c || !(c.level > 0 && c.level < 1) || !Number.isFinite(c.t) || !Number.isFinite(c.lo) || !Number.isFinite(c.hi) || !Number.isFinite(c.df)) return "";
   const u = (c.hi - c.lo) / 2, a = huRound(c.lo, u), b = huRound(c.hi, u), pct = fmt.format(Math.round(c.level * 100)), unit = r.params && r.params[0] && r.params[0].unit ? " " + esc(r.params[0].unit) : "";
-  return `<div class="detail" data-ci>${pct} %-Vertrauensintervall: x̄ ± t·s/√n mit t(${fmtT.format((1 + c.level) / 2)}; ${fmt.format(c.df)}) = ${fmtT.format(c.t)} (zweiseitig, Student-Verteilung, ${fmt.format(c.df)} Freiheitsgrad${c.df === 1 ? "" : "e"}).` +
-    (a && b ? ` Intervall: [${a[0]}; ${b[0]}]${unit}.` : "") + "</div>";
+  return `<div class="detail" data-ci>${t("ci_detail", { pct, p: fmtT.format((1 + c.level) / 2), df: fmt.format(c.df), t: fmtT.format(c.t), dfw: t(c.df === 1 ? "ci_dof1" : "ci_dofn") })}` +
+    (a && b ? t("ci_interval", { lo: a[0], hi: b[0], unit }) : "") + "</div>";
 }
+// Verdicts of the weighted mean and the comparison are stored in German (verdict) with a key and raw values (vk, vv), so the page can show them in the chosen language.
+// A project without a key (an older file) shows its stored text. Everything passes through the number formatters and esc().
+function verdictFor(vk, v, lang) {
+  v = v && typeof v === "object" ? v : {};
+  const fp = x => numFmt(lang, { maximumSignificantDigits: 3 }).format(Number(x)), fi = x => numFmt(lang, { maximumFractionDigits: 10 }).format(Number(x));
+  if (vk === "cmp_ok" || vk === "cmp_bad") return t(vk, { z: fp(v.z), k: fi(v.k) }, lang);
+  if (vk === "wm_ok") return t("wm_ok", {}, lang);
+  if (vk === "wm_bad") return t("wm_bad", { list: (Array.isArray(v.pairs) ? v.pairs : []).slice(0, 50).map(q => t("wm_pair", { a: fi((q || [])[0]), b: fi((q || [])[1]), gap: fp((q || [])[2]), unit: v.unit ? " " + v.unit : "" }, lang)).join("; ") }, lang);
+  return null;
+}
+const verdictText = r => esc(verdictFor(r.vk, r.vv, LANG) ?? r.verdict);
 // Comparison result: both values in HU format and the verdict. Everything passes through the number formatter or esc.
 function compareDetail(r) {
-  const unit = r.unit ? " " + esc(r.unit) : "", hv = q => { q = q || {}; const t = huRound(Number(q.value), Number(q.u)); return (t ? `(${t[0]} ± ${t[1]})` : fmt.format(Number(q.value))) + unit; };
-  return `<div class="detail" data-how>Messwert ${hv(r.m)}, Vergleichswert ${hv(r.c)}. Unsicherheit des Unterschieds √(u₁² + u₂²)${r.rel == null ? "" : `. Abweichung vom Vergleichswert: ${fmtPlain.format(Number(r.rel))} %`}.</div>` +
-    `<div class="detail" data-verdict>${esc(r.verdict)}</div>`;
+  const unit = r.unit ? " " + esc(r.unit) : "", hv = q => { q = q || {}; const h = huRound(Number(q.value), Number(q.u)); return (h ? `(${h[0]} ± ${h[1]})` : fmt.format(Number(q.value))) + unit; };
+  return `<div class="detail" data-how>${t("cmp_how", { m: hv(r.m), c: hv(r.c), rel: r.rel == null ? "" : t("cmp_rel", { v: fmtPlain.format(Number(r.rel)) }) })}</div>` +
+    `<div class="detail" data-verdict>${verdictText(r)}</div>`;
 }
 function wmeanDetail(r) {
   const i = r.inputs || {}, k = fmt.format(Number(i.k));
-  return `<div class="detail" data-how>Ergebnisse „${esc(i.val)}“ mit Unsicherheiten „${esc(i.unc)}“, n = ${fmt.format(Number(r.n))} Zeilen. Gewichte w = 1/u², Mittelwert Σ(w·x)/Σw, Unsicherheit 1/√Σw.</div>` +
-    `<div class="detail" data-verdict>Überlappung der Intervalle x ± ${k}·u: ${esc(r.verdict)}</div>`;
+  return `<div class="detail" data-how>${t("wm_how", { val: esc(i.val), unc: esc(i.unc), n: fmt.format(Number(r.n)) })}</div>` +
+    `<div class="detail" data-verdict>${t("wm_overlap", { k, verdict: verdictText(r) })}</div>`;
 }
 // Frequency table of the "hist" result. Every number goes through the number formatter, so text from a project file shows as NaN, not as markup.
 const pct = nf({ minimumFractionDigits: 1, maximumFractionDigits: 1 });
@@ -486,13 +495,13 @@ function histDetail(r) {
   const i = r.inputs || {}, n = Number(r.n), w = Number(r.width), s0 = Number(r.start), c = (Array.isArray(r.counts) ? r.counts : []).slice(0, 200).map(Number);
   const e = j => fmt.format(Number((s0 + j * w).toPrecision(12))), unit = colUnit(i.col);
   let cum = 0;
-  const rows = c.map((k, j) => { cum += k; return `<tr><td>${e(j)} bis unter ${e(j + 1)}</td><td>${fmt.format(k)}</td><td>${pct.format(k / n * 100)} %</td><td>${fmt.format(cum)}</td><td>${pct.format(cum / n * 100)} %</td></tr>`; }).join("");
-  return `<table data-freq><thead><tr><th>Klasse${unit ? " / " + esc(unit) : ""}</th><th>absolut</th><th>relativ</th><th>kumuliert absolut</th><th>kumuliert relativ</th></tr></thead><tbody>${rows}</tbody></table>` +
-    `<div class="detail" data-how>Spalte „${esc(i.col)}“, n = ${fmt.format(n)} Werte, ${fmt.format(c.length)} Klassen der Breite ${fmt.format(w)}${i.width == null ? " (automatisch)" : ""}, Beginn ${fmt.format(s0)}${i.start == null ? " (automatisch)" : ""}. ` +
-    `Normalverteilung mit x̄ und ${i.ddof === 0 ? "σ (Teiler n)" : "s (Teiler n−1)"}: erwartete Anzahl je Klasse = n·Klassenbreite·φ(x).</div>` +
+  const rows = c.map((k, j) => { cum += k; return `<tr><td>${t("hist_row", { lo: e(j), hi: e(j + 1) })}</td><td>${fmt.format(k)}</td><td>${pct.format(k / n * 100)} %</td><td>${fmt.format(cum)}</td><td>${pct.format(cum / n * 100)} %</td></tr>`; }).join("");
+  return `<table data-freq><thead><tr><th>${t("th_class")}${unit ? " / " + esc(unit) : ""}</th><th>${t("th_abs")}</th><th>${t("th_rel")}</th><th>${t("th_cumabs")}</th><th>${t("th_cumrel")}</th></tr></thead><tbody>${rows}</tbody></table>` +
+    `<div class="detail" data-how>${t("hist_how", { col: esc(i.col), n: fmt.format(n), k: fmt.format(c.length), w: fmt.format(w), wa: i.width == null ? t("auto_par") : "", s0: fmt.format(s0), sa: i.start == null ? t("auto_par") : "" })}` +
+    `${t("hist_norm", { sd: t(i.ddof === 0 ? "sd0_short" : "sd1_short") })}</div>` +
     (histOk(r) ? (() => {
       const lo = cumRead(c, s0, w, 0.16), hi = cumRead(c, s0, w, 0.84), u = unit ? " " + esc(unit) : "", f = v => fmtRead.format(v) + u;
-      return `<div class="detail" data-readoff>Ablesung in der Summenhäufigkeit: x bei 16 % = ${f(lo)}, x bei 84 % = ${f(hi)}; halbe Differenz = ${f((hi - lo) / 2)}. Zum Vergleich: x̄ − s = ${f(Number(r.mean) - Number(r.s))}, x̄ + s = ${f(Number(r.mean) + Number(r.s))}.</div>`;
+      return `<div class="detail" data-readoff>${t("hist_read", { lo: f(lo), hi: f(hi), half: f((hi - lo) / 2), m1: f(Number(r.mean) - Number(r.s)), m2: f(Number(r.mean) + Number(r.s)) })}</div>`;
     })() : "");
 }
 // The histogram is drawn from a fresh result only; an out-of-date one is removed like the fit line.
@@ -500,16 +509,16 @@ function renderHist() {
   const r = proj.results.find(q => q.kind === "hist");
   if (!r || isStale(proj, r) || !histOk(r)) {
     Plotly.purge("histplot");
-    $("histplot").innerHTML = `<div class="empty">${r && isStale(proj, r) ? "Das Histogramm ist veraltet. Bitte neu berechnen." : "Noch kein Histogramm. Wähle eine Spalte und drücke „Berechnen“."}</div>`; return;
+    $("histplot").innerHTML = `<div class="empty">${t(r && isStale(proj, r) ? "hist_stale" : "hist_none")}</div>`; return;
   }
   $("histplot").querySelector(".empty")?.remove();
   const c = r.counts, lo = r.start, hi = r.start + c.length * r.width, N = 120;
   const xs = Array.from({ length: N + 1 }, (_, j) => lo + (hi - lo) * j / N);
-  const bars = { type: "bar", x: c.map((_, j) => lo + (j + 0.5) * r.width), y: c, width: c.map(() => r.width), name: "Messwerte (Anzahl je Klasse)", marker: { color: "#00376C", line: { color: "#fff", width: 1.5 } } };
-  const curve = { type: "scatter", mode: "lines", x: xs, y: xs.map(x => normalCount(x, r.mean, r.s, r.n, r.width)), name: "Normalverteilung (x̄, " + ((r.inputs || {}).ddof === 0 ? "σ" : "s") + ")", line: { color: "#D55E00", width: 2.5 } };
+  const bars = { type: "bar", x: c.map((_, j) => lo + (j + 0.5) * r.width), y: c, width: c.map(() => r.width), name: t("tr_hbars"), marker: { color: "#00376C", line: { color: "#fff", width: 1.5 } } };
+  const curve = { type: "scatter", mode: "lines", x: xs, y: xs.map(x => normalCount(x, r.mean, r.s, r.n, r.width)), name: t("tr_hnorm", { sd: (r.inputs || {}).ddof === 0 ? "σ" : "s" }), line: { color: "#D55E00", width: 2.5 } };
   const ax = t => ({ title: { text: t, standoff: 10 }, showline: true, linecolor: "#000", mirror: true, ticks: "outside", gridcolor: "#e4e4dc", zeroline: false, exponentformat: "none" });
   Plotly.react("histplot", [bars, curve], { font: { family: "Arial, Helvetica, sans-serif", size: 16, color: "#000" }, separators: plotSeparators(),
-    margin: { l: 70, r: 20, t: 20, b: 60 }, xaxis: ax(String((r.inputs || {}).col)), yaxis: ax("Anzahl der Messwerte"), paper_bgcolor: "#fff", plot_bgcolor: "#fff",
+    margin: { l: 70, r: 20, t: 20, b: 60 }, xaxis: ax(String((r.inputs || {}).col)), yaxis: ax(t("ax_hcount")), paper_bgcolor: "#fff", plot_bgcolor: "#fff",
     showlegend: true, legend: { x: 0.02, y: 0.98, bgcolor: "#fff", bordercolor: "#999", borderwidth: 1 } }, { displaylogo: false, responsive: true });
 }
 // Cumulative share (%) at the class limits from the same fresh "hist" result; horizontal and vertical guides mark the read-off at 16 % and 84 %.
@@ -517,25 +526,25 @@ function renderCum() {
   const r = proj.results.find(q => q.kind === "hist");
   if (!r || isStale(proj, r) || !histOk(r)) {
     Plotly.purge("cumplot");
-    $("cumplot").innerHTML = `<div class="empty">${r && isStale(proj, r) ? "Die Summenhäufigkeit ist veraltet. Bitte das Histogramm neu berechnen." : "Noch keine Summenhäufigkeit. Berechne zuerst das Histogramm."}</div>`; return;
+    $("cumplot").innerHTML = `<div class="empty">${t(r && isStale(proj, r) ? "cum_stale" : "cum_none")}</div>`; return;
   }
   $("cumplot").querySelector(".empty")?.remove();
   const c = r.counts, w = r.width, x0 = r.start, n = r.n; let cum = 0;
   const xs = [x0, ...c.map((_, j) => x0 + (j + 1) * w)], ys = [0, ...c.map(k => (cum += k) / n * 100)];
   const lv = [16, 84].map(p => ({ p, x: cumRead(c, x0, w, p / 100) }));
-  const line = { type: "scatter", mode: "lines+markers", x: xs, y: ys, name: "Kumulierte relative Häufigkeit", line: { color: "#00376C", width: 2.5 }, marker: { color: "#00376C", size: 7 } };
-  const marks = { type: "scatter", mode: "markers+text", x: lv.map(q => q.x), y: lv.map(q => q.p), name: "Ablesung bei 16 % und 84 %", marker: { color: "#D55E00", size: 11, symbol: "diamond" },
+  const line = { type: "scatter", mode: "lines+markers", x: xs, y: ys, name: t("tr_cum"), line: { color: "#00376C", width: 2.5 }, marker: { color: "#00376C", size: 7 } };
+  const marks = { type: "scatter", mode: "markers+text", x: lv.map(q => q.x), y: lv.map(q => q.p), name: t("tr_cumread"), marker: { color: "#D55E00", size: 11, symbol: "diamond" },
     text: lv.map(q => fmtRead.format(q.x)), textposition: ["top left", "bottom right"], textfont: { size: 16, color: "#D55E00" } };
   const guide = (x0_, y0, x1, y1) => ({ type: "line", x0: x0_, y0, x1, y1, line: { color: "#D55E00", width: 1.5, dash: "dash" } });
   const ax = t => ({ title: { text: t, standoff: 10 }, showline: true, linecolor: "#000", mirror: true, ticks: "outside", gridcolor: "#e4e4dc", zeroline: false, exponentformat: "none" });
   Plotly.react("cumplot", [line, marks], { font: { family: "Arial, Helvetica, sans-serif", size: 16, color: "#000" }, separators: plotSeparators(),
-    margin: { l: 70, r: 20, t: 20, b: 60 }, xaxis: ax(String((r.inputs || {}).col)), yaxis: { ...ax("Kumulierte Häufigkeit / %"), range: [0, 100] }, paper_bgcolor: "#fff", plot_bgcolor: "#fff",
+    margin: { l: 70, r: 20, t: 20, b: 60 }, xaxis: ax(String((r.inputs || {}).col)), yaxis: { ...ax(t("ax_cum")), range: [0, 100] }, paper_bgcolor: "#fff", plot_bgcolor: "#fff",
     shapes: lv.flatMap(q => [guide(x0, q.p, q.x, q.p), guide(q.x, q.p, q.x, 0)]),
     showlegend: true, legend: { x: 0.02, y: 0.98, bgcolor: "#fff", bordercolor: "#999", borderwidth: 1 } }, { displaylogo: false, responsive: true });
 }
 const resLine = q => {
-  const u = uOf(q), t = huRound(q.value, u);
-  return `<div class="res">${esc(q.name)} = ${q.text !== undefined ? esc(q.text) : t ? `(${t[0]} ± ${t[1]})` : q.plain ? fmtPlain.format(q.value) : fmt.format(q.value)}${q.unit ? " " + esc(q.unit) : ""}</div>`;
+  const u = uOf(q), h = huRound(q.value, u);
+  return `<div class="res">${esc(storedName(q))} = ${q.tk === "gof_line" && q.tv ? esc(gofLineText(q.tv)) : q.text !== undefined ? esc(q.text) : h ? `(${h[0]} ± ${h[1]})` : q.plain ? fmtPlain.format(q.value) : fmt.format(q.value)}${q.unit ? " " + esc(q.unit) : ""}</div>`;
 };
 function renderResults() {
   // The first-visit note repeats the headline result (E) so it is in the first view, above the long page.
@@ -558,17 +567,17 @@ function syncControls() {
   $("wlabel").title = has ? "" : t("weighted_need");
   $("errm").value = proj.settings.errMethod || "scaled"; $("errm").disabled = !w;
   $("srmsg").hidden = true;
-  const ss = seriesSettings(proj), sopts = (v, none) => (none ? `<option value=""${v === null ? " selected" : ""}>(keine)</option>` : "") + proj.columns.map(c => `<option value="${esc(c.name)}"${c.name === v ? " selected" : ""}>${esc(c.name)}</option>`).join("");
-  $("sr_rows").innerHTML = ss.map((s, k) => `<div class="fitbar" data-k="${k}"><strong>Reihe ${k + 1}</strong>` +
-    `<label>y <select data-f="y" aria-label="y-Spalte von Reihe ${k + 1}">${sopts(s.y)}</select></label>` +
-    `<label>Fehler <select data-f="err" aria-label="Fehlerspalte von Reihe ${k + 1}">${sopts(s.err, true)}</select></label>` +
-    ["xmin", "xmax"].map(f => `<label>x ${f === "xmin" ? "von" : "bis"} <input class="num" data-f="${f}" aria-label="x ${f === "xmin" ? "von" : "bis"} von Reihe ${k + 1}, leer für ${f === "xmin" ? "Anfang" : "Ende"}" inputmode="decimal" placeholder="${f === "xmin" ? "Anfang" : "Ende"}" value="${s[f] === null ? "" : fmt.format(s[f])}"></label>`).join("") +
-    `<button class="btn alt small" data-sdel="${k}" aria-label="Reihe ${k + 1} entfernen">Entfernen</button></div>`).join("") || '<div class="hint">Noch keine Reihe.</div>';
+  const ss = seriesSettings(proj), sopts = (v, none) => (none ? `<option value=""${v === null ? " selected" : ""}>${t("opt_none")}</option>` : "") + proj.columns.map(c => `<option value="${esc(c.name)}"${c.name === v ? " selected" : ""}>${esc(c.name)}</option>`).join("");
+  $("sr_rows").innerHTML = ss.map((s, k) => `<div class="fitbar" data-k="${k}"><strong>${t("sr_label", { k: k + 1 })}</strong>` +
+    `<label>y <select data-f="y" aria-label="${t("aria_sry", { k: k + 1 })}">${sopts(s.y)}</select></label>` +
+    `<label>${t("sr_err")} <select data-f="err" aria-label="${t("aria_srerr", { k: k + 1 })}">${sopts(s.err, true)}</select></label>` +
+    ["xmin", "xmax"].map(f => `<label>${t(f === "xmin" ? "sr_from" : "sr_to")} <input class="num" data-f="${f}" aria-label="${t(f === "xmin" ? "aria_srfrom" : "aria_srto", { k: k + 1 })}" inputmode="decimal" placeholder="${t(f === "xmin" ? "sr_begin" : "sr_end")}" value="${s[f] === null ? "" : fmt.format(s[f])}"></label>`).join("") +
+    `<button class="btn alt small" data-sdel="${k}" aria-label="${t("aria_srdel", { k: k + 1 })}">${t("sr_del")}</button></div>`).join("") || `<div class="hint">${t("sr_none")}</div>`;
   $("fitmsg").hidden = true; $("derivemsg").hidden = true; $("statsmsg").hidden = true; $("wmsg").hidden = true; $("hmsg").hidden = true; $("gofmsg").hidden = true;
   const st = statsSettings(proj);
   $("s_col").replaceChildren(...proj.columns.map(c => Object.assign(document.createElement("option"), { value: c.name, textContent: c.name })));
   $("s_col").value = st.col; $("s_ddof").value = st.ddof; $("s_conf").value = st.conf ? String(st.conf) : ""; $("s_instr").value = st.instr == null ? "" : fmt.format(st.instr); $("s_instr").classList.remove("bad");
-  const wm = wmeanSettings(proj), opts = (none) => [...(none ? [Object.assign(document.createElement("option"), { value: "", textContent: "(keine)" })] : []), ...proj.columns.map(c => Object.assign(document.createElement("option"), { value: c.name, textContent: c.name }))];
+  const wm = wmeanSettings(proj), opts = (none) => [...(none ? [Object.assign(document.createElement("option"), { value: "", textContent: t("opt_none") })] : []), ...proj.columns.map(c => Object.assign(document.createElement("option"), { value: c.name, textContent: c.name }))];
   $("w_val").replaceChildren(...opts(false)); $("w_unc").replaceChildren(...opts(true));
   $("w_val").value = wm.val; $("w_unc").value = wm.unc ?? ""; $("w_k").value = fmt.format(wm.k); $("w_k").classList.remove("bad");
   const hs = histSettings(proj);
@@ -594,11 +603,11 @@ $("tpl_load").onclick = () => {
   $("tplmsg").hidden = true; setProject(tp.build());
 };
 function renderTemplate() {
-  const t = tplOf(), box = $("tpl_info");
-  box.hidden = !t;
-  if (!t) return;
-  box.innerHTML = `<h3>${esc(t.title)}</h3><div class="warn" data-invented>Erfundene Beispieldaten, keine echten Messwerte von Studierenden. Ersetze die Zahlen durch deine Messung; Ergebnisse müssen danach neu berechnet werden.</div>` +
-    `<div>${esc(t.note)}</div><ol>` + t.steps.map(s => `<li>${esc(s.text)}${s.go ? ` <button class="btn alt small" data-go="${esc(s.go)}">Zeigen</button>` : ""}</li>`).join("") + "</ol>";
+  const tp = tplOf(), box = $("tpl_info");
+  box.hidden = !tp;
+  if (!tp) return;
+  box.innerHTML = `<h3>${esc(tp.title)}</h3><div class="warn" data-invented>${t("tpl_invented")}</div>` +
+    `<div>${esc(tp.note)}</div><ol>` + tp.steps.map(s => `<li>${esc(s.text)}${s.go ? ` <button class="btn alt small" data-go="${esc(s.go)}">${t("tpl_show")}</button>` : ""}</li>`).join("") + "</ol>";
 }
 $("tpl_info").addEventListener("click", e => {
   const el = e.target.dataset.go && $(e.target.dataset.go);
@@ -681,14 +690,14 @@ $("example2").onclick = () => {
   setProject(p);
 };
 $("f_add").onclick = () => {
-  const name = $("f_name").value.trim(), expr = $("f_expr").value, fail = t => { $("fmsg").textContent = t; $("fmsg").hidden = false; };
-  if (!name) return fail("Bitte einen Namen für die neue Spalte eingeben, zum Beispiel „r² / mm²“.");
-  if (proj.columns.some(c => c.name === name)) return fail(`Es gibt schon eine Spalte „${name}“. Bitte einen anderen Namen wählen.`);
+  const name = $("f_name").value.trim(), expr = $("f_expr").value, fail = m => { $("fmsg").textContent = m; $("fmsg").hidden = false; };
+  if (!name) return fail(t("f_noname"));
+  if (proj.columns.some(c => c.name === name)) return fail(t("f_exists", { name }));
   const r = parseFormula(expr, proj.columns);
   if (r.error) return fail(r.error);
   const unc = $("f_unc").value.trim(), [short, ...unit] = name.split(" / "), uname = `u(${short.trim()})` + (unit.length ? " / " + unit.join(" / ") : "");
   if (unc) {
-    if (proj.columns.some(c => c.name === uname)) return fail(`Es gibt schon eine Spalte „${uname}“. Bitte einen anderen Namen wählen.`);
+    if (proj.columns.some(c => c.name === uname)) return fail(t("f_exists", { name: uname }));
     const u = parseUncertainty(expr.trim(), unc, proj.columns, proj.columns.length);
     if (u.error) return fail(u.error);
   }
@@ -779,10 +788,10 @@ function seriesFailed(why) { auto = null; $("srmsg").textContent = why; $("srmsg
 const setSeries = list => setSetting("series", list);
 $("sr_add").onclick = () => {
   const list = seriesSettings(proj), x = col("x");
-  if (list.length >= SERIES_MAX) return seriesFailed(`Es sind höchstens ${SERIES_MAX} Reihen möglich.`);
+  if (list.length >= SERIES_MAX) return seriesFailed(t("sr_max", { max: SERIES_MAX }));
   const free = proj.columns.filter(c => c !== x), taken = c => list.some(s => s.y === c.name || s.err === c.name);
   const pick = free.find(c => c.role !== "yerr" && !taken(c)) || free.find(c => !taken(c)) || free[0];
-  if (!pick) return seriesFailed("Es gibt keine Spalte, die als Reihe in Frage kommt. Die Tabelle braucht außer x mindestens eine weitere Spalte.");
+  if (!pick) return seriesFailed(t("sr_nocol"));
   // The error column is guessed from the naming of the examples ("ΔL / mm" and "sΔL / mm") or from the role "Fehler von y".
   const e = proj.columns.find(c => c.name === "s" + pick.name) || (pick.role === "y" ? col("yerr") : null);
   setSeries([...list, { y: pick.name, err: e ? e.name : null, xmin: null, xmax: null }]);
@@ -810,11 +819,11 @@ $("sr_rows").addEventListener("click", e => {
 const sendSeries = job => { const j = job.jobs[job.done.length]; worker.postMessage({ model: "line", x: j.x, y: j.yv, sy: j.sy }); };
 function seriesStep(job, m) {
   const j = job.jobs[job.done.length];
-  if (m.error) { pending = null; busy(false); return seriesFailed(`Reihe ${job.done.length + 1} („${j.y}“): ${m.error}`); }
+  if (m.error) { pending = null; busy(false); return seriesFailed(t("sr_stepfail", { k: job.done.length + 1, y: j.y, why: m.error })); }
   job.done.push(m.result);
   if (job.done.length < job.jobs.length) return sendSeries(job);
   pending = null; busy(false);
-  if (seriesKey(proj) !== job.fp) return seriesFailed("Die Daten wurden während der Berechnung geändert. Bitte erneut anpassen.");
+  if (seriesKey(proj) !== job.fp) return seriesFailed(t("fit_changed"));
   const fits = job.jobs.map((q, i) => {
     const o = job.done[i], par = (n, unit) => ({ value: o.p[n], uScaled: o.err_scaled[n], ...(q.weighted ? { uUnscaled: o.err_unscaled[n] } : {}), unit });
     return { y: q.y, err: q.err, xmin: q.xmin, xmax: q.xmax, n: q.idx.length, weighted: q.weighted, dof: o.dof, xlo: q.xlo, xhi: q.xhi, ...(q.weighted ? { chi2: o.chi2 } : { ssr: o.ssr }), a: par(0, q.unit), b: par(1, q.yunit) };
@@ -824,7 +833,7 @@ function seriesStep(job, m) {
   autoNext();
 }
 $("sr_go").onclick = () => {
-  if ($("sr_rows").querySelector(".bad")) return seriesFailed("Ein x-Bereich ist keine Zahl. Bitte eine Zahl eintragen oder das Feld leeren.");
+  if ($("sr_rows").querySelector(".bad")) return seriesFailed(t("sr_badrange"));
   const r = prepareSeries(proj, seriesSettings(proj));
   if (r.error) return seriesFailed(r.error);
   $("srmsg").hidden = true; busy(true);
@@ -844,10 +853,10 @@ for (const k of ["E", "g"]) $("d_t" + k).onclick = () => { if (proj) setSetting(
 function deriveFailed(why) { $("derivemsg").textContent = why; $("derivemsg").hidden = false; }
 $("derive").onclick = () => {
   const fit = freshFit(), ds = derivedSettings(proj), name = ds.name.trim();
-  if (!fit) return deriveFailed("Bitte zuerst „Anpassen“ drücken. Das Ergebnis der Geradenanpassung fehlt oder ist veraltet.");
-  if (!name) return deriveFailed("Bitte einen Namen für die Größe eintragen, zum Beispiel E.");
+  if (!fit) return deriveFailed(t("need_fit"));
+  if (!name) return deriveFailed(t("dv_noname"));
   const [pa, pb] = fit.params, aUnit = ds.aUnit.trim();
-  if (aUnit && pa.unit !== aUnit) return deriveFailed(`Die Formel erwartet a in ${aUnit}, die Anpassung liefert a in ${pa.unit || "(ohne Einheit)"}. Bitte die Einheiten der x- und y-Spalte prüfen.`);
+  if (aUnit && pa.unit !== aUnit) return deriveFailed(t("dv_unit", { want: aUnit, got: pa.unit || t("unit_none") }));
   const v = parseDerivedVars(ds.vars);
   if (v.error) return deriveFailed(v.error);
   const calc = k => deriveQuantity(ds.formula, { a: { value: pa.value, u: pa[k], unit: pa.unit }, b: { value: pb.value, u: pb[k], unit: pb.unit } }, v.vars);
@@ -870,12 +879,12 @@ function calibFailed(why) { $("calibmsg").textContent = why; $("calibmsg").hidde
 $("c_go").onclick = () => {
   if (!proj) return;
   const fit = freshFit(), x = col("x"), y = col("y");
-  if (!fit) return calibFailed("Bitte zuerst „Anpassen“ drücken. Das Ergebnis der Geradenanpassung fehlt oder ist veraltet.");
+  if (!fit) return calibFailed(t("need_fit"));
   const v = parseCalibValues(calibSettings(proj).y0);
   if (v.error) return calibFailed(v.error);
   const cv = k => { const c = (fit.cov || {})[k]; return Array.isArray(c) && c.length === 3 && c.every(Number.isFinite) ? c : null; };
   const kinds = fit.weighted ? ["scaled", "unscaled"] : ["scaled"];
-  if (!kinds.every(cv)) return calibFailed("Das Ergebnis der Anpassung enthält die Kovarianz von a und b nicht (ältere Version). Bitte „Anpassen“ erneut drücken.");
+  if (!kinds.every(cv)) return calibFailed(t("c_nocov"));
   const [pa, pb] = fit.params, xs = x.values.filter((q, i) => q !== null && y.values[i] !== null), per = k => ({ a: pa.value, b: pb.value, ua: pa[k === "scaled" ? "uScaled" : "uUnscaled"], ub: pb[k === "scaled" ? "uScaled" : "uUnscaled"], cov: cv(k)[1] });
   const unit = colUnit(x.name), reads = [];
   for (const q of v.values) {
@@ -888,7 +897,7 @@ $("c_go").onclick = () => {
   change(() => addResult(proj, {
     kind: "calib", weighted: fit.weighted, range: [Math.min(...xs), Math.max(...xs)],
     used: { a: pa.value, b: pb.value, xUnit: unit, scaled: { ua: per("scaled").ua, ub: per("scaled").ub, cov: cv("scaled")[1] }, ...(fit.weighted ? { unscaled: { ua: per("unscaled").ua, ub: per("unscaled").ub, cov: cv("unscaled")[1] } } : {}) },
-    reads, params: reads.map(q => ({ name: `x₀ (y₀ = ${fmt.format(q.y0)})`, unit, value: q.x0, uScaled: q.uScaled, ...(q.uUnscaled !== undefined ? { uUnscaled: q.uUnscaled } : {}) })),
+    reads, params: reads.map(q => ({ ...stored("n_calib", { y0: q.y0 }), unit, value: q.x0, uScaled: q.uScaled, ...(q.uUnscaled !== undefined ? { uUnscaled: q.uUnscaled } : {}) })),
   }));
 };
 // Comparison of two values: the three texts are project settings (typing in one field is one undo step); the result needs no fit and no table data.
@@ -908,12 +917,10 @@ $("k_go").onclick = () => {
   if (c.error) return compareFailed(c.error);
   const d = compareValues(m, c);
   if (d.error) return compareFailed(d.error);
-  const unit = st.unit.trim(), z = fmtPlain.format(d.z);
-  const verdict = d.agree ? `Der Unterschied beträgt ${z} kombinierte Unsicherheiten (unter ${COMPARE_K}). Messwert und Vergleichswert stimmen im Rahmen ihrer Unsicherheiten überein.`
-    : `Der Unterschied beträgt ${z} kombinierte Unsicherheiten (${COMPARE_K} oder mehr). Messwert und Vergleichswert unterscheiden sich deutlich. Prüfe Einheiten, Rechnung und mögliche systematische Fehler.`;
+  const unit = st.unit.trim(), vk = d.agree ? "cmp_ok" : "cmp_bad", vv = { z: d.z, k: COMPARE_K };
   $("comparemsg").hidden = true;
-  change(() => addResult(proj, { kind: "compare", unit, m, c, z: d.z, rel: d.rel, verdict,
-    params: [{ name: "Differenz Messwert − Vergleichswert", unit, value: d.diff, u: d.u }, { name: "Abweichung in kombinierten Unsicherheiten", unit: "", value: d.z, plain: true }] }));
+  change(() => addResult(proj, { kind: "compare", unit, m, c, z: d.z, rel: d.rel, verdict: verdictFor(vk, vv, "de"), vk, vv,
+    params: [{ ...stored("n_cdiff"), unit, value: d.diff, u: d.u }, { ...stored("n_cz"), unit: "", value: d.z, plain: true }] }));
 };
 // Typing the instrument error is one undo step; the two selects are one step each.
 $("s_instr").addEventListener("input", e => {
@@ -931,16 +938,16 @@ $("s_conf").onchange = e => { const st = { ...statsSettings(proj) }; if (e.targe
 function statsFailed(why) { $("statsmsg").textContent = why; $("statsmsg").hidden = false; }
 $("s_go").onclick = () => {
   const st = statsSettings(proj), c = proj.columns.find(k => k.name === st.col), vals = c.values.filter(v => v !== null);
-  if (vals.length < 2) return statsFailed(`Die Spalte „${c.name}“ hat ${vals.length} Wert${vals.length === 1 ? "" : "e"}. Mittelwert und Streuung brauchen mindestens zwei Werte.`);
-  if ($("s_instr").classList.contains("bad")) return statsFailed("Der Gerätefehler ist keine Zahl.");
-  if (st.instr != null && !(st.instr >= 0)) return statsFailed("Der Gerätefehler darf nicht negativ sein.");
-  const d = describe(vals, st.ddof, st.instr), df = d.n - 1, t = st.conf ? tCrit(st.conf, df) : null;
-  const ci = st.conf ? { level: st.conf, df, t, lo: d.mean - t * d.sem, hi: d.mean + t * d.sem } : null, unit = colUnit(c.name), p = (name, value, u) => ({ name, unit, value, ...(u === undefined ? { plain: true } : { u }) });
+  if (vals.length < 2) return statsFailed(t(vals.length === 1 ? "stats_few1" : "stats_fewn", { col: c.name, n: vals.length }));
+  if ($("s_instr").classList.contains("bad")) return statsFailed(t("stats_nonum"));
+  if (st.instr != null && !(st.instr >= 0)) return statsFailed(t("stats_neg"));
+  const d = describe(vals, st.ddof, st.instr), df = d.n - 1, tc = st.conf ? tCrit(st.conf, df) : null;
+  const ci = st.conf ? { level: st.conf, df, t: tc, lo: d.mean - tc * d.sem, hi: d.mean + tc * d.sem } : null, unit = colUnit(c.name), p = (nm, value, u) => ({ ...nm, unit, value, ...(u === undefined ? { plain: true } : { u }) });
   change(() => addResult(proj, {
     kind: "stats", inputs: st, n: d.n,
-    params: [p("Mittelwert x̄", d.mean, d.sem), p(st.ddof === 0 ? "Standardabweichung σ (Teiler n)" : "Standardabweichung s (Teiler n−1)", d.s), p("Standardfehler des Mittelwerts s/√n", d.sem),
-      ...(d.uTotal === null ? [] : [p("Mittelwert x̄ mit Gerätefehler", d.mean, d.uTotal)]),
-      ...(ci ? [p(`Mittelwert x̄ mit ${fmt.format(Math.round(st.conf * 100))} %-Vertrauensintervall`, d.mean, ci.t * d.sem)] : [])],
+    params: [p(stored("n_mean"), d.mean, d.sem), p(stored(st.ddof === 0 ? "n_sd0" : "n_sd1"), d.s), p(stored("n_sem"), d.sem),
+      ...(d.uTotal === null ? [] : [p(stored("n_mean_instr"), d.mean, d.uTotal)]),
+      ...(ci ? [p(stored("n_mean_ci", { pct: Math.round(st.conf * 100) }), d.mean, ci.t * d.sem)] : [])],
     ...(ci ? { ci } : {}),
   }));
 };
@@ -960,17 +967,16 @@ $("w_k").addEventListener("focusout", () => { editKey = null; });
 function wmeanFailed(why) { $("wmsg").textContent = why; $("wmsg").hidden = false; }
 $("w_go").onclick = () => {
   const st = wmeanSettings(proj), cv = proj.columns.find(c => c.name === st.val), cu = proj.columns.find(c => c.name === st.unc);
-  if ($("w_k").classList.contains("bad")) return wmeanFailed("Der Faktor k muss eine Zahl größer als 0 sein.");
-  if (!cu) return wmeanFailed("Bitte eine Spalte mit den Unsicherheiten wählen.");
-  if (cu === cv) return wmeanFailed("Ergebnisse und Unsicherheiten müssen verschiedene Spalten sein.");
+  if ($("w_k").classList.contains("bad")) return wmeanFailed(t("wm_kbad"));
+  if (!cu) return wmeanFailed(t("wm_nounc"));
+  if (cu === cv) return wmeanFailed(t("wm_same"));
   const rows = cv.values.map((v, i) => i).filter(i => cv.values[i] !== null && cu.values[i] !== null);
   const zero = rows.find(i => !(cu.values[i] > 0));
-  if (zero !== undefined) return wmeanFailed(`Alle Unsicherheiten müssen größer als 0 sein (Zeile ${zero + 1}). Das Gewicht 1/u² ist sonst nicht definiert.`);
-  if (rows.length < 2) return wmeanFailed(`Es gibt ${rows.length} Zeile${rows.length === 1 ? "" : "n"} mit Ergebnis und Unsicherheit. Ein gewichteter Mittelwert braucht mindestens zwei.`);
+  if (zero !== undefined) return wmeanFailed(t("wm_zero", { row: zero + 1 }));
+  if (rows.length < 2) return wmeanFailed(t(rows.length === 1 ? "wm_few1" : "wm_fewn", { n: rows.length }));
   const unit = colUnit(cv.name), d = weightedMean(rows.map(i => cv.values[i]), rows.map(i => cu.values[i]), st.k), nr = j => rows[j - 1] + 1;
-  const verdict = d.overlap ? "Alle Intervalle haben einen gemeinsamen Bereich. Die Ergebnisse stimmen im Rahmen ihrer Unsicherheiten überein."
-    : "Die Ergebnisse stimmen nicht überein: " + d.bad.map(b => `Zeile ${nr(b.i)} und Zeile ${nr(b.j)} (Lücke ${fmtPlain.format(b.gap)}${unit ? " " + unit : ""})`).join("; ") + ". Der gewichtete Mittelwert ist dann mit Vorsicht zu lesen.";
-  change(() => addResult(proj, { kind: "wmean", inputs: st, n: d.n, verdict, params: [{ name: "Gewichteter Mittelwert", unit, value: d.mean, u: d.u }] }));
+  const vk = d.overlap ? "wm_ok" : "wm_bad", vv = d.overlap ? {} : { pairs: d.bad.map(b => [nr(b.i), nr(b.j), b.gap]), unit };
+  change(() => addResult(proj, { kind: "wmean", inputs: st, n: d.n, verdict: verdictFor(vk, vv, "de"), vk, vv, params: [{ ...stored("n_wmean"), unit, value: d.mean, u: d.u }] }));
 };
 // Histogram: column and divisor are one undo step each, typing class width or start is one step per field.
 const setHist = patch => setSetting("hist", { ...histSettings(proj), ...patch });
@@ -990,19 +996,19 @@ for (const [id, key] of [["h_w", "width"], ["h_s", "start"]]) {
 function histFailed(why) { $("hmsg").textContent = why; $("hmsg").hidden = false; }
 $("h_go").onclick = () => {
   const st = histSettings(proj), c = proj.columns.find(k => k.name === st.col), vals = c.values.filter(v => v !== null);
-  if ($("h_w").classList.contains("bad")) return histFailed("Die Klassenbreite muss eine Zahl größer als 0 sein (oder leer für automatisch).");
-  if ($("h_s").classList.contains("bad")) return histFailed("Der Beginn der ersten Klasse ist keine Zahl (oder leer für automatisch).");
-  if (vals.length < 2) return histFailed(`Die Spalte „${c.name}“ hat ${vals.length} Wert${vals.length === 1 ? "" : "e"}. Ein Histogramm mit Normalverteilung braucht mindestens zwei Werte.`);
+  if ($("h_w").classList.contains("bad")) return histFailed(t("hist_wbad"));
+  if ($("h_s").classList.contains("bad")) return histFailed(t("hist_sbad"));
+  if (vals.length < 2) return histFailed(t(vals.length === 1 ? "hist_few1" : "hist_fewn", { col: c.name, n: vals.length }));
   const lo = Math.min(...vals), hi = Math.max(...vals);
-  if (lo === hi) return histFailed(`Alle Werte der Spalte „${c.name}“ sind gleich (${fmt.format(lo)}). Die Standardabweichung ist 0, daher gibt es keine Normalverteilung und keine sinnvolle Klasseneinteilung.`);
+  if (lo === hi) return histFailed(t("hist_same", { col: c.name, v: fmt.format(lo) }));
   const auto = autoBins(vals), width = st.width ?? auto.width, start = st.start ?? auto.start;
-  if (start > lo) return histFailed(`Der Beginn ${fmt.format(start)} liegt über dem kleinsten Wert ${fmt.format(lo)}. Bitte einen Beginn kleiner oder gleich dem kleinsten Wert wählen.`);
+  if (start > lo) return histFailed(t("hist_start", { s: fmt.format(start), lo: fmt.format(lo) }));
   const k = Math.floor((hi - start) / width + 1e-9) + 1;
-  if (k > 100) return histFailed(`Mit Klassenbreite ${fmt.format(width)} gäbe es ${fmt.format(k)} Klassen. Das sind zu viele (höchstens 100). Bitte eine größere Klassenbreite wählen.`);
+  if (k > 100) return histFailed(t("hist_many", { w: fmt.format(width), k: fmt.format(k) }));
   const h = histogram(vals, start, width), d = describe(vals, st.ddof), unit = colUnit(c.name);
   change(() => addResult(proj, {
     kind: "hist", inputs: st, n: d.n, start, width, counts: h.counts, mean: d.mean, s: d.s,
-    params: [{ name: "Mittelwert x̄", unit, value: d.mean, u: d.sem }, { name: st.ddof === 0 ? "Standardabweichung σ (Teiler n)" : "Standardabweichung s (Teiler n−1)", unit, value: d.s, plain: true }],
+    params: [{ ...stored("n_mean"), unit, value: d.mean, u: d.sem }, { ...stored(st.ddof === 0 ? "n_sd0" : "n_sd1"), unit, value: d.s, plain: true }],
   }));
 };
 // χ² test: column is one undo step, typing class width or start is one step per field (whole numbers only).

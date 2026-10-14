@@ -17,16 +17,17 @@ for (const [k, e] of Object.entries(TEXTS)) {
   yes(`${k}: German text`, typeof e.de === "string" && e.de.length > 0);
   yes(`${k}: English text`, typeof e.en === "string" && e.en.length > 0);
   eq(`${k}: same placeholders`, ph(e.en), ph(e.de));
-  yes(`${k}: English differs from German (or is a name)`, e.en !== e.de || ["th_param", "fit_chi2", "tpl_exp"].includes(k) || e.en.length < 12);
+  yes(`${k}: English differs from German (or is a name)`, e.en !== e.de || ["th_param", "fit_chi2", "tpl_exp", "sr_chi", "sr_val", "n_calib", "o_ddof0", "o_ddof1h", "n_gchi_poisson", "dist_poisson"].includes(k) || e.en.length < 12);
 }
 const used = new Set();
 for (const f of ["index.html", "gofview.js"]) {
   const src = readFileSync(resolve("app", f), "utf8");
   for (const m of src.matchAll(/data-i18n(?:-\w+)?="(\w+)"/g)) used.add(m[1]);
-  for (const m of src.matchAll(/\b(?:t|fitState)\("(\w+)"[,)]/g)) used.add(m[1]);
-  for (const m of src.matchAll(/\bt\(\s*[^()"]*\?\s*"(\w+)"\s*:\s*[^()"]*?"(\w+)"/g)) { used.add(m[1]); used.add(m[2]); }
+  for (const m of src.matchAll(/\b(?:t|fitState|stored)\("(\w+)"[,)]/g)) used.add(m[1]);
+  for (const m of src.matchAll(/\b(?:t|stored)\(\s*[^()"]*\?\s*"(\w+)"\s*:\s*[^()"]*?"(\w+)"/g)) { used.add(m[1]); used.add(m[2]); }
 }
-for (const k of ["role_x", "role_y", "role_yerr", "role_unused", "verb_calc", "verb_fit", "how_ols", "how_wun", "how_wsc"]) used.add(k);   // built from a variable
+for (const k of ["role_x", "role_y", "role_yerr", "role_unused", "verb_calc", "verb_fit", "how_ols", "how_wun", "how_wsc",
+  "hist_stale", "cum_stale", "gof_stale", "dist_poisson", "dist_gauss", "n_gchi_poisson", "n_gchi_gauss", "sr_from", "sr_to", "aria_srfrom", "aria_srto", "cal_how_wsc", "cmp_ok", "cmp_bad", "wm_ok", "wm_bad"]) used.add(k);   // built from a variable
 for (const k of used) yes(`used key exists: ${k}`, k in TEXTS);
 for (const k of Object.keys(TEXTS)) yes(`key is used: ${k}`, used.has(k));
 
