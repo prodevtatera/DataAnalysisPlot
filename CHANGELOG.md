@@ -2,6 +2,12 @@
 
 Written in plain language for people who do not read code. Newest entry on top.
 
+## 2026-10-14: Cumulative plot with 16 % and 84 % read-off (P1)
+
+- **What a student can now do:** after "Berechnen" in the histogram section, a second plot "Summenhäufigkeit mit Ablesung bei 16 % und 84 %" shows the cumulative share at each class limit with dashed guides to the x axis. The two read-off values are marked and written on the plot, for example 9,812 mm and 10,36 mm. The result list adds a line with both values, their half difference and, for comparison, x̄ − s and x̄ + s.
+- **Good to know:** the values are read by a straight line between the class limits, so they depend on the class width. The plot is removed when the data changes, like the histogram.
+- **Tested:** `tests/phase2-step6-cumulative.sh` with the 30 readings of the histogram test against hand values in exact fractions (16 %: 9,812; 84 %: 10,36), including automatic classes, undo of an edit, reload, bad input and a hand-edited project file.
+
 ## 2026-10-14: Frequency table and histogram with normal curve (P1)
 
 - **What a student can now do:** under "Häufigkeitstabelle und Histogramm" pick a column (for example 30 length readings) and press "Berechnen". The page shows a table with each class (von bis unter), the absolute, relative and cumulative frequency, and a histogram of the counts with the fitted normal curve (mean x̄ and s with n−1, or σ with n, as chosen) and a legend. The mean is given as (value ± u) unit, for example (10,05 ± 0,05) mm.

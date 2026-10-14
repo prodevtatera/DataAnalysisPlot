@@ -33,4 +33,15 @@ function autoBins(values) {
 }
 // Expected number of readings per class of width w at x for a normal distribution fitted to n readings (mean, s): n·w·φ((x-mean)/s)/s.
 const normalCount = (x, mean, s, n, w) => n * w * Math.exp(-((x - mean) ** 2) / (2 * s * s)) / (s * Math.sqrt(2 * Math.PI));
-if (typeof module !== "undefined") module.exports = { describe, weightedMean, histogram, autoBins, normalCount };
+// Read-off in the cumulative table (P1): the x where the cumulative share reaches p (0..1), a straight line between the class limits.
+// p = 0,16 and 0,84 mark x̄ − s and x̄ + s for normally distributed readings (68 % lie within ±s).
+function cumRead(counts, start, width, p) {
+  const n = counts.reduce((a, v) => a + v, 0);
+  let before = 0;
+  for (let j = 0; j < counts.length; j++) {
+    if ((before + counts[j]) / n >= p) return start + width * (j + (p * n - before) / counts[j]);
+    before += counts[j];
+  }
+  return start + width * counts.length;
+}
+if (typeof module !== "undefined") module.exports = { describe, weightedMean, histogram, autoBins, normalCount, cumRead };

@@ -54,7 +54,8 @@
   textarea { width:100%; height:120px; font:15px/22px ui-monospace, Menlo, Consolas, monospace; padding:10px; border:1px solid var(--blue); border-radius:0; background:#fff; resize:vertical; }
   #plot { background:#fff; border:1px solid var(--line); height:420px; }
   #histplot { background:#fff; border:1px solid var(--line); height:400px; }
-  #histplot:has(> .empty) { height:auto; }
+  #cumplot { background:#fff; border:1px solid var(--line); height:400px; }
+  #histplot:has(> .empty), #cumplot:has(> .empty) { height:auto; }
   #h_w, #h_s { width:130px; }
   #results { background:#fff; border:1px solid var(--line); padding:12px 16px; }
   .result.stale .res { opacity:.5; }
@@ -121,6 +122,9 @@
   </div>
   <div id="hmsg" class="msg" role="alert" hidden></div>
   <div id="histplot"><div class="empty">Noch kein Histogramm. Wähle eine Spalte und drücke „Berechnen“.</div></div>
+  <h2>Summenhäufigkeit mit Ablesung bei 16 % und 84 %</h2>
+  <p class="hint">Aus derselben Klasseneinteilung: die kumulierte relative Häufigkeit an den Klassengrenzen, mit geraden Linien dazwischen. Bei 16 % und 84 % wird der Wert x abgelesen; bei normalverteilten Messwerten liegen diese Werte bei x̄ − s und x̄ + s, und die halbe Differenz (x₈₄ − x₁₆)/2 ist eine Abschätzung für s.</p>
+  <div id="cumplot"><div class="empty">Noch keine Summenhäufigkeit. Berechne zuerst das Histogramm.</div></div>
   <h2>Gewichteter Mittelwert und Überlappung mehrerer Ergebnisse</h2>
   <p class="hint">Jede Zeile ist ein Ergebnis x mit seiner Unsicherheit u (zum Beispiel drei Volumenmessungen). Gewichte w = 1/u², Mittelwert = Σ(w·x)/Σw, Unsicherheit = 1/√Σw. Die Unsicherheit wird so übernommen, wie sie in der Tabelle steht. Überlappung: Die Intervalle x ± k·u müssen sich alle gemeinsam schneiden.</p>
   <div class="fitbar" id="wmean">
@@ -272,6 +276,7 @@ function derivedDetail(r) {
     `Beiträge: u(L)/L = ${rel[0]}, 2·u(d)/d = ${rel[1]}, u(a)/a = ${rel[2]}. Fehler von a: ${un ? "unskaliert" : "skaliert bzw. aus der Streuung"}.</div>`;
 }
 const fmtPlain = new Intl.NumberFormat("de-DE", { maximumSignificantDigits: 3 });
+const fmtRead = new Intl.NumberFormat("de-DE", { maximumSignificantDigits: 4 }); // values read off a table: 4 digits, no uncertainty attached
 function statsDetail(r) {
   const i = r.inputs || {}, n = fmt.format(Number(r.n));
   return `<div class="detail" data-how>Spalte „${esc(i.col)}“, n = ${n} Werte. Standardabweichung mit Teiler ${i.ddof === 0 ? "n" : "n−1"}. Mittelwert ± Standardfehler s/√n (s mit n−1).` +
@@ -292,7 +297,11 @@ function histDetail(r) {
   const rows = c.map((k, j) => { cum += k; return `<tr><td>${e(j)} bis unter ${e(j + 1)}</td><td>${fmt.format(k)}</td><td>${pct.format(k / n * 100)} %</td><td>${fmt.format(cum)}</td><td>${pct.format(cum / n * 100)} %</td></tr>`; }).join("");
   return `<table data-freq><thead><tr><th>Klasse${unit ? " / " + esc(unit) : ""}</th><th>absolut</th><th>relativ</th><th>kumuliert absolut</th><th>kumuliert relativ</th></tr></thead><tbody>${rows}</tbody></table>` +
     `<div class="detail" data-how>Spalte „${esc(i.col)}“, n = ${fmt.format(n)} Werte, ${fmt.format(c.length)} Klassen der Breite ${fmt.format(w)}${i.width == null ? " (automatisch)" : ""}, Beginn ${fmt.format(s0)}${i.start == null ? " (automatisch)" : ""}. ` +
-    `Normalverteilung mit x̄ und ${i.ddof === 0 ? "σ (Teiler n)" : "s (Teiler n−1)"}: erwartete Anzahl je Klasse = n·Klassenbreite·φ(x).</div>`;
+    `Normalverteilung mit x̄ und ${i.ddof === 0 ? "σ (Teiler n)" : "s (Teiler n−1)"}: erwartete Anzahl je Klasse = n·Klassenbreite·φ(x).</div>` +
+    (histOk(r) ? (() => {
+      const lo = cumRead(c, s0, w, 0.16), hi = cumRead(c, s0, w, 0.84), u = unit ? " " + esc(unit) : "", f = v => fmtRead.format(v) + u;
+      return `<div class="detail" data-readoff>Ablesung in der Summenhäufigkeit: x bei 16 % = ${f(lo)}, x bei 84 % = ${f(hi)}; halbe Differenz = ${f((hi - lo) / 2)}. Zum Vergleich: x̄ − s = ${f(Number(r.mean) - Number(r.s))}, x̄ + s = ${f(Number(r.mean) + Number(r.s))}.</div>`;
+    })() : "");
 }
 // The histogram is drawn from a fresh result only; an out-of-date one is removed like the fit line.
 function renderHist() {
@@ -311,8 +320,29 @@ function renderHist() {
     margin: { l: 70, r: 20, t: 20, b: 60 }, xaxis: ax(String((r.inputs || {}).col)), yaxis: ax("Anzahl der Messwerte"), paper_bgcolor: "#fff", plot_bgcolor: "#fff",
     showlegend: true, legend: { x: 0.02, y: 0.98, bgcolor: "#fff", bordercolor: "#999", borderwidth: 1 } }, { displaylogo: false, responsive: true });
 }
+// Cumulative share (%) at the class limits from the same fresh "hist" result; horizontal and vertical guides mark the read-off at 16 % and 84 %.
+function renderCum() {
+  const r = proj.results.find(q => q.kind === "hist");
+  if (!r || isStale(proj, r) || !histOk(r)) {
+    Plotly.purge("cumplot");
+    $("cumplot").innerHTML = `<div class="empty">${r && isStale(proj, r) ? "Die Summenhäufigkeit ist veraltet. Bitte das Histogramm neu berechnen." : "Noch keine Summenhäufigkeit. Berechne zuerst das Histogramm."}</div>`; return;
+  }
+  $("cumplot").querySelector(".empty")?.remove();
+  const c = r.counts, w = r.width, x0 = r.start, n = r.n; let cum = 0;
+  const xs = [x0, ...c.map((_, j) => x0 + (j + 1) * w)], ys = [0, ...c.map(k => (cum += k) / n * 100)];
+  const lv = [16, 84].map(p => ({ p, x: cumRead(c, x0, w, p / 100) }));
+  const line = { type: "scatter", mode: "lines+markers", x: xs, y: ys, name: "Kumulierte relative Häufigkeit", line: { color: "#00376C", width: 2.5 }, marker: { color: "#00376C", size: 7 } };
+  const marks = { type: "scatter", mode: "markers+text", x: lv.map(q => q.x), y: lv.map(q => q.p), name: "Ablesung bei 16 % und 84 %", marker: { color: "#D55E00", size: 11, symbol: "diamond" },
+    text: lv.map(q => fmtRead.format(q.x)), textposition: ["top left", "bottom right"], textfont: { size: 16, color: "#D55E00" } };
+  const guide = (x0_, y0, x1, y1) => ({ type: "line", x0: x0_, y0, x1, y1, line: { color: "#D55E00", width: 1.5, dash: "dash" } });
+  const ax = t => ({ title: { text: t, standoff: 10 }, showline: true, linecolor: "#000", mirror: true, ticks: "outside", gridcolor: "#e4e4dc", zeroline: false, exponentformat: "none" });
+  Plotly.react("cumplot", [line, marks], { font: { family: "Arial, Helvetica, sans-serif", size: 16, color: "#000" }, separators: ",.",
+    margin: { l: 70, r: 20, t: 20, b: 60 }, xaxis: ax(String((r.inputs || {}).col)), yaxis: { ...ax("Kumulierte Häufigkeit / %"), range: [0, 100] }, paper_bgcolor: "#fff", plot_bgcolor: "#fff",
+    shapes: lv.flatMap(q => [guide(x0, q.p, q.x, q.p), guide(q.x, q.p, q.x, 0)]),
+    showlegend: true, legend: { x: 0.02, y: 0.98, bgcolor: "#fff", bordercolor: "#999", borderwidth: 1 } }, { displaylogo: false, responsive: true });
+}
 function renderResults() {
-  renderHist();
+  renderHist(); renderCum();
   if (!proj.results.length) { $("results").innerHTML = '<div class="empty">Noch keine Ergebnisse.</div>'; return; }
   $("results").innerHTML = proj.results.map(r => {
     const stale = isStale(proj, r);

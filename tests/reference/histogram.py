@@ -15,3 +15,12 @@ print("mean", float(mean), "s(n-1)", sqrt(ss / (n - 1)), "sigma(n)", sqrt(ss / n
 for name, s in (("n-1", sqrt(ss / (n - 1))), ("n", sqrt(ss / n))):
     f = lambda x: float(n * w) * exp(-(x - float(mean)) ** 2 / (2 * s * s)) / (s * sqrt(2 * pi))
     print("curve", name, "at mean", f(float(mean)), "at 9.5", f(9.5), "at 10.0", f(10.0), "at 10.7", f(10.7))
+# Cumulative table read-off (step 6): x where the cumulative relative frequency crosses p, straight line between the class limits.
+def readoff(p):
+    for j in range(6):
+        if F(cum[j], n) >= p:
+            prev = cum[j - 1] if j else 0
+            return start + w * j + w * (p * n - prev) / counts[j]
+for p in (F(16, 100), F(84, 100)):
+    print("read-off", float(p), readoff(p), float(readoff(p)))
+print("mean -/+ s", float(mean) - sqrt(ss / (n - 1)), float(mean) + sqrt(ss / (n - 1)))
