@@ -53,6 +53,9 @@
   td input.bad { background:#fde8ea; outline:2px solid #B00020; outline-offset:-2px; }
   textarea { width:100%; height:120px; font:15px/22px ui-monospace, Menlo, Consolas, monospace; padding:10px; border:1px solid var(--blue); border-radius:0; background:#fff; resize:vertical; }
   #plot { background:#fff; border:1px solid var(--line); height:420px; }
+  #histplot { background:#fff; border:1px solid var(--line); height:400px; }
+  #histplot:has(> .empty) { height:auto; }
+  #h_w, #h_s { width:130px; }
   #results { background:#fff; border:1px solid var(--line); padding:12px 16px; }
   .result.stale .res { opacity:.5; }
   .res { font:700 20px "Barlow", system-ui, sans-serif; margin:2px 0; }
@@ -107,6 +110,17 @@
     <button class="btn" id="s_go" disabled>Berechnen</button>
   </div>
   <div id="statsmsg" class="msg" role="alert" hidden></div>
+  <h2>Häufigkeitstabelle und Histogramm</h2>
+  <p class="hint">Teilt die Werte einer Spalte in Klassen [von, bis) ein und zählt sie: absolute, relative und kumulierte Häufigkeit. Die Klassen sind links geschlossen, ein Wert genau auf einer Grenze gehört zur oberen Klasse. Das Histogramm zeigt die Anzahl je Klasse und dazu die Normalverteilung mit dem Mittelwert x̄ und der Standardabweichung s (Teiler n oder n−1): erwartete Anzahl je Klasse = n·Klassenbreite·φ(x). Bleiben Klassenbreite und Beginn leer, werden sie automatisch gewählt.</p>
+  <div class="fitbar" id="hist">
+    <label>Spalte <select id="h_col" aria-label="Spalte für das Histogramm"></select></label>
+    <label>Standardabweichung mit <select id="h_ddof" aria-label="Teiler der Standardabweichung für die Normalverteilung"><option value="1">n−1 (s)</option><option value="0">n (σ)</option></select></label>
+    <label>Klassenbreite <input class="num" id="h_w" aria-label="Klassenbreite in der Einheit der Spalte, leer für automatisch" inputmode="decimal" placeholder="automatisch"></label>
+    <label>Beginn <input class="num" id="h_s" aria-label="Beginn der ersten Klasse in der Einheit der Spalte, leer für automatisch" inputmode="decimal" placeholder="automatisch"></label>
+    <button class="btn" id="h_go" disabled>Berechnen</button>
+  </div>
+  <div id="hmsg" class="msg" role="alert" hidden></div>
+  <div id="histplot"><div class="empty">Noch kein Histogramm. Wähle eine Spalte und drücke „Berechnen“.</div></div>
   <h2>Gewichteter Mittelwert und Überlappung mehrerer Ergebnisse</h2>
   <p class="hint">Jede Zeile ist ein Ergebnis x mit seiner Unsicherheit u (zum Beispiel drei Volumenmessungen). Gewichte w = 1/u², Mittelwert = Σ(w·x)/Σw, Unsicherheit = 1/√Σw. Die Unsicherheit wird so übernommen, wie sie in der Tabelle steht. Überlappung: Die Intervalle x ± k·u müssen sich alle gemeinsam schneiden.</p>
   <div class="fitbar" id="wmean">
@@ -206,7 +220,7 @@ function restoreAutosave() {
 function setProject(p) {
   proj = p; undo = []; redo = []; editKey = null; updateHist();
   $("msg").hidden = true;
-  $("saveproj").disabled = $("addrow").disabled = $("f_add").disabled = $("s_go").disabled = $("w_go").disabled = false; if (worker?.ready && !pending) $("fit").disabled = false;
+  $("saveproj").disabled = $("addrow").disabled = $("f_add").disabled = $("s_go").disabled = $("w_go").disabled = $("h_go").disabled = false; if (worker?.ready && !pending) $("fit").disabled = false;
   render();
 }
 function showMsg(t) { $("msg").textContent = t; $("msg").hidden = false; }
@@ -268,7 +282,37 @@ function wmeanDetail(r) {
   return `<div class="detail" data-how>Ergebnisse „${esc(i.val)}“ mit Unsicherheiten „${esc(i.unc)}“, n = ${fmt.format(Number(r.n))} Zeilen. Gewichte w = 1/u², Mittelwert Σ(w·x)/Σw, Unsicherheit 1/√Σw.</div>` +
     `<div class="detail" data-verdict>Überlappung der Intervalle x ± ${k}·u: ${esc(r.verdict)}</div>`;
 }
+// Frequency table of the "hist" result. Every number goes through the number formatter, so text from a project file shows as NaN, not as markup.
+const pct = new Intl.NumberFormat("de-DE", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+const histOk = r => Array.isArray(r.counts) && r.counts.length > 0 && r.counts.length <= 200 && r.counts.every(Number.isFinite) && [r.start, r.width, r.mean, r.s, r.n].every(Number.isFinite) && r.width > 0 && r.s > 0 && r.n > 0;
+function histDetail(r) {
+  const i = r.inputs || {}, n = Number(r.n), w = Number(r.width), s0 = Number(r.start), c = (Array.isArray(r.counts) ? r.counts : []).slice(0, 200).map(Number);
+  const e = j => fmt.format(Number((s0 + j * w).toPrecision(12))), unit = (String(i.col).split("/")[1] || "").trim();
+  let cum = 0;
+  const rows = c.map((k, j) => { cum += k; return `<tr><td>${e(j)} bis unter ${e(j + 1)}</td><td>${fmt.format(k)}</td><td>${pct.format(k / n * 100)} %</td><td>${fmt.format(cum)}</td><td>${pct.format(cum / n * 100)} %</td></tr>`; }).join("");
+  return `<table data-freq><thead><tr><th>Klasse${unit ? " / " + esc(unit) : ""}</th><th>absolut</th><th>relativ</th><th>kumuliert absolut</th><th>kumuliert relativ</th></tr></thead><tbody>${rows}</tbody></table>` +
+    `<div class="detail" data-how>Spalte „${esc(i.col)}“, n = ${fmt.format(n)} Werte, ${fmt.format(c.length)} Klassen der Breite ${fmt.format(w)}${i.width == null ? " (automatisch)" : ""}, Beginn ${fmt.format(s0)}${i.start == null ? " (automatisch)" : ""}. ` +
+    `Normalverteilung mit x̄ und ${i.ddof === 0 ? "σ (Teiler n)" : "s (Teiler n−1)"}: erwartete Anzahl je Klasse = n·Klassenbreite·φ(x).</div>`;
+}
+// The histogram is drawn from a fresh result only; an out-of-date one is removed like the fit line.
+function renderHist() {
+  const r = proj.results.find(q => q.kind === "hist");
+  if (!r || isStale(proj, r) || !histOk(r)) {
+    Plotly.purge("histplot");
+    $("histplot").innerHTML = `<div class="empty">${r && isStale(proj, r) ? "Das Histogramm ist veraltet. Bitte neu berechnen." : "Noch kein Histogramm. Wähle eine Spalte und drücke „Berechnen“."}</div>`; return;
+  }
+  $("histplot").querySelector(".empty")?.remove();
+  const c = r.counts, lo = r.start, hi = r.start + c.length * r.width, N = 120;
+  const xs = Array.from({ length: N + 1 }, (_, j) => lo + (hi - lo) * j / N);
+  const bars = { type: "bar", x: c.map((_, j) => lo + (j + 0.5) * r.width), y: c, width: c.map(() => r.width), name: "Messwerte (Anzahl je Klasse)", marker: { color: "#00376C", line: { color: "#fff", width: 1.5 } } };
+  const curve = { type: "scatter", mode: "lines", x: xs, y: xs.map(x => normalCount(x, r.mean, r.s, r.n, r.width)), name: "Normalverteilung (x̄, " + ((r.inputs || {}).ddof === 0 ? "σ" : "s") + ")", line: { color: "#D55E00", width: 2.5 } };
+  const ax = t => ({ title: { text: t, standoff: 10 }, showline: true, linecolor: "#000", mirror: true, ticks: "outside", gridcolor: "#e4e4dc", zeroline: false, exponentformat: "none" });
+  Plotly.react("histplot", [bars, curve], { font: { family: "Arial, Helvetica, sans-serif", size: 16, color: "#000" }, separators: ",.",
+    margin: { l: 70, r: 20, t: 20, b: 60 }, xaxis: ax(String((r.inputs || {}).col)), yaxis: ax("Anzahl der Messwerte"), paper_bgcolor: "#fff", plot_bgcolor: "#fff",
+    showlegend: true, legend: { x: 0.02, y: 0.98, bgcolor: "#fff", bordercolor: "#999", borderwidth: 1 } }, { displaylogo: false, responsive: true });
+}
 function renderResults() {
+  renderHist();
   if (!proj.results.length) { $("results").innerHTML = '<div class="empty">Noch keine Ergebnisse.</div>'; return; }
   $("results").innerHTML = proj.results.map(r => {
     const stale = isStale(proj, r);
@@ -276,7 +320,7 @@ function renderResults() {
       const u = uOf(q), t = huRound(q.value, u);
       return `<div class="res">${esc(q.name)} = ${t ? `(${t[0]} ± ${t[1]})` : q.plain ? fmtPlain.format(q.value) : fmt.format(q.value)}${q.unit ? " " + esc(q.unit) : ""}</div>`;
     }).join("");
-    return `<div class="result${stale ? " stale" : ""}">${stale ? `<div class="msg stalemsg">Die Daten wurden geändert. Dieses Ergebnis ist veraltet. Bitte neu ${r.kind === "stats" || r.kind === "wmean" ? "berechnen" : "anpassen"}.</div>` : ""}${lines}${r.kind === "fit" && r.dof ? fitDetail(r) : ""}${r.kind === "derived" ? derivedDetail(r) : ""}${r.kind === "stats" ? statsDetail(r) : ""}${r.kind === "wmean" ? wmeanDetail(r) : ""}</div>`;
+    return `<div class="result${stale ? " stale" : ""}">${stale ? `<div class="msg stalemsg">Die Daten wurden geändert. Dieses Ergebnis ist veraltet. Bitte neu ${["stats", "wmean", "hist"].includes(r.kind) ? "berechnen" : "anpassen"}.</div>` : ""}${lines}${r.kind === "fit" && r.dof ? fitDetail(r) : ""}${r.kind === "derived" ? derivedDetail(r) : ""}${r.kind === "stats" ? statsDetail(r) : ""}${r.kind === "wmean" ? wmeanDetail(r) : ""}${r.kind === "hist" ? histDetail(r) : ""}</div>`;
   }).join("");
 }
 // Weighting needs an error column; errors method only matters for a weighted fit.
@@ -286,13 +330,17 @@ function syncControls() {
   $("wlabel").classList.toggle("off", !has);
   $("wlabel").title = has ? "" : "Dafür braucht es eine Spalte mit der Rolle „Fehler von y“.";
   $("errm").value = proj.settings.errMethod || "scaled"; $("errm").disabled = !w;
-  $("fitmsg").hidden = true; $("derivemsg").hidden = true; $("statsmsg").hidden = true; $("wmsg").hidden = true;
+  $("fitmsg").hidden = true; $("derivemsg").hidden = true; $("statsmsg").hidden = true; $("wmsg").hidden = true; $("hmsg").hidden = true;
   const st = statsSettings(proj);
   $("s_col").replaceChildren(...proj.columns.map(c => Object.assign(document.createElement("option"), { value: c.name, textContent: c.name })));
   $("s_col").value = st.col; $("s_ddof").value = st.ddof; $("s_instr").value = st.instr == null ? "" : fmt.format(st.instr); $("s_instr").classList.remove("bad");
   const wm = wmeanSettings(proj), opts = (none) => [...(none ? [Object.assign(document.createElement("option"), { value: "", textContent: "(keine)" })] : []), ...proj.columns.map(c => Object.assign(document.createElement("option"), { value: c.name, textContent: c.name }))];
   $("w_val").replaceChildren(...opts(false)); $("w_unc").replaceChildren(...opts(true));
   $("w_val").value = wm.val; $("w_unc").value = wm.unc ?? ""; $("w_k").value = fmt.format(wm.k); $("w_k").classList.remove("bad");
+  const hs = histSettings(proj);
+  $("h_col").replaceChildren(...proj.columns.map(c => Object.assign(document.createElement("option"), { value: c.name, textContent: c.name })));
+  $("h_col").value = hs.col; $("h_ddof").value = hs.ddof;
+  for (const [id, v] of [["h_w", hs.width], ["h_s", hs.start]]) { $(id).value = v === null ? "" : fmt.format(v); $(id).classList.remove("bad"); }
   for (const k of ["L", "uL", "d", "ud"]) { const v = (proj.settings.young || {})[k]; $("y_" + k).value = v == null ? "" : fmt.format(v); $("y_" + k).classList.remove("bad"); }
 }
 // Formula columns are recomputed from the data on every change; rows that cannot be calculated are named in the message.
@@ -502,6 +550,39 @@ $("w_go").onclick = () => {
   const verdict = d.overlap ? "Alle Intervalle haben einen gemeinsamen Bereich. Die Ergebnisse stimmen im Rahmen ihrer Unsicherheiten überein."
     : "Die Ergebnisse stimmen nicht überein: " + d.bad.map(b => `Zeile ${nr(b.i)} und Zeile ${nr(b.j)} (Lücke ${fmtPlain.format(b.gap)}${unit ? " " + unit : ""})`).join("; ") + ". Der gewichtete Mittelwert ist dann mit Vorsicht zu lesen.";
   change(() => addResult(proj, { kind: "wmean", inputs: st, n: d.n, verdict, params: [{ name: "Gewichteter Mittelwert", unit, value: d.mean, u: d.u }] }));
+};
+// Histogram: column and divisor are one undo step each, typing class width or start is one step per field.
+const setHist = patch => setSetting("hist", { ...histSettings(proj), ...patch });
+$("h_col").onchange = e => setHist({ col: e.target.value });
+$("h_ddof").onchange = e => setHist({ ddof: +e.target.value });
+for (const [id, key] of [["h_w", "width"], ["h_s", "start"]]) {
+  $(id).addEventListener("input", e => {
+    const v = parseCell(e.target.value);
+    e.target.classList.toggle("bad", v === undefined || (key === "width" && v !== null && !(v > 0)));
+    if (e.target.classList.contains("bad")) return;
+    if (editKey !== "hist." + key) { pushUndo(); editKey = "hist." + key; }
+    proj.settings.hist = { ...histSettings(proj), [key]: v };
+    renderResults(); autosave();
+  });
+  $(id).addEventListener("focusout", () => { editKey = null; });
+}
+function histFailed(why) { $("hmsg").textContent = why; $("hmsg").hidden = false; }
+$("h_go").onclick = () => {
+  const st = histSettings(proj), c = proj.columns.find(k => k.name === st.col), vals = c.values.filter(v => v !== null);
+  if ($("h_w").classList.contains("bad")) return histFailed("Die Klassenbreite muss eine Zahl größer als 0 sein (oder leer für automatisch).");
+  if ($("h_s").classList.contains("bad")) return histFailed("Der Beginn der ersten Klasse ist keine Zahl (oder leer für automatisch).");
+  if (vals.length < 2) return histFailed(`Die Spalte „${c.name}“ hat ${vals.length} Wert${vals.length === 1 ? "" : "e"}. Ein Histogramm mit Normalverteilung braucht mindestens zwei Werte.`);
+  const lo = Math.min(...vals), hi = Math.max(...vals);
+  if (lo === hi) return histFailed(`Alle Werte der Spalte „${c.name}“ sind gleich (${fmt.format(lo)}). Die Standardabweichung ist 0, daher gibt es keine Normalverteilung und keine sinnvolle Klasseneinteilung.`);
+  const auto = autoBins(vals), width = st.width ?? auto.width, start = st.start ?? auto.start;
+  if (start > lo) return histFailed(`Der Beginn ${fmt.format(start)} liegt über dem kleinsten Wert ${fmt.format(lo)}. Bitte einen Beginn kleiner oder gleich dem kleinsten Wert wählen.`);
+  const k = Math.floor((hi - start) / width + 1e-9) + 1;
+  if (k > 100) return histFailed(`Mit Klassenbreite ${fmt.format(width)} gäbe es ${fmt.format(k)} Klassen. Das sind zu viele (höchstens 100). Bitte eine größere Klassenbreite wählen.`);
+  const h = histogram(vals, start, width), d = describe(vals, st.ddof), unit = (c.name.split("/")[1] || "").trim();
+  change(() => addResult(proj, {
+    kind: "hist", inputs: st, n: d.n, start, width, counts: h.counts, mean: d.mean, s: d.s,
+    params: [{ name: "Mittelwert x̄", unit, value: d.mean, u: d.sem }, { name: st.ddof === 0 ? "Standardabweichung σ (Teiler n)" : "Standardabweichung s (Teiler n−1)", unit, value: d.s, plain: true }],
+  }));
 };
 $("weighted").onchange = e => setSetting("weighted", e.target.checked);
 $("errm").onchange = e => setSetting("errMethod", e.target.value);

@@ -18,4 +18,19 @@ function weightedMean(x, u, k) {
   }
   return { n, mean: x.reduce((a, v, i) => a + w[i] * v, 0) / sw, u: 1 / Math.sqrt(sw), w, overlap: !bad.length, bad };
 }
-if (typeof module !== "undefined") module.exports = { describe, weightedMean };
+// Frequency table (P1): classes [start + i·width, start + (i+1)·width), left-closed, so a value on a boundary belongs to the upper class.
+// The 1e-9 keeps (9,7 - 9,5)/0,2 = 0,99999... in class 1 instead of class 0.
+function histogram(values, start, width) {
+  const k = Math.floor((Math.max(...values) - start) / width + 1e-9) + 1, counts = new Array(k).fill(0);
+  for (const v of values) counts[Math.floor((v - start) / width + 1e-9)]++;
+  return { counts, edges: Array.from({ length: k + 1 }, (_, i) => Number((start + i * width).toPrecision(12))) };
+}
+// Automatic classes: about 1 + log2(n) of them (Sturges), the width rounded up to 1, 2 or 5 times a power of ten, the start on a multiple of the width.
+function autoBins(values) {
+  const lo = Math.min(...values), raw = (Math.max(...values) - lo) / Math.ceil(1 + Math.log2(values.length)), pow = 10 ** Math.floor(Math.log10(raw)), m = raw / pow;
+  const width = Number(((m <= 1 ? 1 : m <= 2 ? 2 : m <= 5 ? 5 : 10) * pow).toPrecision(12));
+  return { width, start: Number((Math.floor(lo / width + 1e-9) * width).toPrecision(12)) };
+}
+// Expected number of readings per class of width w at x for a normal distribution fitted to n readings (mean, s): n·w·φ((x-mean)/s)/s.
+const normalCount = (x, mean, s, n, w) => n * w * Math.exp(-((x - mean) ** 2) / (2 * s * s)) / (s * Math.sqrt(2 * Math.PI));
+if (typeof module !== "undefined") module.exports = { describe, weightedMean, histogram, autoBins, normalCount };

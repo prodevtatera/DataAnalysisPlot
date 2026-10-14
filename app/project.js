@@ -32,13 +32,22 @@ function wmeanSettings(p) {
 }
 const wmeanKey = p => { const st = wmeanSettings(p), by = n => (p.columns.find(c => c.name === n) || {}).values; return fnv(JSON.stringify([st, by(st.val), by(st.unc)])); };
 
+// Frequency table and histogram of one column (P1): column, divisor of s, class width and start (null = automatic).
+function histSettings(p) {
+  const st = p.settings.hist || {}, y = p.columns.find(c => c.role === "y") || p.columns[0];
+  return { col: p.columns.some(c => c.name === st.col) ? st.col : y.name, ddof: st.ddof === 0 ? 0 : 1, width: st.width > 0 ? st.width : null, start: Number.isFinite(st.start) ? st.start : null };
+}
+const histKey = p => { const st = histSettings(p); return fnv(JSON.stringify([st, p.columns.find(c => c.name === st.col).values])); };
+// Results that depend on their own settings and columns instead of the x/y/error fingerprint.
+const KEYS = { stats: statsKey, wmean: wmeanKey, hist: histKey };
+
 function addResult(p, result) {
   p.results = p.results.filter(r => r.kind !== result.kind);
-  p.results.push({ ...result, settings: { ...p.settings }, computedFrom: result.kind === "stats" ? statsKey(p) : result.kind === "wmean" ? wmeanKey(p) : fingerprint(p) });
+  p.results.push({ ...result, settings: { ...p.settings }, computedFrom: (KEYS[result.kind] || fingerprint)(p) });
 }
 
 // Stale when the data changed, weighting was switched after the fit, or (derived results) the extra inputs changed.
-const isStale = (p, r) => r.kind === "stats" ? r.computedFrom !== statsKey(p) : r.kind === "wmean" ? r.computedFrom !== wmeanKey(p) : r.computedFrom !== fingerprint(p) || (r.settings || {}).weighted !== p.settings.weighted ||
+const isStale = (p, r) => KEYS[r.kind] ? r.computedFrom !== KEYS[r.kind](p) : r.computedFrom !== fingerprint(p) || (r.settings || {}).weighted !== p.settings.weighted ||
   (r.kind === "derived" && JSON.stringify((r.settings || {}).young) !== JSON.stringify(p.settings.young));
 
 const save = p => JSON.stringify(p, null, 1);
@@ -56,4 +65,4 @@ function open(text) {
   return ok ? { project: p } : { error: "Das Projekt ist beschädigt: Spalten oder Werte fehlen oder sind keine Zahlen." };
 }
 
-if (typeof module !== "undefined") module.exports = { statsSettings, wmeanSettings, ROLES, newProject, fingerprint, addResult, isStale, save, open };
+if (typeof module !== "undefined") module.exports = { statsSettings, wmeanSettings, histSettings, ROLES, newProject, fingerprint, addResult, isStale, save, open };

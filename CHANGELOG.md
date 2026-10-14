@@ -2,6 +2,13 @@
 
 Written in plain language for people who do not read code. Newest entry on top.
 
+## 2026-10-14: Frequency table and histogram with normal curve (P1)
+
+- **What a student can now do:** under "Häufigkeitstabelle und Histogramm" pick a column (for example 30 length readings) and press "Berechnen". The page shows a table with each class (von bis unter), the absolute, relative and cumulative frequency, and a histogram of the counts with the fitted normal curve (mean x̄ and s with n−1, or σ with n, as chosen) and a legend. The mean is given as (value ± u) unit, for example (10,05 ± 0,05) mm.
+- **Good to know:** class width and start can be typed in or left empty for an automatic choice (the page says which values it used). Classes are closed on the left: a reading exactly on a class limit counts in the upper class. Editing the data, the divisor, the width or the start marks the result as out of date and removes the plot until you press "Berechnen" again.
+- **Messages:** a class width of 0 or text, a start above the smallest value, more than 100 classes, a column with fewer than two values, and a column where all values are equal give a plain German message.
+- **Tested:** `tests/phase2-step5-histogram.sh` with 30 hand-made readings against a separate hand calculation in exact fractions (counts 2 5 9 8 4 2, cumulative 2 7 16 24 28 30, mean 10,05, s 0,263269; curve 9,092 at the mean), including readings exactly on class limits, in the real page with undo, reload, save, reopen and a hand-edited project file.
+
 ## 2026-10-14: Weighted mean and overlap check (P2)
 
 - **What a student can now do:** under "Gewichteter Mittelwert und Überlappung mehrerer Ergebnisse" pick the column with the results (for example three volume measurements) and the column with their uncertainties, set the factor k (default 1) and press "Berechnen". The page shows the weighted mean as (value ± u) unit in HU format, for example (10,02 ± 0,09) cm³, with weights 1/u² and u = 1/√Σw. It also says whether the intervals x ± k·u all share a common range ("stimmen im Rahmen ihrer Unsicherheiten überein") or names the rows that do not overlap and by how much.
