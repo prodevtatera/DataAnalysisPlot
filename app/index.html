@@ -31,6 +31,16 @@
   table { border-collapse:collapse; width:100%; font-size:15px; line-height:22px; font-variant-numeric:tabular-nums; }
   th,td { padding:0; border-bottom:1px solid var(--soft); }
   th { background:var(--soft); position:sticky; top:0; font-weight:600; padding:3px 10px; text-align:right; }
+  select { font:14px "Source Sans 3", system-ui, sans-serif; padding:2px 4px; border:1px solid var(--blue); border-radius:0; background:#fff; max-width:100%; }
+  th select { display:block; margin:2px 0 0 auto; font-weight:400; }
+  .fitbar { display:flex; gap:18px; flex-wrap:wrap; align-items:center; margin-bottom:10px; }
+  .fitbar select { font-size:16px; padding:6px 8px; }
+  .fitbar input[type=checkbox] { width:18px; height:18px; accent-color:var(--blue); vertical-align:-3px; }
+  .fitbar label.off { color:#666; }
+  .detail { font-size:15px; line-height:24px; margin:6px 0 0; }
+  #results table { width:auto; margin:8px 0; }
+  #results th { position:static; padding:3px 12px; }
+  #results td { padding:3px 12px; text-align:right; }
   td.n { padding:3px 10px; color:#555; text-align:right; width:44px; }
   td input { width:100%; min-width:90px; border:0; border-radius:0; padding:3px 10px; font:inherit; text-align:right; background:transparent; }
   td input:focus { outline:2px solid var(--blue); outline-offset:-2px; background:#fff; }
@@ -67,6 +77,14 @@
   </div>
   <h2>Diagramm</h2>
   <div id="plot"><div class="empty">Noch keine Daten.</div></div>
+  <h2>Anpassung (Gerade y = a·x + b)</h2>
+  <div class="fitbar">
+    <label id="wlabel"><input type="checkbox" id="weighted"> Mit den Fehlerwerten gewichten</label>
+    <select id="errm" aria-label="Fehlermethode"><option value="scaled">Fehler skaliert mit √(χ²/DoF)</option><option value="unscaled">Fehler unskaliert (aus den Fehlerwerten)</option></select>
+    <button class="btn" id="fit" disabled>Anpassen</button>
+    <span class="hint" id="fitstate">Rechenmodul (SciPy) wird geladen …</span>
+  </div>
+  <div id="fitmsg" class="msg" role="alert" hidden></div>
   <h2>Ergebnisse</h2>
   <div id="results"><div class="empty">Noch keine Ergebnisse.</div></div>
 </main>
@@ -79,6 +97,7 @@ const $ = id => document.getElementById(id);
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 const fmt = new Intl.NumberFormat("de-DE", { maximumFractionDigits: 10 });
 const EXAMPLE = [["t / s", "U / V", "sU / V"], [[1, 2.1, 0.2], [2, 4.3, 0.2], [3, 6.2, 0.3], [4, 8.4, 0.3], [5, 9.9, 0.4]]];
+const ROLE_LABELS = { x: "x-Werte", y: "y-Werte", yerr: "Fehler von y", unused: "nicht verwendet" };
 let proj = null;
 
 // "1,5" and "1.5" both work; empty means no value. Returns undefined for text that is not a number.
@@ -131,13 +150,15 @@ function restoreAutosave() {
 function setProject(p) {
   proj = p; undo = []; redo = []; editKey = null; updateHist();
   $("msg").hidden = true;
-  $("saveproj").disabled = $("addrow").disabled = false;
+  $("saveproj").disabled = $("addrow").disabled = false; if (worker?.ready && !pending) $("fit").disabled = false;
   render();
 }
 function showMsg(t) { $("msg").textContent = t; $("msg").hidden = false; }
 
 function renderTable() {
-  const head = "<tr><th></th>" + proj.columns.map(c => `<th>${esc(c.name)}</th>`).join("") + "<th></th></tr>";
+  const roleSel = (c, j) => `<select class="role" data-role="${j}" aria-label="Rolle von ${esc(c.name)}">` +
+    Object.entries(ROLE_LABELS).map(([r, t]) => `<option value="${r}"${c.role === r ? " selected" : ""}>${t}</option>`).join("") + "</select>";
+  const head = "<tr><th></th>" + proj.columns.map((c, j) => `<th>${esc(c.name)}${roleSel(c, j)}</th>`).join("") + "<th></th></tr>";
   const body = Array.from({ length: nrows() }, (_, i) => `<tr><td class="n">${i + 1}</td>` +
     proj.columns.map((c, j) => `<td><input data-r="${i}" data-c="${j}" aria-label="${esc(c.name)}, Zeile ${i + 1}" value="${c.values[i] === null ? "" : fmt.format(c.values[i])}" inputmode="decimal"></td>`).join("") +
     `<td><button class="btn alt small" data-del="${i}" aria-label="Zeile ${i + 1} löschen">✕</button></td></tr>`).join("");
@@ -151,26 +172,52 @@ function renderPlot() {
   const trace = { x: idx.map(i => x.values[i]), y: idx.map(i => y.values[i]), mode: "markers", type: "scatter", name: "Messwerte", marker: { color: "#00376C", size: 9 } };
   if (e) trace.error_y = { type: "data", array: idx.map(i => e.values[i] ?? 0), visible: true, color: "#00376C", thickness: 1.6, width: 5 };
   const ax = t => ({ title: { text: t, standoff: 10 }, showline: true, linecolor: "#000", mirror: true, ticks: "outside", gridcolor: "#e4e4dc", zeroline: false, exponentformat: "none" });
-  Plotly.react("plot", [trace], { font: { family: "Arial, Helvetica, sans-serif", size: 16, color: "#000" }, separators: ",.",
+  const traces = [trace], fit = freshFit();
+  if (fit) {
+    const xs = idx.map(i => x.values[i]), lo = Math.min(...xs), hi = Math.max(...xs), [a, b] = fit.params.map(q => q.value);
+    traces.push({ x: [lo, hi], y: [a * lo + b, a * hi + b], mode: "lines", type: "scatter", name: "Anpassung", line: { color: "#D55E00", width: 2.5 } });
+  }
+  Plotly.react("plot", traces, { font: { family: "Arial, Helvetica, sans-serif", size: 16, color: "#000" }, separators: ",.",
     margin: { l: 70, r: 20, t: 20, b: 60 }, xaxis: ax(x.name), yaxis: ax(y.name), paper_bgcolor: "#fff", plot_bgcolor: "#fff",
     showlegend: true, legend: { x: 0.02, y: 0.98, bgcolor: "#fff", bordercolor: "#999", borderwidth: 1 } }, { displaylogo: false, responsive: true });
+}
+const freshFit = () => proj.results.find(r => r.kind === "fit" && !isStale(proj, r));
+const uOf = q => (proj.settings.errMethod === "unscaled" && q.uUnscaled !== undefined) ? q.uUnscaled : (q.uScaled ?? q.u);
+function fitDetail(r) {
+  const f = new Intl.NumberFormat("de-DE", { maximumSignificantDigits: 6 }), un = proj.settings.errMethod === "unscaled" && r.weighted;
+  const how = !r.weighted ? "ungewichtet; Fehler aus der Streuung der Messpunkte um die Gerade"
+    : un ? "gewichtet mit den Fehlerwerten; Fehler unskaliert (absolute_sigma=True)" : "gewichtet mit den Fehlerwerten; Fehler mit √(χ²/DoF) skaliert (absolute_sigma=False)";
+  const rows = r.params.map(q => `<tr><td>${esc(q.name)}</td><td>${f.format(q.value)}</td><td>${f.format(q.uScaled)}</td>${r.weighted ? `<td>${f.format(q.uUnscaled)}</td>` : ""}</tr>`).join("");
+  return `<table><thead><tr><th>Parameter</th><th>Wert</th><th>Fehler skaliert</th>${r.weighted ? "<th>Fehler unskaliert</th>" : ""}</tr></thead><tbody>${rows}</tbody></table>` +
+    `<div class="detail" data-how>Methode: ${how}. Freiheitsgrade: ${r.dof}. ` + (r.weighted ? `χ² = ${f.format(r.chi2)}, χ²/DoF = ${f.format(r.chi2 / r.dof)}.` : `Summe der Abweichungsquadrate = ${f.format(r.ssr)}.`) + "</div>";
 }
 function renderResults() {
   if (!proj.results.length) { $("results").innerHTML = '<div class="empty">Noch keine Ergebnisse.</div>'; return; }
   $("results").innerHTML = proj.results.map(r => {
     const stale = isStale(proj, r);
     const lines = (r.params || []).map(q => {
-      const t = huRound(q.value, q.u);
+      const u = uOf(q), t = huRound(q.value, u);
       return `<div class="res">${esc(q.name)} = ${t ? `(${t[0]} ± ${t[1]})` : fmt.format(q.value)}${q.unit ? " " + esc(q.unit) : ""}</div>`;
     }).join("");
-    return `<div class="result${stale ? " stale" : ""}">${stale ? '<div class="msg stalemsg">Die Daten wurden geändert. Dieses Ergebnis ist veraltet. Bitte neu anpassen.</div>' : ""}${lines}</div>`;
+    return `<div class="result${stale ? " stale" : ""}">${stale ? '<div class="msg stalemsg">Die Daten wurden geändert. Dieses Ergebnis ist veraltet. Bitte neu anpassen.</div>' : ""}${lines}${r.kind === "fit" && r.dof ? fitDetail(r) : ""}</div>`;
   }).join("");
 }
-function render() { renderTable(); renderPlot(); renderResults(); autosave(); }
+// Weighting needs an error column; errors method only matters for a weighted fit.
+function syncControls() {
+  const has = !!col("yerr"), w = has && proj.settings.weighted;
+  $("weighted").checked = w; $("weighted").disabled = !has;
+  $("wlabel").classList.toggle("off", !has);
+  $("wlabel").title = has ? "" : "Dafür braucht es eine Spalte mit der Rolle „Fehler von y“.";
+  $("errm").value = proj.settings.errMethod || "scaled"; $("errm").disabled = !w;
+  $("fitmsg").hidden = true;
+}
+function render() { renderTable(); renderPlot(); renderResults(); syncControls(); autosave(); }
 
 // An edit changes data only: keep the focused table as it is, redraw plot and results.
 $("table").addEventListener("input", e => {
-  const el = e.target, v = parseCell(el.value);
+  const el = e.target;
+  if (el.tagName !== "INPUT") return;
+  const v = parseCell(el.value);
   if (v === undefined) { el.classList.add("bad"); showMsg(`Zeile ${+el.dataset.r + 1}, Spalte ${+el.dataset.c + 1}: „${el.value}“ ist keine Zahl.`); return; }
   el.classList.remove("bad");
   if (!$("table").querySelector(".bad")) $("msg").hidden = true;
@@ -178,6 +225,15 @@ $("table").addEventListener("input", e => {
   if (editKey !== key) { pushUndo(); editKey = key; }
   proj.columns[+el.dataset.c].values[+el.dataset.r] = v;
   renderPlot(); renderResults(); autosave();
+});
+// Choosing a role: x, y and error each belong to one column, so taking a role frees it from its old column.
+$("table").addEventListener("change", e => {
+  if (!e.target.matches("select.role")) return;
+  const j = +e.target.dataset.role, role = e.target.value;
+  change(() => {
+    if (role !== "unused") proj.columns.forEach((c, k) => { if (k !== j && c.role === role) c.role = "unused"; });
+    proj.columns[j].role = role;
+  });
 });
 // After leaving a cell, show the number in German format.
 $("table").addEventListener("focusout", e => {
@@ -205,6 +261,46 @@ $("openfile").onchange = async e => {
   r.error ? showMsg(r.error) : setProject(r.project);
   e.target.value = "";
 };
+// SciPy runs in a Web Worker. A module worker cannot start from a file:// page; table and plot still work then, only the fit is off.
+let worker = null, pending = null;
+try { worker = new Worker("../testbuild/fit-worker.js", { type: "module" }); }
+catch { $("fitstate").textContent = "Die Anpassung braucht die Seite von einem Webserver (nicht als Datei geöffnet)."; }
+function fitFailed(why) { $("fit").disabled = false; pending = null; $("fitmsg").textContent = "Die Anpassung ist fehlgeschlagen. " + why; $("fitmsg").hidden = false; }
+if (worker) {
+  worker.onerror = () => { $("fitstate").textContent = "Das Rechenmodul konnte nicht geladen werden. Bitte die Seite neu laden."; };
+  worker.onmessage = ev => {
+    const m = ev.data;
+    if (m.ready) { worker.ready = true; $("fit").disabled = !proj; $("fitstate").textContent = "Bereit."; return; }
+    if (m.loadError) { $("fitstate").textContent = "Das Rechenmodul konnte nicht geladen werden. Bitte die Seite neu laden."; return; }
+    const job = pending; pending = null; $("fit").disabled = false;
+    if (m.error) return fitFailed(m.error);
+    // The student may have edited while Python was working: then the result belongs to old data.
+    if (fingerprint(proj) !== job.fp || proj.settings.weighted !== job.weightedSetting) return fitFailed("Die Daten wurden während der Berechnung geändert. Bitte erneut anpassen.");
+    const out = m.result;
+    change(() => addResult(proj, {
+      kind: "fit", model: "line", weighted: job.weighted, dof: out.dof, n: job.n,
+      ...(job.weighted ? { chi2: out.chi2 } : { ssr: out.ssr }),
+      params: job.names.map(([name, unit], i) => ({ name, unit, value: out.p[i], uScaled: out.err_scaled[i], ...(job.weighted ? { uUnscaled: out.err_unscaled[i] } : {}) })),
+    }));
+  };
+}
+$("fit").onclick = () => {
+  const x = col("x"), y = col("y"), e = col("yerr");
+  if (!x || !y) return fitFailed("Für die Anpassung braucht es eine x- und eine y-Spalte. Wähle die Rollen in der Tabelle.");
+  const weighted = proj.settings.weighted && !!e;
+  const idx = x.values.map((_, i) => i).filter(i => x.values[i] !== null && y.values[i] !== null);
+  if (idx.length < 3) return fitFailed("Es braucht mindestens drei Messpunkte mit x und y.");
+  const badRow = weighted ? idx.find(i => !(e.values[i] > 0)) : undefined;
+  if (badRow !== undefined) return fitFailed(`Alle Fehlerwerte müssen größer als 0 sein (Zeile ${badRow + 1}).`);
+  const unit = c => (c.name.split("/")[1] || "").trim(), ux = unit(x), uy = unit(y);
+  const per = ux ? (uy ? uy + "/" + ux : "1/" + ux) : uy;
+  pending = { fp: fingerprint(proj), weighted, weightedSetting: proj.settings.weighted, n: idx.length, names: [["a", per], ["b", uy]] };
+  $("fit").disabled = true; $("fitmsg").hidden = true;
+  worker.postMessage({ model: "line", x: idx.map(i => x.values[i]), y: idx.map(i => y.values[i]), sy: weighted ? idx.map(i => e.values[i]) : null });
+};
+$("weighted").onchange = e => setSetting("weighted", e.target.checked);
+$("errm").onchange = e => setSetting("errMethod", e.target.value);
+
 restoreAutosave();
 </script>
 </body>

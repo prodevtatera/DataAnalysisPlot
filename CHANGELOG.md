@@ -2,6 +2,12 @@
 
 Written in plain language for people who do not read code. Newest entry on top.
 
+## 2026-10-14: Straight-line fit in the app, with column roles
+
+- **What a student can now do:** choose in the table header which column is x, y or the y error, then press "Anpassen" to fit a straight line. The result reads (value ± u) unit, for example a = (2,01 ± 0,06) V/s. A weighted fit shows the errors both scaled with √(χ²/DoF) and unscaled, plus χ²/DoF, and says which method is shown. The student can switch weighting and error method. The fitted line appears in the plot. After any change to the data the result is marked out of date and the line disappears; undo brings them back.
+- **Tested:** `tests/phase1-step5-fit.sh` opens the real page and compares weighted and unweighted results with hand-typed textbook formulas. All passed. Clear messages for an error value of 0, missing x or y column and fewer than three points.
+- **Not covered yet:** no derived quantity such as the spring constant (next step), no Michaelis-Menten in the new app page, and no comparison with R yet.
+
 ## 2026-10-14: Autosave
 
 - **What a student can now do:** close the tab or reload the page and find the work as it was, with the note "Wiederhergestellt". Data, column roles and fit results come back, and a result that was out of date stays marked as out of date. If the browser cannot store anything (private window, full disk), a warning says so and asks to use "Projekt speichern".

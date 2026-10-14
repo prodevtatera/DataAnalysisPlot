@@ -24,7 +24,8 @@ function addResult(p, result) {
   p.results.push({ ...result, settings: { ...p.settings }, computedFrom: fingerprint(p) });
 }
 
-const isStale = (p, r) => r.computedFrom !== fingerprint(p);
+// Stale when the data changed or when weighting was switched after the fit.
+const isStale = (p, r) => r.computedFrom !== fingerprint(p) || (r.settings || {}).weighted !== p.settings.weighted;
 
 const save = p => JSON.stringify(p, null, 1);
 
