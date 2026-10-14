@@ -8,6 +8,8 @@ A free, browser-based data analysis and plotting app for university students. It
 
 Status on 2026-10-14: the app exists in `app/` (the one-day test build in `testbuild/` is finished). Roadmap phases 0 to 4 are done as far as they can be alone, and `bash scripts/check.sh` passes. What is left needs people: instructor demos (the Phase 3 gate), real data from Luis's daughter, a timed student run and the R cross-check. See `docs/phase3-report.md`, `docs/phase4-report.md` and `docs/progress.md`. The home page is `app/index.html`, the workbench `app/app.html`; local server entry `app` on port 4175.
 
+Live at https://plot.productledlab.dev (Vercel project `data-analysis-plot`, Cloudflare CNAME, DNS only). Redeploy: `bash app/setup.sh && cd app && vercel deploy --prod --yes`. `setup.sh` is needed first because the 31 MB Pyodide bundle is not in git.
+
 ## Who it is for
 
 - The first users are Biology Bachelor students in years 1 and 2 at Humboldt-Universität zu Berlin (HU Berlin).
@@ -65,7 +67,7 @@ Done as far as it can be alone: the HU material research, the one-day test build
 1. Get real HU biology and Physics 2 material from Luis's daughter. The checklist lists exactly what to ask for, including BioB 6 statistics sheets and the BioB 8, 11, 13 and 15–18 lab instructions. Also ask which software she uses (QtiPlot, Excel, R?) and what annoys her most. Add her assignments to the checklist, and run one of her real datasets through the app.
 2. Show the app to 3–5 lab instructors (script and questions are under "For Luis" in `docs/progress.md`). This is the Phase 3 gate; it cannot pass without them.
 3. Time one real student on one experiment, in the app and in her usual tool. Install R (`brew install r`) for the R cross-check.
-4. Decide hosting (long cache headers, compression). Then write the launch specification, using the checklist and the instructors' answers as acceptance tests.
+4. Hosting is decided: Vercel at plot.productledlab.dev. Still open: long cache headers for the big files (see `tests/step5-load.sh` output). Then write the launch specification, using the checklist and the instructors' answers as acceptance tests.
 
 ## Documents
 

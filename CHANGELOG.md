@@ -2,6 +2,12 @@
 
 Written in plain language for people who do not read code. Newest entry on top.
 
+## 2026-10-14: The app has its own web address
+
+- **What changed for a student:** the app is now online at https://plot.productledlab.dev. Anyone can open it in a browser, no signup and no install. The home page, the finished example and the workbench open from there; the data still stays on your own computer.
+- **Tested:** the address answers over a secure connection, the home page and the workbench load without errors in a real browser, and the finished example opens with its table and plot. The numerical checks (`bash scripts/check.sh`, 46 checks) all pass.
+- **Not covered yet:** a fit was not run on the live address by hand, and the load time on the real server was not measured (the 35 MB first download is the same as in the local test).
+
 ## 2026-10-14: The calmer page is finished and checked from start to end
 
 - **What changed for a student:** nothing new on screen; this is the final check of the new home page and the calmer workbench. A first visit of the workbench now shows 4 sections and 12 buttons (it was 16 and 55), the page is 2178 px high with the finished example (it was 6441 px), and the whole plot and the result E = (201 ± 8) GPa fit into a 1200 x 800 window.
