@@ -2,6 +2,13 @@
 
 Written in plain language for people who do not read code. Newest entry on top.
 
+## 2026-10-14: Uncertainties for formula columns (P2, P5, P6)
+
+- **What a student can now do:** in "Formelspalte" fill the new field "Unsicherheiten", for example `R1 = sR1; R2 = sR2; R3 = sR3` for the Wheatstone bridge Rx = R1·R2/R3. Next to Rx the app adds a column "u(Rx)" with the Gaussian error propagation. Each input gets a column, a number or an expression such as 0,01*D as its uncertainty; inputs you leave out count as exact. The new column updates when data changes, is saved with the project, and can be set as "Fehler von y" so the plot shows the error bars.
+- **Messages:** an unknown column, a missing "=", an input that is not in the formula, an input named twice, a negative uncertainty or a division by zero gives a plain German message. Nothing is added when the input is wrong.
+- **Limits:** the inputs must be independent of each other (stated on the page). The formula is still never run as code.
+- **Tested:** `tests/phase2-step2-propagate.sh` against partial derivatives worked out by hand, for example Rx = 50 with u = 0,4330 and Rx = 180 with u = 1,5131 for the Wheatstone rows, product, quotient, square root, logarithm, power, sum, a squared input (x·x), and in the real page with undo, save, reopen and a hand-edited project file.
+
 ## 2026-10-14: Formula columns (Physics 2 experiments P2, P5, P6)
 
 - **What a student can now do:** add a new column that is calculated from other columns, for example r² = (D/2)^2 for Newton's rings or d·c for polarimetry. Type a name and a formula under "Formelspalte" and press "Spalte berechnen". Decimal commas, brackets, + − * / ^ and the functions sqrt, ln, log10, exp, abs, sin, cos, tan and pi work. The column updates by itself when a number is changed, can be used as the x or y column of the plot, is saved with the project, and can be removed again.

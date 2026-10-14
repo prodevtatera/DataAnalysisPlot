@@ -37,7 +37,8 @@ function open(text) {
   if (!p || p.format !== "datenplot-projekt") return { error: "Die Datei ist kein Projekt dieser Anwendung." };
   if (p.version !== 1) return { error: `Projektversion ${p.version} wird nicht unterstützt.` };
   const ok = Array.isArray(p.columns) && p.columns.length && Array.isArray(p.results) && p.settings &&
-    p.columns.every(c => typeof c.name === "string" && (c.formula === undefined || typeof c.formula === "string") && ROLES.includes(c.role) && Array.isArray(c.values) &&
+    p.columns.every(c => typeof c.name === "string" && (c.formula === undefined || typeof c.formula === "string") &&
+      (c.uncert === undefined || (c.uncert !== null && typeof c.uncert.formula === "string" && typeof c.uncert.map === "string")) && ROLES.includes(c.role) && Array.isArray(c.values) &&
       c.values.length === p.columns[0].values.length && c.values.every(v => v === null || Number.isFinite(v)));
   return ok ? { project: p } : { error: "Das Projekt ist beschädigt: Spalten oder Werte fehlen oder sind keine Zahlen." };
 }

@@ -11,8 +11,11 @@ FORMULA_FUNCTIONS.wurzel = FORMULA_FUNCTIONS.sqrt;
 const FORMULA_CONSTANTS = { pi: Math.PI };
 const FORMULA_MAX_LENGTH = 300;
 const shortName = n => n.split(" / ")[0].trim();
+// Other files (propagate.js) register how to recalculate special columns here: FORMULA_HOOKS.uncert(column, columns, index, rows).
+const FORMULA_HOOKS = {};
 
-// Returns {fn, refs} (fn(valuesOfRow) -> number, refs = column indexes it reads) or {error} (German message).
+// Returns {fn, refs, lookup} (fn(valuesOfRow) -> number, refs = column indexes it reads, lookup(name) -> column index,
+// undefined if unknown, -1 if ambiguous) or {error} (German message).
 // ponytail: names are looked up among columns 0..upto-1 only.
 function parseFormula(text, columns, upto = columns.length) {
   const src = String(text).replace(/[·×]/g, "*").replace(/−/g, "-").replace(/÷/g, "/");
@@ -100,7 +103,7 @@ function parseFormula(text, columns, upto = columns.length) {
   try {
     const fn = expr();
     if (peek().t !== "end") fail(`Unerwartet: ${show(peek())}. Fehlt ein Operator (+ − * / ^)?`);
-    return { fn, refs: [...refs] };
+    return { fn, refs: [...refs], lookup };
   } catch (e) {
     if (e && typeof e.parse === "string") return { error: e.parse };
     throw e;
@@ -112,6 +115,7 @@ function parseFormula(text, columns, upto = columns.length) {
 function recalcFormulas(p) {
   const msgs = [], n = p.columns[0].values.length;
   p.columns.forEach((c, j) => {
+    if (c.uncert && FORMULA_HOOKS.uncert) { msgs.push(...FORMULA_HOOKS.uncert(c, p.columns, j, n)); return; }
     if (typeof c.formula !== "string") return;
     const r = parseFormula(c.formula, p.columns, j);
     if (r.error) { c.values = Array(n).fill(null); msgs.push(`Spalte „${c.name}“: ${r.error}`); return; }
@@ -133,4 +137,4 @@ function recalcFormulas(p) {
   return msgs;
 }
 
-if (typeof module !== "undefined") module.exports = { parseFormula, recalcFormulas };
+if (typeof module !== "undefined") module.exports = { parseFormula, recalcFormulas, shortName, FORMULA_HOOKS };

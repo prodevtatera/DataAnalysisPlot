@@ -91,8 +91,10 @@
   <div class="fitbar">
     <label>Name <input class="txt" id="f_name" aria-label="Name der neuen Spalte" placeholder="r² / mm²" autocomplete="off"></label>
     <label>Formel <input class="txt" id="f_expr" aria-label="Formel der neuen Spalte" placeholder="(D/2)^2" autocomplete="off" spellcheck="false"></label>
+    <label>Unsicherheiten (optional) <input class="txt" id="f_unc" aria-label="Unsicherheiten der Eingangsgrößen" placeholder="D = sD; c = 0,01" autocomplete="off" spellcheck="false"></label>
     <button class="btn" id="f_add" disabled>Spalte berechnen</button>
   </div>
+  <p class="hint">Mit Unsicherheiten entsteht zusätzlich die Spalte „u(Name)“ mit der Gaußschen Fehlerfortpflanzung u(f)² = Σ (∂f/∂xᵢ)²·u(xᵢ)². Pro Eingangsgröße steht links vom „=“ die Spalte und rechts ihre Unsicherheit (eine Spalte, eine Zahl oder ein Ausdruck wie 0,01*D), getrennt durch „;“. Eingangsgrößen ohne Angabe gelten als genau. Die Eingangsgrößen müssen voneinander unabhängig sein.</p>
   <div id="fmsg" class="msg" role="alert" hidden></div>
   <h2>Diagramm</h2>
   <div id="plot"><div class="empty">Noch keine Daten.</div></div>
@@ -123,6 +125,7 @@
 <script src="../testbuild/parse.js"></script>
 <script src="project.js"></script>
 <script src="formula.js"></script>
+<script src="propagate.js"></script>
 <script src="derive.js"></script>
 <script>
 const $ = id => document.getElementById(id);
@@ -189,14 +192,15 @@ function setProject(p) {
 }
 function showMsg(t) { $("msg").textContent = t; $("msg").hidden = false; }
 
+const isCalc = c => c.formula !== undefined || c.uncert !== undefined;
 const fmtCalc = new Intl.NumberFormat("de-DE", { maximumSignificantDigits: 8 });
 const calcText = (c, i) => c.values[i] === null ? "" : fmtCalc.format(c.values[i]);
 function renderTable() {
   const roleSel = (c, j) => `<select class="role" data-role="${j}" aria-label="Rolle von ${esc(c.name)}">` +
     Object.entries(ROLE_LABELS).map(([r, t]) => `<option value="${r}"${c.role === r ? " selected" : ""}>${t}</option>`).join("") + "</select>";
-  const head = "<tr><th></th>" + proj.columns.map((c, j) => `<th>${esc(c.name)}${c.formula !== undefined ? `<div class="fx">= ${esc(c.formula)}</div>` : ""}${roleSel(c, j)}${c.formula !== undefined ? `<button class="btn alt small" data-delcol="${j}" aria-label="Spalte ${esc(c.name)} entfernen">Spalte entfernen</button>` : ""}</th>`).join("") + "<th></th></tr>";
+  const head = "<tr><th></th>" + proj.columns.map((c, j) => `<th>${esc(c.name)}${c.formula !== undefined ? `<div class="fx">= ${esc(c.formula)}</div>` : ""}${c.uncert ? `<div class="fx">Gauß-Fortpflanzung von ${esc(c.uncert.formula)}: ${esc(c.uncert.map)}</div>` : ""}${roleSel(c, j)}${isCalc(c) ? `<button class="btn alt small" data-delcol="${j}" aria-label="Spalte ${esc(c.name)} entfernen">Spalte entfernen</button>` : ""}</th>`).join("") + "<th></th></tr>";
   const body = Array.from({ length: nrows() }, (_, i) => `<tr><td class="n">${i + 1}</td>` +
-    proj.columns.map((c, j) => c.formula !== undefined ? `<td class="calc" data-calc="${j}">${calcText(c, i)}</td>` : `<td><input data-r="${i}" data-c="${j}" aria-label="${esc(c.name)}, Zeile ${i + 1}" value="${c.values[i] === null ? "" : fmt.format(c.values[i])}" inputmode="decimal"></td>`).join("") +
+    proj.columns.map((c, j) => isCalc(c) ? `<td class="calc" data-calc="${j}">${calcText(c, i)}</td>` : `<td><input data-r="${i}" data-c="${j}" aria-label="${esc(c.name)}, Zeile ${i + 1}" value="${c.values[i] === null ? "" : fmt.format(c.values[i])}" inputmode="decimal"></td>`).join("") +
     `<td><button class="btn alt small" data-del="${i}" aria-label="Zeile ${i + 1} löschen">✕</button></td></tr>`).join("");
   $("table").innerHTML = `<table><thead>${head}</thead><tbody>${body}</tbody></table>`;
 }
@@ -313,8 +317,17 @@ $("f_add").onclick = () => {
   if (proj.columns.some(c => c.name === name)) return fail(`Es gibt schon eine Spalte „${name}“. Bitte einen anderen Namen wählen.`);
   const r = parseFormula(expr, proj.columns);
   if (r.error) return fail(r.error);
-  change(() => proj.columns.push({ name, role: "unused", values: [], formula: expr.trim() }));
-  $("f_name").value = $("f_expr").value = "";
+  const unc = $("f_unc").value.trim(), [short, ...unit] = name.split(" / "), uname = `u(${short.trim()})` + (unit.length ? " / " + unit.join(" / ") : "");
+  if (unc) {
+    if (proj.columns.some(c => c.name === uname)) return fail(`Es gibt schon eine Spalte „${uname}“. Bitte einen anderen Namen wählen.`);
+    const u = parseUncertainty(expr.trim(), unc, proj.columns, proj.columns.length);
+    if (u.error) return fail(u.error);
+  }
+  change(() => {
+    proj.columns.push({ name, role: "unused", values: [], formula: expr.trim() });
+    if (unc) proj.columns.push({ name: uname, role: "unused", values: [], uncert: { formula: expr.trim(), map: unc } });
+  });
+  $("f_name").value = $("f_expr").value = $("f_unc").value = "";
 };
 $("pastego").onclick = () => {
   const r = parseTable($("paste").value);
