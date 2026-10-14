@@ -1,24 +1,16 @@
 // Step 6: export the figure as PNG and SVG and check the files themselves.
 import { createRequire } from "node:module";
-import { createServer } from "node:http";
+import { serve } from "./serve.mjs";
 import { readFile, writeFile } from "node:fs/promises";
 import { resolve, extname } from "node:path";
 const { chromium } = createRequire(resolve("testbuild/x.js"))("playwright-core");
 let bad = 0;
 const eq = (name, got, want) => { got = JSON.stringify(got); want = JSON.stringify(want); if (got !== want) { console.log(`FAIL ${name}: got ${got}, want ${want}`); bad++; } };
-const types = { ".html": "text/html", ".js": "text/javascript", ".mjs": "text/javascript", ".wasm": "application/wasm", ".json": "application/json" };
-const root = resolve("testbuild");
-const safe = u => { const f = resolve(root, "." + u); if (!f.startsWith(root + "/")) throw new Error("outside"); return f; };
-const srv = createServer(async (req, res) => {
-  try { let p = decodeURIComponent(req.url.split("?")[0]); if (p === "/") p = "/index.html";
-    res.writeHead(200, { "content-type": types[extname(p)] || "application/octet-stream" }); res.end(await readFile(safe(p))); }
-  catch { res.writeHead(404); res.end(); }
-}).listen(0, "127.0.0.1");
-await new Promise(r => srv.once("listening", r));
+const { base, close: closeSrv } = await serve(["app/", "testbuild/"]);
 const br = await chromium.launch();
 const ctx = await br.newContext({ acceptDownloads: true, viewport: { width: 1200, height: 1100 } });
 const p = await ctx.newPage();
-await p.goto(`http://127.0.0.1:${srv.address().port}/`);
+await p.goto(base + "testbuild/index.html");
 eq("export buttons off without data", await p.$$eval("#png:disabled, #svg:disabled", e => e.length), 2);
 await p.waitForFunction(() => !document.getElementById("fit").disabled, null, { timeout: 120000 });
 await p.click("#example"); await p.click("#fit"); await p.waitForSelector("#fitres .res");
@@ -36,6 +28,6 @@ eq("SVG has error bars and fit line as paths", (svg.match(/<path\b/g) || []).len
 // Look at the SVG the way a report would: open the saved file alone in the browser.
 const q = await ctx.newPage(); await q.setViewportSize({ width: 1200, height: 700 });
 await q.goto("file://" + resolve("evidence/step6-export.svg")); await q.screenshot({ path: "evidence/step6-export-svg-view.png" });
-await br.close(); srv.close();
+await br.close(); closeSrv();
 if (bad) process.exit(1);
 console.log(`step 6: PNG ${png.length} bytes (2400x1400), SVG ${svg.length} bytes with real text`);

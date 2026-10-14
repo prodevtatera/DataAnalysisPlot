@@ -11,6 +11,9 @@ if [ ! -e "${tests[0]}" ]; then
   echo "no tests yet, nothing built"; exit 0
 fi
 
+# Pyodide is not committed (about 31 MB); this downloads it once so a fresh checkout works.
+bash app/setup.sh || { echo "FAIL: app/setup.sh could not get Pyodide"; exit 1; }
+
 failed=0
 for t in "${tests[@]}"; do
   if bash "$t"; then echo "PASS $t"; else echo "FAIL $t"; failed=1; fi

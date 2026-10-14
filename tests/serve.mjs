@@ -1,11 +1,12 @@
-// Tiny static server for browser tests: serves only app/ and testbuild/ of this repo on 127.0.0.1 (a module worker cannot start from file://).
+// Tiny static server for browser tests: serves only app/ (or the folders given) of this repo on 127.0.0.1 (a module worker cannot start from file://).
 import { createServer } from "node:http";
 import { readFile } from "node:fs/promises";
 import { resolve, extname } from "node:path";
 const types = { ".html": "text/html", ".js": "text/javascript", ".mjs": "text/javascript", ".wasm": "application/wasm", ".json": "application/json", ".woff2": "font/woff2", ".css": "text/css" };
 const root = resolve(".");
-const allowed = ["app/", "testbuild/"].map(d => resolve(d) + "/");
-export async function serve() {
+// Default: app/ only, so every app test fails if app/ still reads a file from testbuild/. Phase 0 tests also pass "testbuild/".
+export async function serve(dirs = ["app/"]) {
+  const allowed = dirs.map(d => resolve(d) + "/");
   const srv = createServer(async (req, res) => {
     try {
       const f = resolve(root, "." + decodeURIComponent(req.url.split("?")[0]));

@@ -5,10 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>PlotLab – Testaufbau</title>
 <style>
-  @font-face { font-family:"Barlow"; font-weight:400; src:url(fonts/barlow-latin-400-normal.woff2) format("woff2"); }
-  @font-face { font-family:"Barlow"; font-weight:700; src:url(fonts/barlow-latin-700-normal.woff2) format("woff2"); }
-  @font-face { font-family:"Source Sans 3"; font-weight:400; src:url(fonts/source-sans-3-latin-400-normal.woff2) format("woff2"); }
-  @font-face { font-family:"Source Sans 3"; font-weight:600; src:url(fonts/source-sans-3-latin-600-normal.woff2) format("woff2"); }
+  @font-face { font-family:"Barlow"; font-weight:400; src:url(../app/fonts/barlow-latin-400-normal.woff2) format("woff2"); }
+  @font-face { font-family:"Barlow"; font-weight:700; src:url(../app/fonts/barlow-latin-700-normal.woff2) format("woff2"); }
+  @font-face { font-family:"Source Sans 3"; font-weight:400; src:url(../app/fonts/source-sans-3-latin-400-normal.woff2) format("woff2"); }
+  @font-face { font-family:"Source Sans 3"; font-weight:600; src:url(../app/fonts/source-sans-3-latin-600-normal.woff2) format("woff2"); }
   :root { --blue:#00376C; --paper:#FAFAF5; --line:#d9d9d0; --soft:#eeeee6; }
   * { box-sizing:border-box; }
   body { margin:0; min-height:100vh; display:flex; flex-direction:column; background:var(--paper); color:#000; font:17px/27px "Source Sans 3", system-ui, sans-serif; }
@@ -79,9 +79,9 @@
   <div id="fitres"><div class="empty">Noch keine Anpassung.</div></div>
 </main>
 <footer>Independent student tool. Not affiliated with Humboldt-Universität zu Berlin.</footer>
-<script src="vendor/plotly.min.js"></script>
-<script src="parse.js"></script>
-<script src="round.js"></script>
+<script src="../app/vendor/plotly.min.js"></script>
+<script src="../app/parse.js"></script>
+<script src="../app/round.js"></script>
 <script>
 const $ = id => document.getElementById(id);
 const EXAMPLE = "t / s;U / V;sU / V\n1,0;2,1;0,2\n2,0;4,3;0,2\n3,0;6,2;0,3\n4,0;8,4;0,3\n5,0;9,9;0,4";
@@ -137,7 +137,7 @@ $("svg").onclick = () => exportPlot("svg");
 const MODELS = { line: (x, [a, b]) => a * x + b, mm: (x, [v, k]) => v * x / (k + x) };
 // A module worker cannot start from a file:// page; the table and plot still work then, only the fit is off.
 let worker = null;
-try { worker = new Worker("fit-worker.js", { type: "module" }); } catch { $("fitstate").textContent = "Die Anpassung braucht die Seite von einem Webserver (nicht als Datei geöffnet)."; }
+try { worker = new Worker("../app/fit-worker.js", { type: "module" }); } catch { $("fitstate").textContent = "Die Anpassung braucht die Seite von einem Webserver (nicht als Datei geöffnet)."; }
 let fitOut = null;
 if (worker) worker.onmessage = ev => {
   const m = ev.data;

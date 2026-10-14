@@ -2,6 +2,12 @@
 
 Written in plain language for people who do not read code. Newest entry on top.
 
+## 2026-10-14: The app no longer borrows files from the test build
+
+- **What changed:** nothing a student sees. The app folder now holds everything it needs: the fit program, the plot library, the fonts and the number helpers.
+- **Good to know for Luis:** the big Python package (about 31 MB, not stored in git) is now fetched with `bash app/setup.sh` (before: `testbuild/setup.sh`). `bash scripts/check.sh` runs it by itself, so a fresh copy of the project works.
+- **Tested:** `tests/phase2-step14b-move.sh`: the page, the fit and the fonts work when only the app folder is served.
+
 ## 2026-10-14: Save every plot as PNG or SVG
 
 - **What a student can now do:** under each plot there are two buttons, "Diagramm als PNG speichern" and "Diagramm als SVG speichern". This works for the main plot (also with the logarithmic y axis and its error bars), the histogram, the cumulative plot with the 16 % and 84 % read-off, and the χ² plot. The PNG is 2400 x 1400 pixels, sharp enough for a report. The SVG is a vector drawing: text stays text and can be edited in other programs.

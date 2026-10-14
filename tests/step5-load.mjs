@@ -8,16 +8,17 @@ import { gzipSync } from "node:zlib";
 import os from "node:os";
 const { chromium } = createRequire(resolve("testbuild/x.js"))("playwright-core");
 const types = { ".html": "text/html", ".js": "text/javascript", ".mjs": "text/javascript", ".wasm": "application/wasm", ".json": "application/json", ".woff2": "font/woff2", ".css": "text/css", ".zip": "application/zip", ".whl": "application/octet-stream" };
-const root = resolve("testbuild");
-const safe = u => { const f = resolve(root, "." + u); if (!f.startsWith(root + "/")) throw new Error("outside"); return f; };
+// Serves app/ and testbuild/ only; ".." in a path is refused.
+const root = resolve("."), allowed = ["app/", "testbuild/"].map(d => resolve(d) + "/");
+const safe = u => { const f = resolve(root, "." + u); if (!allowed.some(d => f.startsWith(d))) throw new Error("outside"); return f; };
 let served = 0; // bytes the server sent: the true download, including files the Python worker fetches
 const srv = createServer(async (req, res) => {
-  try { let p = decodeURIComponent(req.url.split("?")[0]); if (p === "/") p = "/index.html";
+  try { let p = decodeURIComponent(req.url.split("?")[0]);
     res.writeHead(200, { "content-type": types[extname(p)] || "application/octet-stream", "cache-control": "public, max-age=3600" }); const f = await readFile(safe(p)); served += f.length; res.end(f); }
   catch { res.writeHead(404); res.end(); }
 }).listen(0, "127.0.0.1");
 await new Promise(r => srv.once("listening", r));
-const url = `http://127.0.0.1:${srv.address().port}/`;
+const url = `http://127.0.0.1:${srv.address().port}/testbuild/index.html`;
 // A persistent profile gives a real on-disk cache, like a student's browser; a throw-away context only has a small memory cache.
 import { mkdtempSync, rmSync } from "node:fs";
 const profile = mkdtempSync(os.tmpdir() + "/plotlab-");

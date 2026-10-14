@@ -1,1 +1,1 @@
-cd "$(dirname "$0")/.." && { [ -d testbuild/node_modules ] || (cd testbuild && npm ci); } && bash testbuild/setup.sh && node tests/step4-nist.mjs
+cd "$(dirname "$0")/.." && { [ -d testbuild/node_modules ] || (cd testbuild && npm ci); } && bash app/setup.sh && node tests/step4-nist.mjs

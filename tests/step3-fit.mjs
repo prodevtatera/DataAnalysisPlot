@@ -1,7 +1,7 @@
 // Step 3: drives the real page; SciPy runs in a Web Worker (needs http, not file://).
 // Expected values come from textbook closed-form formulas typed here, never from SciPy.
 import { createRequire } from "node:module";
-import { createServer } from "node:http";
+import { serve } from "./serve.mjs";
 import { readFile } from "node:fs/promises";
 import { resolve, extname } from "node:path";
 const { chromium } = createRequire(resolve("testbuild/x.js"))("playwright-core");
@@ -25,26 +25,14 @@ const a = (Sw * Sxy - Sx * Sy) / D, b = (Sxx * Sy - Sx * Sxy) / D;
 const ua = Math.sqrt(Sw / D), ub = Math.sqrt(Sxx / D);
 const chi2 = S(w.map((v, i) => v * (y[i] - a * x[i] - b) ** 2)), k = Math.sqrt(chi2 / 3);
 
-// Server: tiny static file server for testbuild/
-const types = { ".html": "text/html", ".js": "text/javascript", ".mjs": "text/javascript", ".wasm": "application/wasm", ".json": "application/json", ".woff2": "font/woff2", ".css": "text/css" };
-// Only files inside testbuild/ are served; ".." in a path is refused.
-const root = resolve("testbuild");
-const safe = u => { const f = resolve(root, "." + u); if (!f.startsWith(root + "/")) throw new Error("outside"); return f; };
-const srv = createServer(async (req, res) => {
-  try {
-    let path = decodeURIComponent(req.url.split("?")[0]);
-    if (path === "/") path = "/index.html";
-    const f = await readFile(safe(path));
-    res.writeHead(200, { "content-type": types[extname(path)] || "application/octet-stream" }); res.end(f);
-  } catch { res.writeHead(404); res.end(); }
-}).listen(0, "127.0.0.1");
-await new Promise(r => srv.once("listening", r));
-const base = `http://localhost:${srv.address().port}/`;
+// Server: tests/serve.mjs, serving app/ and testbuild/ (the Phase 0 page loads its worker, fonts and Plotly from app/).
+const { base: root, close: closeSrv } = await serve(["app/", "testbuild/"]);
+const base = root + "testbuild/index.html";
 
 const br = await chromium.launch();
 const p = await br.newPage({ viewport: { width: 1200, height: 1100 } });
 const external = [];
-p.on("request", r => { if (!r.url().startsWith(base) && !r.url().startsWith("blob:") && !r.url().startsWith("data:")) external.push(r.url()); });
+p.on("request", r => { if (!r.url().startsWith(root) && !r.url().startsWith("blob:") && !r.url().startsWith("data:")) external.push(r.url()); });
 await p.goto(base);
 await p.click("#example");
 await p.waitForFunction(() => !document.getElementById("fit").disabled, null, { timeout: 120000 });
@@ -106,6 +94,6 @@ eq("flat MM data gives a clear message", (flat.includes("Sättigungskurve") || f
 eq("no raw Python traceback", /Traceback|File "/.test(flat), false);
 await p.screenshot({ path: "evidence/step3-fit-error.png", fullPage: true });
 eq("No external requests", external, []);
-await br.close(); srv.close();
+await br.close(); closeSrv();
 if (bad) process.exit(1);
 console.log("step 3: SciPy fits in the browser match closed-form values; method named; stale and bad input handled");

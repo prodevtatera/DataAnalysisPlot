@@ -1,7 +1,7 @@
 // Step 4: SciPy in the browser vs NIST StRD certified values (nonlinear regression).
 // Certified values are read from the NIST files in tests/nist/, never from SciPy. Writes docs/nist-results.md.
 import { createRequire } from "node:module";
-import { createServer } from "node:http";
+import { serve } from "./serve.mjs";
 import { readFile, writeFile } from "node:fs/promises";
 import { resolve, extname } from "node:path";
 const { chromium } = createRequire(resolve("testbuild/x.js"))("playwright-core");
@@ -23,19 +23,11 @@ function parse(txt) {
 // log10 relative error, capped at 9: "correct significant digits", as NIST defines it
 const lre = (got, want) => got === want ? 9 : Math.min(9, -Math.log10(Math.abs(got - want) / Math.abs(want)));
 
-const types = { ".html": "text/html", ".js": "text/javascript", ".mjs": "text/javascript", ".wasm": "application/wasm", ".json": "application/json" };
-// Only files inside testbuild/ are served; ".." in a path is refused.
-const root = resolve("testbuild");
-const safe = u => { const f = resolve(root, "." + u); if (!f.startsWith(root + "/")) throw new Error("outside"); return f; };
-const srv = createServer(async (req, res) => {
-  try { let p = decodeURIComponent(req.url.split("?")[0]); if (p === "/") p = "/index.html";
-    res.writeHead(200, { "content-type": types[extname(p)] || "application/octet-stream" }); res.end(await readFile(safe(p))); }
-  catch { res.writeHead(404); res.end(); }
-}).listen(0, "127.0.0.1");
-await new Promise(r => srv.once("listening", r));
+// Server: tests/serve.mjs, app/ and testbuild/ (the page loads its worker from app/).
+const { base, close: closeSrv } = await serve(["app/", "testbuild/"]);
 const br = await chromium.launch();
 const pg = await br.newPage();
-await pg.goto(`http://localhost:${srv.address().port}/`);
+await pg.goto(base + "testbuild/index.html");
 await pg.waitForFunction(() => !document.getElementById("fit").disabled, null, { timeout: 120000 });
 
 let bad = 0, md = "# NIST StRD check (nonlinear regression)\n\nSciPy `curve_fit` in the browser (Pyodide) against NIST certified values. Standard errors are the unweighted ones NIST certifies (`absolute_sigma=False`). \"Digits\" = correct significant digits (log10 of the relative error, capped at 9). Pass: values ≥ 6 digits, standard errors ≥ 4 digits, residual sum of squares ≥ 6 digits.\n\n";
@@ -46,7 +38,7 @@ for (const s of sets) {
   for (const start of [0, 1]) {
     const job = { expr: s.expr, names, p0: d.par.map(r => r[start]), x: d.x, y: d.y, sy: null };
     const out = await pg.evaluate(job => new Promise(res => {
-      const w = new Worker("fit-worker.js", { type: "module" });
+      const w = new Worker("../app/fit-worker.js", { type: "module" });
       w.onmessage = e => { if (e.data.ready) w.postMessage(job); else if (e.data.result || e.data.error) { res(e.data); w.terminate(); } };
     }), job);
     md += `Start ${start + 1} (${job.p0.join(", ")}): `;
@@ -70,6 +62,6 @@ for (const s of sets) {
   }
 }
 await writeFile("docs/nist-results.md", md);
-await br.close(); srv.close();
+await br.close(); closeSrv();
 if (bad) process.exit(1);
 console.log("step 4: SciPy in the browser matches NIST certified values");
