@@ -44,7 +44,7 @@ Residual sum of squares: certified 0.056419295283, SciPy 0.05641929528264737, di
 
 ## BoxBOD (hoch): b1*(1-np.exp(-b2*x))
 
-Start 1 (1, 1): no result, with a clear message (accepted: NIST start 1 is the hard start for this dataset; a wrong number would fail): "ValueError: Die Anpassung ist nicht konvergiert. Andere Startwerte oder ein anderes Modell versuchen."
+Start 1 (1, 1): no result, with a clear message (accepted: NIST start 1 is the hard start for this dataset; a wrong number would fail): "Die Anpassung ist nicht konvergiert. Andere Startwerte oder ein anderes Modell versuchen."
 
 Start 2 (100, 0.75): 
 

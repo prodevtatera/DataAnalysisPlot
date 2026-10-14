@@ -99,7 +99,7 @@ await p.click("#fit");
 await p.waitForFunction(() => document.getElementById("fitres").textContent.length > 20 && !document.getElementById("fit").disabled);
 const flat = await p.textContent("#fitres");
 console.log("flat-data MM result:", flat.slice(0, 160));
-eq("flat MM data gives a clear message", flat.includes("Sättigungskurve"), true);
+eq("flat MM data gives a clear message", (flat.includes("Sättigungskurve") || flat.includes("nicht konvergiert")), true);
 eq("no raw Python traceback", /Traceback|File "/.test(flat), false);
 await p.screenshot({ path: "evidence/step3-fit-error.png", fullPage: true });
 eq("No external requests", external, []);

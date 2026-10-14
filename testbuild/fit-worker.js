@@ -42,6 +42,6 @@ onmessage = async ev => {
     py.globals.set("job", JSON.stringify(ev.data));
     postMessage({ result: JSON.parse(await py.runPythonAsync("run(job)")) });
   } catch (e) {
-    postMessage({ error: String(e.message || e).split("\n").filter(Boolean).pop() });
+    postMessage({ error: String(e.message || e).split("\n").filter(Boolean).pop().replace(/^\w*Error: /, "") });
   }
 };
