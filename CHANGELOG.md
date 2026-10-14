@@ -2,6 +2,13 @@
 
 Written in plain language for people who do not read code. Newest entry on top.
 
+## 2026-10-14: Paste your own numbers from Excel into the table
+
+- **What a student can now do:** copy several cells from Excel or a CSV file and paste them (Strg/Cmd+V) into any number cell of the table. The numbers fill the table from that cell downwards and to the right, new rows are added if needed, and formula columns are skipped and recalculated. A template keeps its box, its column roles and its settings, so you load P2, paste your own readings and press the steps. Results that used the old numbers show as out of date. Undo brings the old numbers back in one step.
+- **Good to know:** columns in the pasted block are separated by tab (Excel) or semicolon, decimal comma or point both work. Pasting one single value works as before.
+- **Clear messages instead of damage:** text in a number cell, more columns than the table has from that cell, rows with different lengths, or more than 2000 rows give a German message and change nothing. A number like 1.000,5 is refused rather than read as two numbers.
+- **Tested:** `tests/phase3-step1-paste.sh` in a real browser with the P2 template and hand-calculated values.
+
 ## 2026-10-14: Ready-made projects for P6 to P9, and a unit bug fixed
 
 - **What a student can now do:** the "Vorlage laden" list has six more templates: P6 Wheatstone-Brücke, P6 Gitter, P7 Refraktometer, P8 Radioaktivität: Zählraten, P8 Radioaktivität: Zerfallskurve and P9 Pendel. Each one is a finished project with the table, the calculated columns, the roles and the settings, plus a list of steps to press. Wheatstone and grating compute Rx or the wavelength with uncertainty, take the weighted mean and compare it with the nominal or literature value. The refractometer fits the calibration line and reads three unknown concentrations (the third lies outside the standards and gets a warning). The counts template runs the chi-square test against Poisson and Gauss. The decay template is drawn on a semi-log axis with error bars. The pendulum gives g per row with mean, s and 95 % interval, and g from the slope of T² against l.

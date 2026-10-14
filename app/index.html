@@ -105,6 +105,7 @@
   <div id="storewarn" class="msg" role="alert" hidden>Automatisches Speichern ist in diesem Browser nicht möglich. Bitte speichere das Projekt mit „Projekt speichern“.</div>
   <div id="msg" class="msg" role="alert" hidden></div>
   <h2>Tabelle</h2>
+  <p class="hint">Mehrere Zellen aus Excel oder einer CSV-Datei kannst du mit Strg/Cmd+V in eine Zelle einfügen. Sie füllen die Tabelle ab dieser Zelle nach unten und rechts; Formelspalten werden übersprungen.</p>
   <div class="scroll" id="table"><div class="empty">Noch keine Daten. Lade das Beispiel oder öffne ein Projekt.</div></div>
   <div class="btns">
     <button class="btn alt" id="addrow" disabled>Zeile hinzufügen</button>
@@ -602,6 +603,19 @@ $("table").addEventListener("input", e => {
   recalc();
   $("table").querySelectorAll("td.calc").forEach(td => { td.textContent = calcText(proj.columns[+td.dataset.calc], +td.parentNode.rowIndex - 1); });
   renderPlot(); renderResults(); autosave();
+});
+// Several cells pasted from Excel or a CSV fill the typed columns from the clicked cell down and to the right (one undo step).
+// A single value pastes as usual. Formula columns, roles, settings and the template stay; results become out of date.
+$("table").addEventListener("paste", e => {
+  const el = e.target, text = e.clipboardData?.getData("text") ?? "";
+  if (el.tagName !== "INPUT" || !/[\n\t;]/.test(text)) return;
+  e.preventDefault();
+  const b = parseBlock(text);
+  if (b.error) return showMsg(b.error);
+  const cols = structuredClone(proj.columns), err = pasteInto(cols, +el.dataset.r, +el.dataset.c, b.rows);
+  if (err) return showMsg(err);
+  $("msg").hidden = true;
+  change(() => proj.columns.forEach((c, j) => { c.values = cols[j].values; }));
 });
 // Choosing a role: x, y and error each belong to one column, so taking a role frees it from its old column.
 $("table").addEventListener("change", e => {
