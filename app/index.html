@@ -71,6 +71,7 @@
   .res { font:700 20px "Barlow", system-ui, sans-serif; margin:2px 0; }
   .empty { padding:24px 14px; color:#444; }
   .hint { font-size:15px; color:#333; }
+  body.dropping main { outline:3px dashed var(--blue); outline-offset:-8px; }
   footer { background:var(--blue); color:var(--paper); padding:20px 24px; font-size:15px; }
   @media (max-width:768px) { h1 { font-size:28px; } header,footer { padding-left:12px; padding-right:12px; } main { padding:16px 12px 40px; } }
 </style>
@@ -81,7 +82,8 @@
   <h1>Messdaten</h1>
   <p class="hint">Klicke in eine Zelle und tippe. Dezimalkomma ist in Ordnung. Das Diagramm folgt sofort.</p>
   <div class="btns">
-    <button class="btn" id="example">Beispiel laden</button>
+    <button class="btn" id="blank">Leere Tabelle</button>
+    <button class="btn alt" id="example">Beispiel laden</button>
     <button class="btn alt" id="example2">Beispiel Elastizität laden</button>
     <button class="btn alt" id="example3">Beispiel Belastung und Entlastung laden</button>
     <button class="btn alt" id="example4">Beispiel Kalibriergerade laden</button>
@@ -90,6 +92,13 @@
     <button class="btn alt" id="undo" disabled title="Strg/Cmd+Z">Rückgängig</button>
     <button class="btn alt" id="redo" disabled title="Umschalt+Strg/Cmd+Z">Wiederholen</button>
   </div>
+  <div id="intro" class="msg note" role="status" hidden>Das ist ein fertiges Beispiel (P3 Elastizität, erfundene Daten), schon angepasst und ausgewertet. Ziehe deine eigene Datei auf diese Seite (CSV mit Semikolon oder Tab, Dezimalkomma ist in Ordnung, oder ein .plotlab-Projekt) oder beginne mit „Leere Tabelle“.<div id="introres"></div></div>
+  <h2>Diagramm</h2>
+  <div class="fitbar"><label id="loglabel"><input type="checkbox" id="logy" disabled> Logarithmische y-Achse (halblogarithmisch)</label><span class="hint">Es sind nur y-Werte größer als 0 möglich. Eine Anpassung y = a·x + b erscheint auf dieser Achse gekrümmt.</span></div>
+  <div id="plotmsg" class="msg note" role="status" hidden></div>
+  <div id="plot"><div class="empty">Noch keine Daten.</div></div>
+  <h2>Ergebnisse</h2>
+  <div id="results"><div class="empty">Noch keine Ergebnisse.</div></div>
   <h2>Vorlage laden</h2>
   <p class="hint">Eine fertige Vorlage pro Versuch mit erfundenen Beispieldaten, den passenden Spalten und Einstellungen. Du drückst die Schritte der Reihe nach und ersetzt dann die Zahlen durch deine Messung. Das ersetzt das aktuelle Projekt.</p>
   <div class="fitbar">
@@ -120,10 +129,6 @@
   </div>
   <p class="hint">Mit Unsicherheiten entsteht zusätzlich die Spalte „u(Name)“ mit der Gaußschen Fehlerfortpflanzung u(f)² = Σ (∂f/∂xᵢ)²·u(xᵢ)². Pro Eingangsgröße steht links vom „=“ die Spalte und rechts ihre Unsicherheit (eine Spalte, eine Zahl oder ein Ausdruck wie 0,01*D), getrennt durch „;“. Eingangsgrößen ohne Angabe gelten als genau. Die Eingangsgrößen müssen voneinander unabhängig sein.</p>
   <div id="fmsg" class="msg" role="alert" hidden></div>
-  <h2>Diagramm</h2>
-  <div class="fitbar"><label id="loglabel"><input type="checkbox" id="logy" disabled> Logarithmische y-Achse (halblogarithmisch)</label><span class="hint">Es sind nur y-Werte größer als 0 möglich. Eine Anpassung y = a·x + b erscheint auf dieser Achse gekrümmt.</span></div>
-  <div id="plotmsg" class="msg note" role="status" hidden></div>
-  <div id="plot"><div class="empty">Noch keine Daten.</div></div>
   <h2>Mittelwert und Streuung einer Spalte</h2>
   <p class="hint">Mittelwert x̄, Standardabweichung (Teiler n oder n−1) und Standardfehler s/√n der gewählten Spalte. Der Standardfehler nutzt immer s mit n−1, auch wenn du für die Standardabweichung n wählst. Mit einem Gerätefehler (Ablesefehler, in der Einheit der Spalte) wird zusätzlich u = √(u<sub>zufällig</sub>² + u<sub>Gerät</sub>²) angegeben. Mit einem Vertrauensniveau wird das Vertrauensintervall x̄ ± t·s/√n mit dem Faktor t der Student-Verteilung (n−1 Freiheitsgrade) angegeben; der Gerätefehler ist darin nicht enthalten.</p>
   <div class="fitbar" id="stats">
@@ -214,8 +219,6 @@
     <button class="btn" id="k_go">Vergleichen</button>
   </div>
   <div id="comparemsg" class="msg" role="alert" hidden></div>
-  <h2>Ergebnisse</h2>
-  <div id="results"><div class="empty">Noch keine Ergebnisse.</div></div>
 </main>
 <footer>Independent student tool. Not affiliated with Humboldt-Universität zu Berlin.</footer>
 <script src="vendor/plotly.min.js"></script>
@@ -226,6 +229,7 @@
 <script src="formula.js"></script>
 <script src="propagate.js"></script>
 <script src="derived.js"></script>
+<script src="drop.js"></script>
 <script src="stats.js"></script>
 <script src="gof.js"></script>
 <script src="gofview.js"></script>
@@ -288,17 +292,29 @@ function autosave() {
 }
 function restoreAutosave() {
   let t = null;
-  try { t = localStorage.getItem(KEY); } catch { return; }
-  if (t === null) return;
+  try { t = localStorage.getItem(KEY); } catch {}
+  if (t === null) return /[?&]start=leer\b/.test(location.search) ? undefined : startExample(); // ?start=leer opens with no table at all (used by the old tests that check the state before any data)
   const r = open(t);
-  if (r.error) { try { localStorage.removeItem(KEY); } catch {} showMsg("Der automatisch gespeicherte Stand war beschädigt und wurde verworfen."); return; }
+  if (r.error) { try { localStorage.removeItem(KEY); } catch {} startExample(); showMsg("Der automatisch gespeicherte Stand war beschädigt und wurde verworfen."); return; }
   setProject(r.project);
   $("note").textContent = "Wiederhergestellt: Dein letzter Stand wurde automatisch geladen.";
   $("note").hidden = false;
 }
 
+// First visit: a finished example (P3, invented data). Once Python is ready the page presses its fit, E and series buttons itself (auto = the buttons still to press).
+let auto = null;
+function autoNext() {
+  while (auto?.length && !$("fit").disabled) $(auto.shift()).click();
+  if (auto && !auto.length && !$("fit").disabled) { auto = null; undo = []; redo = []; updateHist(); } // the example starts with a clean undo history
+}
+function startExample() {
+  setProject(TEMPLATES.find(t => t.id === "p3").build());
+  $("intro").hidden = false;
+  auto = ["fit", "derive", "sr_go"];
+  if (worker?.ready) autoNext();
+}
 function setProject(p) {
-  proj = p; undo = []; redo = []; editKey = null; updateHist();
+  proj = p; undo = []; redo = []; editKey = null; updateHist(); auto = null; $("intro").hidden = true;
   $("msg").hidden = true;
   $("saveproj").disabled = $("addrow").disabled = $("f_add").disabled = $("s_go").disabled = $("w_go").disabled = $("h_go").disabled = $("sr_add").disabled = $("logy").disabled = false; if (worker?.ready && !pending) busy(false);
   render();
@@ -515,15 +531,19 @@ function renderCum() {
     shapes: lv.flatMap(q => [guide(x0, q.p, q.x, q.p), guide(q.x, q.p, q.x, 0)]),
     showlegend: true, legend: { x: 0.02, y: 0.98, bgcolor: "#fff", bordercolor: "#999", borderwidth: 1 } }, { displaylogo: false, responsive: true });
 }
+const resLine = q => {
+  const u = uOf(q), t = huRound(q.value, u);
+  return `<div class="res">${esc(q.name)} = ${q.text !== undefined ? esc(q.text) : t ? `(${t[0]} ± ${t[1]})` : q.plain ? fmtPlain.format(q.value) : fmt.format(q.value)}${q.unit ? " " + esc(q.unit) : ""}</div>`;
+};
 function renderResults() {
+  // The first-visit note repeats the headline result (E) so it is in the first view, above the long page.
+  const head = proj.results.find(r => r.kind === "derived" && !isStale(proj, r));
+  $("introres").innerHTML = head ? (head.params || []).map(resLine).join("") : "";
   renderHist(); renderCum(); renderGofPlot();
   if (!proj.results.length) { $("results").innerHTML = '<div class="empty">Noch keine Ergebnisse.</div>'; return; }
   $("results").innerHTML = proj.results.map(r => {
     const stale = isStale(proj, r);
-    const lines = (r.params || []).map(q => {
-      const u = uOf(q), t = huRound(q.value, u);
-      return `<div class="res">${esc(q.name)} = ${q.text !== undefined ? esc(q.text) : t ? `(${t[0]} ± ${t[1]})` : q.plain ? fmtPlain.format(q.value) : fmt.format(q.value)}${q.unit ? " " + esc(q.unit) : ""}</div>`;
-    }).join("");
+    const lines = (r.params || []).map(resLine).join("");
     return `<div class="result${stale ? " stale" : ""}">${stale ? `<div class="msg stalemsg">Die Daten wurden geändert. Dieses Ergebnis ist veraltet. Bitte neu ${["stats", "wmean", "hist", "gof", "derived", "calib", "compare"].includes(r.kind) ? "berechnen" : "anpassen"}.</div>` : ""}${lines}${r.kind === "fit" && r.dof ? fitDetail(r) : ""}${r.kind === "derived" ? derivedDetail(r) : ""}${r.kind === "stats" ? statsDetail(r) : ""}${r.kind === "wmean" ? wmeanDetail(r) : ""}${r.kind === "hist" ? histDetail(r) : ""}${r.kind === "gof" ? gofDetail(r) : ""}${r.kind === "series" ? seriesDetail(r) : ""}${r.kind === "calib" ? calibDetail(r) : ""}${r.kind === "compare" ? compareDetail(r) : ""}</div>`;
   }).join("");
 }
@@ -641,6 +661,7 @@ $("table").addEventListener("click", e => {
   change(() => proj.columns.forEach(c => c.values.splice(+i, 1)));
 });
 $("addrow").onclick = () => { change(() => proj.columns.forEach(c => c.values.push(null))); $("table").querySelector("tr:last-child input")?.focus(); };
+$("blank").onclick = () => setProject(newProject(["x", "y", "sy"], Array.from({ length: 8 }, () => [null, null, null])));
 $("example").onclick = () => setProject(newProject(...EXAMPLE));
 $("example3").onclick = () => {
   const p = newProject(...EXAMPLE3);
@@ -692,17 +713,33 @@ $("openfile").onchange = async e => {
   r.error ? showMsg(r.error) : setProject(r.project);
   e.target.value = "";
 };
+// A file dropped anywhere on the page: a project or a table of numbers (same readers as "Projekt öffnen" and "Daten einfügen").
+const dragFiles = e => e.dataTransfer?.types?.includes("Files");
+addEventListener("dragover", e => { if (dragFiles(e)) { e.preventDefault(); document.body.classList.add("dropping"); } });
+addEventListener("dragleave", e => { if (!e.relatedTarget) document.body.classList.remove("dropping"); });
+addEventListener("drop", async e => {
+  if (!dragFiles(e)) return;
+  e.preventDefault(); document.body.classList.remove("dropping");
+  const f = e.dataTransfer.files[0];
+  if (!f) return;
+  if (f.size > 5e6) return showMsg(`„${f.name}“ ist größer als 5 MB und zu groß für PlotLab.`);
+  const d = classifyDrop(f.name, f.type, await f.text());
+  if (d.error) return showMsg(d.error);
+  const r = d.kind === "project" ? open(d.text) : parseTable(d.text);
+  if (r.error) return showMsg(r.error);
+  setProject(d.kind === "project" ? r.project : newProject(r.header, r.rows));
+});
 // SciPy runs in a Web Worker. A module worker cannot start from a file:// page; table and plot still work then, only the fit is off.
 let worker = null, pending = null;
 const busy = b => { $("fit").disabled = $("sr_go").disabled = $("g_go").disabled = b; };
 try { worker = new Worker("fit-worker.js", { type: "module" }); }
 catch { $("fitstate").textContent = "Die Anpassung braucht die Seite von einem Webserver (nicht als Datei geöffnet)."; }
-function fitFailed(why) { busy(false); pending = null; $("fitmsg").textContent = "Die Anpassung ist fehlgeschlagen. " + why; $("fitmsg").hidden = false; }
+function fitFailed(why) { busy(false); pending = null; auto = null; $("fitmsg").textContent = "Die Anpassung ist fehlgeschlagen. " + why; $("fitmsg").hidden = false; }
 if (worker) {
   worker.onerror = () => { $("fitstate").textContent = "Das Rechenmodul konnte nicht geladen werden. Bitte die Seite neu laden."; };
   worker.onmessage = ev => {
     const m = ev.data;
-    if (m.ready) { worker.ready = true; busy(!proj); $("fitstate").textContent = "Bereit."; return; }
+    if (m.ready) { worker.ready = true; busy(!proj); $("fitstate").textContent = "Bereit."; autoNext(); return; }
     if (m.loadError) { $("fitstate").textContent = "Das Rechenmodul konnte nicht geladen werden. Bitte die Seite neu laden."; return; }
     if (pending.series) return seriesStep(pending, m);
     if (pending.gof) return gofStep(pending, m);
@@ -716,6 +753,7 @@ if (worker) {
       ...(job.weighted ? { chi2: out.chi2 } : { ssr: out.ssr }),
       params: job.names.map(([name, unit], i) => ({ name, unit, value: out.p[i], uScaled: out.err_scaled[i], ...(job.weighted ? { uUnscaled: out.err_unscaled[i] } : {}) })),
     }));
+    autoNext();
   };
 }
 $("fit").onclick = () => {
@@ -733,7 +771,7 @@ $("fit").onclick = () => {
   worker.postMessage({ model: "line", x: idx.map(i => x.values[i]), y: idx.map(i => y.values[i]), sy: weighted ? idx.map(i => e.values[i]) : null });
 };
 // Several series: settings (y, error, x range per series) live in the project; the fits run one after the other in the worker.
-function seriesFailed(why) { $("srmsg").textContent = why; $("srmsg").hidden = false; }
+function seriesFailed(why) { auto = null; $("srmsg").textContent = why; $("srmsg").hidden = false; }
 const setSeries = list => setSetting("series", list);
 $("sr_add").onclick = () => {
   const list = seriesSettings(proj), x = col("x");
@@ -779,6 +817,7 @@ function seriesStep(job, m) {
   });
   const params = fits.flatMap(f => ["a", "b"].map(n => ({ name: `${n} (${f.y.split(" / ")[0]})`, ...f[n] })));
   change(() => addResult(proj, { kind: "series", inputs: seriesSettings(proj), fits, params }));
+  autoNext();
 }
 $("sr_go").onclick = () => {
   if ($("sr_rows").querySelector(".bad")) return seriesFailed("Ein x-Bereich ist keine Zahl. Bitte eine Zahl eintragen oder das Feld leeren.");

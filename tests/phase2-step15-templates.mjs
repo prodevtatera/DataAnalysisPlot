@@ -30,7 +30,7 @@ const p = await (await b.newContext({ viewport: { width: 1200, height: 2600 } })
 const external = [], errors = [];
 p.on("request", r => { if (!r.url().startsWith(base) && !r.url().startsWith("data:") && !r.url().startsWith("blob:")) external.push(r.url()); });
 p.on("pageerror", e => errors.push(String(e)));
-await p.goto(base + "app/index.html");
+await p.goto(base + "app/index.html?start=leer");
 await p.waitForFunction(() => !document.getElementById("fit").disabled || document.getElementById("fitstate").textContent === "Bereit.", null, { timeout: 120000 });
 const lines = () => p.$$eval("#results .res", e => e.map(x => x.textContent));
 const ready = () => p.waitForFunction(() => !document.getElementById("fit").disabled, null, { timeout: 120000 });

@@ -22,7 +22,7 @@ const b = await chromium.launch();
 const p = await b.newPage({ viewport: { width: 1200, height: 1500 } });
 const external = [];
 p.on("request", r => { if (!r.url().startsWith("file:")) external.push(r.url()); });
-await p.goto(pathToFileURL(resolve("app/index.html")).href);
+await p.goto(pathToFileURL(resolve("app/index.html")).href + "?start=leer");
 const plotY = () => p.evaluate(() => document.getElementById("plot").data[0].y);
 const plotX = () => p.evaluate(() => document.getElementById("plot").data[0].x);
 const cell = (r, c) => `input[data-r="${r}"][data-c="${c}"]`;

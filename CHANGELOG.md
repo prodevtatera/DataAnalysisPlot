@@ -2,6 +2,15 @@
 
 Written in plain language for people who do not read code. Newest entry on top.
 
+## 2026-10-14: A finished example on the first visit, and drop a file on the page
+
+- **What a student can now do:** open the page for the first time and see a finished example at once: the P3 elasticity measurement (invented data), plotted with error bars, both lines fitted, and the result E = (201 ± 8) GPa shown at the top without a single click. The plot and the result sit directly under the buttons now, so they are in the first view. The plot appears after about 0,4 s and the fit result after about 3 s (Apple M5, Chrome engine, local server).
+- **Drop a file:** drag a CSV file (semicolon, tab or comma, decimal comma is fine) or a saved .plotlab project anywhere on the page. It becomes the table and the plot at once.
+- **"Leere Tabelle":** a new button starts with an empty table (x, y, error of y) for typing or pasting your own numbers.
+- **Returning visits:** your last state is restored as before; the example only appears when nothing was saved. If the saved state is damaged, the example opens and the page says so.
+- **Clear messages:** a picture, a PDF, an Excel file, a text without numbers or a broken project gives a German message and changes nothing. Excel files come with the advice to save as CSV or copy the cells.
+- **Tested:** `tests/phase3-step2-firstminute.sh` in a real browser; the fit on a dropped CSV gives the hand value a = 0,02529 mm/N.
+
 ## 2026-10-14: Paste your own numbers from Excel into the table
 
 - **What a student can now do:** copy several cells from Excel or a CSV file and paste them (Strg/Cmd+V) into any number cell of the table. The numbers fill the table from that cell downwards and to the right, new rows are added if needed, and formula columns are skipped and recalculated. A template keeps its box, its column roles and its settings, so you load P2, paste your own readings and press the steps. Results that used the old numbers show as out of date. Undo brings the old numbers back in one step.

@@ -15,7 +15,7 @@ const dir = mkdtempSync(resolve(tmpdir(), "p1s4-"));
 const sp = newProject(["t / s", "U / V", "sU / V"], [[1, 2.1, 0.2], [2, 4.3, 0.2], [3, 6.2, 0.3]]);
 addResult(sp, { kind: "fit", model: "line", params: [{ name: "a", value: 2.01, u: 0.06, unit: "V/s" }] });
 writeFileSync(dir + "/mit-ergebnis.plotlab", save(sp));
-const url = pathToFileURL(resolve("app/index.html")).href;
+const url = pathToFileURL(resolve("app/index.html")).href + "?start=leer";
 const cell = (r, c) => `input[data-r="${r}"][data-c="${c}"]`;
 
 const b = await chromium.launch();
@@ -69,9 +69,9 @@ await p2.close();
 await p.evaluate(() => localStorage.setItem("plotlab-autosave", "{kaputt"));
 await p.reload();
 eq("damaged autosave message", await p.textContent("#msg"), "Der automatisch gespeicherte Stand war beschädigt und wurde verworfen.");
-eq("damaged autosave removed", await p.evaluate(() => localStorage.getItem("plotlab-autosave")), null);
+eq("damaged autosave replaced by the first-visit example", await p.evaluate(() => JSON.parse(localStorage.getItem("plotlab-autosave")).template), "p3"); // since Phase 3 step 2 the example opens instead of an empty page
 await p.reload();
-eq("after that: clean start", [await p.isHidden("#msg"), await p.isHidden("#note")], [true, true]);
+eq("after that: no error, the saved example is restored", [await p.isHidden("#msg"), await p.isVisible("#note")], [true, true]);
 
 // Bad input 2: storage that refuses to save (private window, full disk): clear message once, app keeps working.
 const ctx2 = await b.newContext();

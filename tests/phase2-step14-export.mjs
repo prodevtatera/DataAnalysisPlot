@@ -17,7 +17,7 @@ const { base, close } = await serve();
 const br = await chromium.launch();
 const ctx = await br.newContext({ acceptDownloads: true, viewport: { width: 1200, height: 3400 } });
 const p = await ctx.newPage();
-await p.goto(base + "app/index.html");
+await p.goto(base + "app/index.html?start=leer");
 await p.evaluate(() => localStorage.clear()); await p.reload();
 const off = () => p.$$eval(BTNS.map(b => "#" + b).join(","), e => e.map(b => b.disabled));
 const paste = t => p.fill("#paste", t).then(() => p.click("#pastego"));
