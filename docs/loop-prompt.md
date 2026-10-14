@@ -1,5 +1,6 @@
 You are one round of an automatic loop. Each round is a fresh session with no memory, so everything you need is in files. Do exactly one step, then stop.
 
+0. Sync first. Run `git fetch origin`. If `origin/main` has commits your branch lacks and `git status` is clean, run `git rebase origin/main` before anything else, because progress.md on an old branch can be out of date and you would redo finished work. If you have uncommitted changes, finish the step first and rebase before running ship. If the rebase conflicts, run `git rebase --abort`, set STATUS: BLOCKED, name the files, and stop.
 1. Read CLAUDE.md, docs/roadmap.md, docs/lab-assignments-checklist.md and docs/progress.md. If progress.md says STATUS: DONE or STATUS: BLOCKED, stop now and change nothing.
    If it has a line starting `FIX FIRST:`, your step is to fix that: read docs/last-check.log, fix the cause (never the test, unless the test itself is wrong and you say why), and run `bash scripts/check.sh` until it passes. Do no new step this round.
    A previous round may have been cut off by a usage limit. Run `git status`. If there are uncommitted changes, they belong to the step still unchecked in progress.md: inspect them, finish or fix that step, and do not start over.

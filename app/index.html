@@ -53,6 +53,8 @@
     <button class="btn" id="example">Beispiel laden</button>
     <label class="btn alt">Projekt öffnen<input id="openfile" type="file" accept=".json,.plotlab" hidden></label>
     <button class="btn alt" id="saveproj" disabled>Projekt speichern</button>
+    <button class="btn alt" id="undo" disabled title="Strg/Cmd+Z">Rückgängig</button>
+    <button class="btn alt" id="redo" disabled title="Umschalt+Strg/Cmd+Z">Wiederholen</button>
   </div>
   <div id="msg" class="msg" role="alert" hidden></div>
   <h2>Tabelle</h2>
@@ -85,8 +87,28 @@ function parseCell(t) {
 const nrows = () => proj.columns[0].values.length;
 const col = role => proj.columns.find(c => c.role === role);
 
+// Undo and redo: whole-project snapshots (a project is small). Typing in one cell is one step.
+let undo = [], redo = [], editKey = null;
+const snap = () => JSON.stringify(proj);
+function updateHist() { $("undo").disabled = !undo.length; $("redo").disabled = !redo.length; }
+function pushUndo() { undo.push(snap()); if (undo.length > 200) undo.shift(); redo = []; updateHist(); }
+// Every change to the project except cell typing goes through here, so it can be undone.
+function change(fn) { pushUndo(); editKey = null; fn(); render(); }
+const setSetting = (k, v) => change(() => { proj.settings[k] = v; });
+function restore(s) { proj = JSON.parse(s); editKey = null; $("msg").hidden = true; render(); updateHist(); }
+function undoStep() { if (!undo.length) return; redo.push(snap()); restore(undo.pop()); }
+function redoStep() { if (!redo.length) return; undo.push(snap()); restore(redo.pop()); }
+$("undo").onclick = undoStep;
+$("redo").onclick = redoStep;
+// Always take over Ctrl/Cmd+Z so the browser's own per-cell undo cannot disagree with ours.
+document.addEventListener("keydown", e => {
+  if (!(e.ctrlKey || e.metaKey) || e.altKey) return;
+  const k = e.key.toLowerCase();
+  if (k === "z" || k === "y") { e.preventDefault(); (k === "y" || e.shiftKey) ? redoStep() : undoStep(); }
+});
+
 function setProject(p) {
-  proj = p;
+  proj = p; undo = []; redo = []; editKey = null; updateHist();
   $("msg").hidden = true;
   $("saveproj").disabled = $("addrow").disabled = false;
   render();
@@ -131,22 +153,24 @@ $("table").addEventListener("input", e => {
   if (v === undefined) { el.classList.add("bad"); showMsg(`Zeile ${+el.dataset.r + 1}, Spalte ${+el.dataset.c + 1}: „${el.value}“ ist keine Zahl.`); return; }
   el.classList.remove("bad");
   if (!$("table").querySelector(".bad")) $("msg").hidden = true;
+  const key = el.dataset.r + "," + el.dataset.c;
+  if (editKey !== key) { pushUndo(); editKey = key; }
   proj.columns[+el.dataset.c].values[+el.dataset.r] = v;
   renderPlot(); renderResults();
 });
 // After leaving a cell, show the number in German format.
 $("table").addEventListener("focusout", e => {
+  editKey = null;
   const el = e.target, v = el.tagName === "INPUT" ? parseCell(el.value) : undefined;
   if (v !== undefined) el.value = v === null ? "" : fmt.format(v);
 });
 $("table").addEventListener("click", e => {
   const i = e.target.dataset.del;
   if (i === undefined) return;
-  proj.columns.forEach(c => c.values.splice(+i, 1));
   $("msg").hidden = true;
-  render();
+  change(() => proj.columns.forEach(c => c.values.splice(+i, 1)));
 });
-$("addrow").onclick = () => { proj.columns.forEach(c => c.values.push(null)); render(); $("table").querySelector("tr:last-child input")?.focus(); };
+$("addrow").onclick = () => { change(() => proj.columns.forEach(c => c.values.push(null))); $("table").querySelector("tr:last-child input")?.focus(); };
 $("example").onclick = () => setProject(newProject(...EXAMPLE));
 $("saveproj").onclick = () => {
   const a = document.createElement("a");

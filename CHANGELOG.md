@@ -2,6 +2,12 @@
 
 Written in plain language for people who do not read code. Newest entry on top.
 
+## 2026-10-14: Undo and redo
+
+- **What a student can now do:** take back a mistake with "Rückgängig" (or Ctrl/Cmd+Z) and bring it back with "Wiederholen" (or Shift+Ctrl/Cmd+Z). It works for typed values, added or deleted rows and fit settings. A fit result turns up to date again when the data is put back, and out of date again when the change returns.
+- **Tested:** `tests/phase1-step3-undo.sh` opens the real page and checks all of this with hand-typed numbers. All passed, as did every older test.
+- **Not covered yet:** the history is lost when the page is reloaded. The fit settings have no screen control yet, so that was tested without it.
+
 ## 2026-10-14: Editable data table in the app
 
 - **What a student can now do:** open the app page, load the example or a saved project, and type straight into the table. The plot follows at once. Decimal commas work, an empty cell drops the point, rows can be added and deleted. A wrong entry turns red and says which row and column. A saved fit result is greyed out as out of date after any edit.
