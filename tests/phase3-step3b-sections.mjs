@@ -24,7 +24,7 @@ const paste = async t => { await p.fill("#paste", t); await p.click("#pastego");
 const ready = () => p.waitForFunction(() => !document.getElementById("fit").disabled, null, { timeout: 120000 });
 const idle = id => p.waitForFunction(i => !document.getElementById(i).disabled, id);
 const pl = (id, f) => p.evaluate(`(${f})(document.getElementById(${JSON.stringify(id)}))`);   // f is a constant function text written in this file
-await p.goto(base + "app/index.html?start=leer");
+await p.goto(base + "app/app.html?start=leer");
 await p.evaluate(() => localStorage.clear());
 await p.reload();
 await p.waitForFunction(() => document.getElementById("fitstate").dataset.i18n === "fs_ready", null, { timeout: 120000 });   // no project yet, so the fit button stays off
@@ -160,7 +160,7 @@ await p.screenshot({ path: "evidence/phase3-step3b-gof.png", fullPage: true });
 console.log("section 6");
 // 6. First visit example (P3): derived quantity E and two series, all run by the page itself.
 await p.evaluate(() => localStorage.removeItem("plotlab-autosave"));
-await p.goto(base + "app/index.html");   // without ?start=leer, so the page opens its finished example
+await p.goto(base + "app/app.html");   // without ?start=leer, so the page opens its finished example
 await p.waitForFunction(() => /E = \(201 ± 8\) GPa/.test(document.getElementById("introres").textContent), null, { timeout: 120000 });
 eq("example: English first-visit note and E", [(await text("#intro span")).startsWith("This is a finished example (P3 elasticity, invented data)"), await text("#introres")], [true, "E = (201 ± 8) GPa"]);
 const lns = await lines();

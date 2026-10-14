@@ -38,7 +38,7 @@ const b = await chromium.launch();
 const p = await (await b.newContext({ viewport: { width: 1200, height: 3200 } })).newPage();
 const external = [];
 p.on("request", r => { if (!r.url().startsWith("file:")) external.push(r.url()); });
-await p.goto(pathToFileURL(resolve("app/index.html")).href);
+await p.goto(pathToFileURL(resolve("app/app.html")).href);
 const plot = () => p.evaluate(() => ({ d: document.getElementById("cumplot").data, layout: document.getElementById("cumplot").layout }));
 const readoff = () => p.textContent("#results [data-readoff]");
 const paste = t => p.fill("#paste", t).then(() => p.click("#pastego"));

@@ -15,7 +15,7 @@ const dir = mkdtempSync(resolve(tmpdir(), "p1s4-"));
 const sp = newProject(["t / s", "U / V", "sU / V"], [[1, 2.1, 0.2], [2, 4.3, 0.2], [3, 6.2, 0.3]]);
 addResult(sp, { kind: "fit", model: "line", params: [{ name: "a", value: 2.01, u: 0.06, unit: "V/s" }] });
 writeFileSync(dir + "/mit-ergebnis.plotlab", save(sp));
-const url = pathToFileURL(resolve("app/index.html")).href + "?start=leer";
+const url = pathToFileURL(resolve("app/app.html")).href + "?start=leer";
 const cell = (r, c) => `input[data-r="${r}"][data-c="${c}"]`;
 
 const b = await chromium.launch();

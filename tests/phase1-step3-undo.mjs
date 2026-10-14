@@ -18,7 +18,7 @@ writeFileSync(dir + "/mit-ergebnis.plotlab", save(sp));
 
 const b = await chromium.launch();
 const p = await b.newPage({ viewport: { width: 1200, height: 1500 } });
-await p.goto(pathToFileURL(resolve("app/index.html")).href);
+await p.goto(pathToFileURL(resolve("app/app.html")).href);
 const plotY = () => p.evaluate(() => document.getElementById("plot").data[0].y);
 const rows = () => p.$$eval("#table tbody tr", e => e.length);
 const cell = (r, c) => `input[data-r="${r}"][data-c="${c}"]`;

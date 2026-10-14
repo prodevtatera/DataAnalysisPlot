@@ -41,7 +41,7 @@ const GERMAN = ["Berechnen", "Speichern", "Vorlage", "Diagramm", "Tabelle", "Pro
 
 // ---- 1. First minute: nothing saved, nothing clicked.
 const t0 = Date.now();
-await p.goto(base + "app/index.html");
+await p.goto(base + "app/app.html");
 await p.waitForFunction(() => document.querySelectorAll("#plot .scatterlayer .trace").length > 0, null, { timeout: 120000 });
 const tPlot = Date.now() - t0;
 await p.waitForFunction(() => /E = \(201 ± 8\) GPa/.test(document.getElementById("introres").textContent), null, { timeout: 120000 });

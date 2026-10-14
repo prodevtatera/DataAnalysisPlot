@@ -27,7 +27,7 @@ const p = await br.newPage({ viewport: { width: 1200, height: 1300 } });
 const external = [], failed = [];
 p.on("request", r => { if (!r.url().startsWith(base) && !r.url().startsWith("blob:") && !r.url().startsWith("data:")) external.push(r.url()); });
 p.on("response", r => { if (r.status() >= 400) failed.push(r.status() + " " + r.url()); });
-await p.goto(base + "app/index.html");
+await p.goto(base + "app/app.html");
 await p.evaluate(() => localStorage.clear());
 await p.reload();
 await p.click("#example");
@@ -43,7 +43,7 @@ await p.screenshot({ path: "evidence/phase2-step14b-move.png", fullPage: true })
 // 4. bad case: a missing worker file must not break the page (the page still shows data, the fit says why)
 const q = await br.newPage({ viewport: { width: 1200, height: 900 } });
 await q.route("**/fit-worker.js", r => r.abort());
-await q.goto(base + "app/index.html");
+await q.goto(base + "app/app.html");
 await q.click("#example");
 await q.waitForSelector("#plot .point");
 eq("plot drawn without worker", await q.$$eval("#plot .point", e => e.length > 0), true);

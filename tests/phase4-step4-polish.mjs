@@ -12,7 +12,7 @@ const errors = [];
 const page = async (w, h) => {
   const p = await (await b.newContext({ viewport: { width: w, height: h } })).newPage();
   p.on("pageerror", e => errors.push(String(e)));
-  await p.goto(base + "app/index.html");
+  await p.goto(base + "app/app.html");
   await p.waitForFunction(() => /E = \(201 ± 8\) GPa/.test(document.getElementById("introres").textContent), null, { timeout: 120000 });
   return p;
 };

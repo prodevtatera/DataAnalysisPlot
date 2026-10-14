@@ -71,7 +71,7 @@ const br = await chromium.launch();
 const p = await (await br.newContext({ viewport: { width: 1200, height: 3400 } })).newPage();
 const external = [];
 p.on("request", r => { if (!r.url().startsWith(base) && !r.url().startsWith("data:") && !r.url().startsWith("blob:")) external.push(r.url()); });
-await p.goto(base + "app/index.html?start=leer");
+await p.goto(base + "app/app.html?start=leer");
 await p.evaluate(() => localStorage.clear());
 await p.reload();
 const lines = () => p.$$eval("#results .res", e => e.map(x => x.textContent));

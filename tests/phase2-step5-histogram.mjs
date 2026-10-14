@@ -51,7 +51,7 @@ const b = await chromium.launch();
 const p = await (await b.newContext({ viewport: { width: 1200, height: 2800 } })).newPage();
 const external = [];
 p.on("request", r => { if (!r.url().startsWith("file:")) external.push(r.url()); });
-await p.goto(pathToFileURL(resolve("app/index.html")).href);
+await p.goto(pathToFileURL(resolve("app/app.html")).href);
 const lines = () => p.$$eval("#results .res", e => e.map(x => x.textContent));
 const table = () => p.$$eval("#results table[data-freq] tr", e => e.map(r => [...r.cells].map(c => c.textContent)));
 const go = () => p.click("#h_go");

@@ -47,7 +47,7 @@ const b = await chromium.launch();
 const p = await (await b.newContext({ viewport: { width: 1200, height: 800 } })).newPage();
 const errors = [];
 p.on("pageerror", e => errors.push(String(e)));
-await p.goto(base + "app/index.html");
+await p.goto(base + "app/app.html");
 await p.waitForFunction(() => !document.getElementById("fit").disabled, null, { timeout: 120000 });
 const ready = () => p.waitForFunction(() => !document.getElementById("fit").disabled, null, { timeout: 120000 });
 const load = async id => { await p.selectOption("#tpl_sel", id); await p.click("#tpl_load"); await ready(); };

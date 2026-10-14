@@ -1,5 +1,5 @@
 // Page part of the tools: shows the panels listed in proj.settings.tools and handles the menu. Opening or closing a tool is saved with the project
-// but is not an undo step (see restore() in index.html). Needs proj, $ and autosave() from the page.
+// but is not an undo step (see restore() in app.html). Needs proj, $ and autosave() from the page.
 // Before any project exists (only the test address ?start=leer) the choice waits in noProject and goes into the first project.
 let noProject = [];
 const toolsNow = () => proj ? toolsOpen(proj) ?? [] : noProject;

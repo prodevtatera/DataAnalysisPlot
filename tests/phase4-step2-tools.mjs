@@ -51,7 +51,7 @@ const count = () => p.evaluate(() => ({
   plot: document.getElementById("plot").getBoundingClientRect().toJSON(), intro: document.getElementById("introres").getBoundingClientRect().toJSON(),
   pageHeight: document.documentElement.scrollHeight, pageWidth: document.documentElement.scrollWidth, windowWidth: innerWidth,
 }));
-await p.goto(base + "app/index.html");
+await p.goto(base + "app/app.html");
 await ready();
 
 // 1. First view.

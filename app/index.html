@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>PlotLab</title>
+<title data-i18n="home_title">PlotLab – vom Messwert zum Protokoll-Diagramm</title>
 <style>
   @font-face { font-family:"Barlow"; font-weight:400; src:url(fonts/barlow-latin-400-normal.woff2) format("woff2"); }
   @font-face { font-family:"Barlow"; font-weight:700; src:url(fonts/barlow-latin-700-normal.woff2) format("woff2"); }
@@ -11,1140 +11,134 @@
   @font-face { font-family:"Source Sans 3"; font-weight:600; src:url(fonts/source-sans-3-latin-600-normal.woff2) format("woff2"); }
   :root { --blue:#00376C; --paper:#FAFAF5; --line:#d9d9d0; --soft:#eeeee6; }
   * { box-sizing:border-box; }
-  body { margin:0; min-height:100vh; display:flex; flex-direction:column; background:var(--paper); color:#000; font:17px/27px "Source Sans 3", system-ui, sans-serif; }
-  h1,h2,.brand,.btn { font-family:"Barlow", system-ui, sans-serif; }
+  body { margin:0; min-height:100vh; display:flex; flex-direction:column; background:var(--paper); color:#000; font:17px/27px "Source Sans 3", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  h1,h2,h3,.brand,.btn { font-family:"Barlow", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  a { color:var(--blue); }
   header { background:var(--blue); color:var(--paper); height:81px; display:flex; align-items:center; padding:0 24px; }
   .brand { font-weight:700; font-size:23px; letter-spacing:.02em; }
   .lang { margin-left:auto; display:flex; gap:6px; }
   .lang button { font:700 15px/20px "Barlow", system-ui, sans-serif; background:transparent; color:var(--paper); border:1px solid var(--paper); border-radius:0; padding:4px 10px; cursor:pointer; }
   .lang button[aria-pressed=true] { background:var(--paper); color:var(--blue); }
-  main { flex:1; width:100%; max-width:1120px; margin:0 auto; padding:24px 24px 48px; }
-  h1 { font-size:30px; line-height:1.17; font-weight:400; margin:0 0 10px; }
-  h2 { font-size:23px; font-weight:700; margin:28px 0 8px; }
-  .btns { margin:10px 0; display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
-  .btn { background:var(--blue); color:var(--paper); border:0; padding:10px 18px; font-weight:700; font-size:16px; line-height:20px; border-radius:0; cursor:pointer; }
-  .btn.alt { background:#fff; color:var(--blue); border:1px solid var(--blue); }
-  .btn.small { padding:0 10px; line-height:22px; }
-  .btn:disabled { opacity:.5; cursor:default; }
-  .msg { margin:10px 0; padding:10px 14px; background:#fff; border-left:6px solid #B00020; }
-  .msg[hidden] { display:none; }
-  .msg.note { border-left-color:var(--blue); }
-  .scroll { overflow:auto; max-height:380px; background:#fff; border:1px solid var(--line); }
+  main { flex:1; width:100%; max-width:1120px; margin:0 auto; padding:0 24px 56px; }
+  .hero { padding:40px 0 32px; display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:40px; align-items:center; }
+  h1 { font-size:40px; line-height:1.15; font-weight:400; margin:0 0 16px; }
+  .lead { margin:0; max-width:32em; font-size:19px; line-height:29px; }
+  .drop { border:2px dashed var(--blue); background:#fff; padding:28px 24px; text-align:center; }
+  .drop.over { background:#eaf0f7; border-style:solid; }
+  .drop strong { display:block; font:700 22px/1.3 "Barlow", system-ui, sans-serif; color:var(--blue); margin-bottom:4px; }
+  .drop p { margin:0; font-size:15px; line-height:23px; color:#333; }
+  .btns { margin-top:18px; display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
+  .btn { display:inline-block; background:var(--blue); color:var(--paper); border:1px solid var(--blue); padding:10px 18px; font-weight:700; font-size:16px; line-height:20px; border-radius:0; cursor:pointer; text-decoration:none; }
+  .btn.alt { background:#fff; color:var(--blue); }
+  .btn:focus-visible, .card:focus-visible, .lang button:focus-visible { outline:3px solid #D55E00; outline-offset:2px; }
+  .note { font-size:15px; line-height:23px; margin:14px 0 0; color:#333; }
+  .cont { margin-top:14px; font-size:15px; line-height:23px; border-top:1px solid var(--line); padding-top:12px; }
+  .cont[hidden], .msg[hidden] { display:none; }
+  .cont a { font-weight:600; }
+  .msg { margin:24px 0 0; padding:10px 14px; background:#fff; border-left:6px solid #B00020; }
+  h2 { font-size:26px; line-height:1.25; font-weight:700; margin:0 0 8px; }
+  section { margin-top:48px; }
+  .sub { margin:0 0 18px; max-width:46em; color:#333; }
+  .points { display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:32px; margin-top:16px; border-top:2px solid var(--line); padding-top:24px; }
+  .points h3 { font-size:20px; line-height:1.3; margin:0 0 4px; color:var(--blue); }
+  .points p { margin:0; font-size:16px; line-height:25px; }
+  .ws { display:grid; grid-template-columns:230px minmax(0,1fr) 290px; gap:16px; align-items:start; }
+  .panel { background:#fff; border:1px solid var(--line); padding:12px 14px; min-width:0; }
+  .panel h3 { font-size:17px; margin:0 0 8px; }
   table { border-collapse:collapse; width:100%; font-size:15px; line-height:22px; font-variant-numeric:tabular-nums; }
-  th,td { padding:0; border-bottom:1px solid var(--soft); }
-  th { background:var(--soft); position:sticky; top:0; font-weight:600; padding:3px 10px; text-align:right; }
-  select { font:14px "Source Sans 3", system-ui, sans-serif; padding:2px 4px; border:1px solid var(--blue); border-radius:0; background:#fff; max-width:100%; }
-  th select { display:block; margin:2px 0 0 auto; font-weight:400; }
-  .fitbar { display:flex; gap:18px; flex-wrap:wrap; align-items:center; margin-bottom:10px; }
-  .fitbar select { font-size:16px; padding:6px 8px; }
-  .fitbar input[type=checkbox] { width:18px; height:18px; accent-color:var(--blue); vertical-align:-3px; }
-  .fitbar label.off { color:#666; }
-  .detail { font-size:15px; line-height:24px; margin:6px 0 0; }
-  #results table { width:auto; margin:8px 0; }
-  #results th { position:static; padding:3px 12px; }
-  #results td { padding:3px 12px; text-align:right; }
-  input.num { width:90px; padding:6px 8px; font:16px "Source Sans 3", system-ui, sans-serif; text-align:right; border:1px solid var(--blue); border-radius:0; background:#fff; }
-  input.txt { padding:6px 8px; font:16px "Source Sans 3", system-ui, sans-serif; border:1px solid var(--blue); border-radius:0; background:#fff; width:230px; max-width:100%; }
-  .fx { font-weight:400; font-size:13px; line-height:18px; color:#444; }
-  td.calc { padding:3px 10px; text-align:right; background:#f6f6ef; }
-  #fmsg { white-space:pre-line; }
-  input.num.bad { background:#fde8ea; border-color:#B00020; }
-  td.n { padding:3px 10px; color:#555; text-align:right; width:44px; }
-  td input { width:100%; min-width:72px; border:0; border-radius:0; padding:3px 10px; font:inherit; text-align:right; background:transparent; }
-  td input:focus { outline:2px solid var(--blue); outline-offset:-2px; background:#fff; }
-  td input.bad { background:#fde8ea; outline:2px solid #B00020; outline-offset:-2px; }
-  textarea { width:100%; height:120px; font:15px/22px ui-monospace, Menlo, Consolas, monospace; padding:10px; border:1px solid var(--blue); border-radius:0; background:#fff; resize:vertical; }
-  #plot { background:#fff; border:1px solid var(--line); height:380px; }
-  #histplot { background:#fff; border:1px solid var(--line); height:400px; }
-  #cumplot { background:#fff; border:1px solid var(--line); height:400px; }
-  #gofplot { background:#fff; border:1px solid var(--line); height:400px; }
-  #plot:has(> .empty), #histplot:has(> .empty), #cumplot:has(> .empty), #gofplot:has(> .empty) { height:auto; }
-  .detail.warn { border-left:6px solid #D55E00; padding-left:10px; background:#fff; }
-  td.low { color:#9a3f00; }
-  #g_w, #g_s { width:130px; }
-  #h_w, #h_s { width:130px; }
-  #tpl_info { background:#fff; border:1px solid var(--line); border-left:6px solid var(--blue); padding:10px 16px; margin:10px 0; }
-  #tpl_info[hidden] { display:none; }
-  #tpl_info h3 { font:700 20px "Barlow", system-ui, sans-serif; margin:0 0 4px; }
-  #tpl_info ol { margin:6px 0 0; padding-left:22px; }
-  #tpl_info li { margin:6px 0; }
-  #tpl_info .warn { border-left:6px solid #D55E00; padding-left:10px; margin:6px 0; }
-  #results { background:#fff; border:1px solid var(--line); padding:12px 16px; overflow-x:auto; }
-  .result.stale .res { opacity:.5; }
-  .res { font:700 20px "Barlow", system-ui, sans-serif; margin:2px 0; }
-  .empty { padding:24px 14px; color:#444; }
-  .hint { font-size:15px; color:#333; }
-  body.dropping main { outline:3px dashed var(--blue); outline-offset:-8px; }
+  th,td { text-align:right; padding:2px 6px; border-bottom:1px solid var(--soft); }
+  th { background:var(--soft); font-weight:600; }
+  svg { width:100%; height:auto; display:block; }
+  .result { font:700 24px/1.3 "Barlow", system-ui, sans-serif; color:var(--blue); margin:4px 0 10px; }
+  .kv { font-size:15px; line-height:24px; }
+  .kv div { display:flex; justify-content:space-between; gap:8px; border-bottom:1px solid var(--soft); }
+  fieldset { border:1px solid var(--line); margin:12px 0 0; padding:6px 10px; font-size:15px; }
+  fieldset label { display:block; line-height:24px; }
+  .cards { display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:14px; }
+  .card { display:block; background:#fff; border:1px solid var(--line); border-left:6px solid var(--blue); padding:10px 14px 12px; color:#000; text-decoration:none; }
+  .card:hover { border-color:var(--blue); background:#f3f6fa; }
+  .card strong { display:block; font:700 19px/1.3 "Barlow", system-ui, sans-serif; color:var(--blue); }
+  .card span { display:block; font-size:15px; line-height:22px; margin-top:2px; }
   footer { background:var(--blue); color:var(--paper); padding:20px 24px; font-size:15px; }
-  main > section { margin-top:28px; }
-  section > h2:first-child, .thead h2 { margin-top:0; }
-  .thead { display:flex; justify-content:space-between; align-items:center; gap:12px; margin:0 0 8px; }
-  .thead h2 { margin:0; }
-  .tool { border-top:2px solid var(--line); padding-top:14px; }
-  .work { display:grid; grid-template-columns:minmax(0,6fr) minmax(0,6fr); grid-template-areas:"left plot"; gap:24px; align-items:start; margin-top:12px; }
-  .work .left { grid-area:left; min-width:0; }
-  #s_plot { grid-area:plot; min-width:0; }
-  .work .hint { margin:0 0 6px; }
-  .work .btns { margin:8px 0 0; }
-  .menu { position:relative; }
-  .menuitems { position:absolute; z-index:5; top:100%; left:0; margin-top:4px; background:#fff; border:1px solid var(--blue); padding:8px; display:flex; flex-direction:column; gap:8px; width:max-content; }
-  .menuitems .btn { text-align:left; }
-  summary.btn { display:inline-block; list-style:none; cursor:pointer; }
-  summary.btn::-webkit-details-marker { display:none; }
-  summary.btn::after { content:" ▾"; }
-  details[open] > summary.btn::after { content:" ▴"; }
-  .toolbtns { display:flex; flex-wrap:wrap; gap:8px; margin:12px 0 0; }
-  .toolbtns .btn { white-space:nowrap; }
-  button[data-tool].open { background:var(--blue); color:var(--paper); }
-  .toolbar { display:flex; flex-wrap:wrap; gap:12px 28px; align-items:flex-start; margin:12px 0 16px; }
-  .grp { display:flex; flex-direction:column; gap:4px; }
-  .grp .cap { font:600 13px/16px "Source Sans 3", system-ui, sans-serif; letter-spacing:.06em; text-transform:uppercase; color:#444; }
-  .grp .row { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
-  .toolbar .btn { padding:8px 14px; }
-  #tpl_sel { font-size:16px; padding:7px 8px; width:210px; }
-  #tpl_info a.go { color:var(--blue); font-weight:600; }
-  /* With a mouse the row delete buttons show only on the row under the pointer (or with the keyboard focus in the row); on a touch screen they always show. */
-  @media (hover:hover) { td > .btn[data-del] { visibility:hidden; } tr:hover > td > .btn[data-del], tr:focus-within > td > .btn[data-del] { visibility:visible; } }
-  @media (max-width:960px) { .work { grid-template-columns:minmax(0,1fr); grid-template-areas:"plot" "left"; } }
-  @media (max-width:768px) { h1 { font-size:28px; } header { height:64px; } header,footer { padding-left:12px; padding-right:12px; } main { padding:16px 12px 40px; } .toolbar .btn { padding:8px 10px; font-size:15px; } .toolbar { gap:10px 20px; } .grp .row, .grp { position:relative; } .menu { position:static; } .menuitems { max-width:calc(100vw - 24px); } }
+  body.dropping main { outline:3px dashed var(--blue); outline-offset:-8px; }
+  @media (max-width:992px) { .ws { grid-template-columns:minmax(0,1fr); } .hero { grid-template-columns:minmax(0,1fr); gap:28px; } .cards { grid-template-columns:repeat(2, minmax(0,1fr)); } }
+  @media (max-width:768px) { header { height:64px; } header,footer { padding-left:12px; padding-right:12px; } main { padding:0 12px 40px; } .hero { padding:28px 0 16px; } h1 { font-size:30px; } .lead { font-size:17px; line-height:27px; } .points { grid-template-columns:minmax(0,1fr); gap:20px; } section { margin-top:36px; } }
+  @media (max-width:576px) { .cards { grid-template-columns:minmax(0,1fr); } .drop { padding:20px 14px; } .btn { padding:10px 14px; } }
 </style>
 </head>
 <body>
 <header><span class="brand">PlotLab</span><span class="lang" role="group" aria-label="Sprache / Language"><button id="lang_de" data-lang="de" aria-pressed="true">DE</button><button id="lang_en" data-lang="en" aria-pressed="false">EN</button></span></header>
 <main>
-  <h1 data-i18n="h_data">Messdaten</h1>
-  <div class="toolbar" id="filebar">
-    <div class="grp" role="group" aria-labelledby="cap_file"><span class="cap" id="cap_file" data-i18n="g_file">Datei</span><div class="row">
-      <button class="btn" id="blank" data-i18n="b_blank">Leere Tabelle</button>
-      <details class="menu" id="exmenu"><summary class="btn alt" data-i18n="b_examples">Beispiele</summary><div class="menuitems">
-        <button class="btn alt" id="example" data-i18n="b_example">Beispiel laden</button>
-        <button class="btn alt" id="example2" data-i18n="b_example2">Beispiel Elastizität laden</button>
-        <button class="btn alt" id="example3" data-i18n="b_example3">Beispiel Belastung und Entlastung laden</button>
-        <button class="btn alt" id="example4" data-i18n="b_example4">Beispiel Kalibriergerade laden</button>
-      </div></details>
-      <label class="btn alt"><span data-i18n="b_open">Öffnen</span><input id="openfile" type="file" accept=".json,.plotlab" hidden></label>
-      <button class="btn alt" id="saveproj" data-i18n="b_save" disabled>Speichern</button>
-    </div></div>
-    <div class="grp" role="group" aria-labelledby="cap_edit"><span class="cap" id="cap_edit" data-i18n="g_edit">Bearbeiten</span><div class="row">
-      <button class="btn alt" id="undo" disabled title="Strg/Cmd+Z" data-i18n="b_undo" data-i18n-title="k_undo">Rückgängig</button>
-      <button class="btn alt" id="redo" disabled title="Umschalt+Strg/Cmd+Z" data-i18n="b_redo" data-i18n-title="k_redo">Wiederholen</button>
-    </div></div>
-    <div class="grp" role="group" aria-labelledby="cap_tpl" data-i18n-title="hint_tpl"><span class="cap" id="cap_tpl" data-i18n="tpl_exp">Versuchsvorlage</span><div class="row">
-      <select id="tpl_sel" aria-label="Vorlage wählen" data-i18n-aria="tpl_aria"><option value="" data-i18n="tpl_choose">(bitte wählen)</option></select>
-      <button class="btn" id="tpl_load" data-i18n="b_tpl">Laden</button>
-    </div></div>
-  </div>
-  <div id="tplmsg" class="msg" role="alert" hidden></div>
-  <div id="intro" class="msg note" role="status" hidden><span data-i18n="intro">Das ist ein fertiges Beispiel (P3 Elastizität, erfundene Daten), schon angepasst und ausgewertet. Zieh deine eigene Datei (CSV oder .plotlab) auf die Seite oder beginne mit „Leere Tabelle“.</span><div id="introres"></div></div>
-  <div id="note" class="msg note" role="status" hidden></div>
-  <div id="storewarn" class="msg" role="alert" data-i18n="store_warn" hidden>Automatisches Speichern ist in diesem Browser nicht möglich. Bitte speichere das Projekt mit „Speichern“.</div>
-  <div id="msg" class="msg" role="alert" hidden></div>
-  <div class="work">
-  <section id="s_plot">
-  <h2 data-i18n="h_plot">Diagramm</h2>
-  <div id="plotmsg" class="msg note" role="status" hidden></div>
-  <div id="plot"><div class="empty" data-i18n="plot_none">Noch keine Daten.</div></div>
-  </section>
-  <div class="left">
-  <section id="s_table">
-  <h2 data-i18n="h_table">Tabelle</h2>
-  <p class="hint" data-i18n="hint_data">Klicke in eine Zelle und tippe, das Diagramm folgt sofort. Zellen aus Excel fügst du mit Strg/Cmd+V ein.</p>
-  <div class="scroll" id="table"><div class="empty" data-i18n="table_none">Noch keine Daten. Lade das Beispiel oder öffne ein Projekt.</div></div>
-  <div class="btns">
-    <button class="btn alt" id="addrow" data-i18n="b_addrow" disabled>Zeile hinzufügen</button>
-  </div>
-  </section>
-  <div id="tpl_info" hidden></div>
-  </div>
-  </div>
-  <section id="s_results">
-  <h2 data-i18n="h_results">Ergebnisse</h2>
-  <div class="fitbar">
-    <label id="wlabel"><input type="checkbox" id="weighted"> <span data-i18n="weighted">Mit den Fehlerwerten gewichten</span></label>
-    <select id="errm" aria-label="Fehlermethode"><option value="scaled" data-i18n="errm_scaled">Fehler skaliert mit √(χ²/DoF)</option><option value="unscaled" data-i18n="errm_unscaled">Fehler unskaliert (aus den Fehlerwerten)</option></select>
-    <button class="btn" id="fit" data-i18n="b_fit" disabled>Anpassen</button>
-    <span class="hint" id="fitstate" data-i18n="fs_loading">Rechenmodul (SciPy) wird geladen …</span>
-  </div>
-  <div id="fitmsg" class="msg" role="alert" hidden></div>
-  <div id="results"><div class="empty" data-i18n="res_none">Noch keine Ergebnisse. Trage Messwerte ein und drücke „Anpassen“.</div></div>
-  </section>
-  <section id="s_tools">
-  <h2 data-i18n="h_tools">Werkzeuge</h2>
-  <p class="hint" data-i18n="hint_tools">Weitere Rechnungen und Diagramme. Wähle ein Werkzeug, es öffnet sich darunter. Ein Punkt neben dem Namen heißt: Dazu gibt es schon ein Ergebnis.</p>
-  <details id="toolmenu"><summary class="btn alt"><span data-i18n="tool_menu">Werkzeug wählen</span> <span id="toolcount"></span></summary>
-    <div class="toolbtns">
-      <button class="btn alt small" data-tool="paste"><span data-i18n="tool_paste">Daten einfügen</span><span class="mark" data-i18n-title="tool_used" title="Ergebnis vorhanden" hidden> ●</span></button>
-      <button class="btn alt small" data-tool="formula"><span data-i18n="tool_formula">Formelspalte</span><span class="mark" data-i18n-title="tool_used" title="Ergebnis vorhanden" hidden> ●</span></button>
-      <button class="btn alt small" data-tool="stats"><span data-i18n="tool_stats">Mittelwert und Streuung</span><span class="mark" data-i18n-title="tool_used" title="Ergebnis vorhanden" hidden> ●</span></button>
-      <button class="btn alt small" data-tool="hist"><span data-i18n="tool_hist">Histogramm</span><span class="mark" data-i18n-title="tool_used" title="Ergebnis vorhanden" hidden> ●</span></button>
-      <button class="btn alt small" data-tool="cum"><span data-i18n="tool_cum">Summenhäufigkeit</span><span class="mark" data-i18n-title="tool_used" title="Ergebnis vorhanden" hidden> ●</span></button>
-      <button class="btn alt small" data-tool="gof"><span data-i18n="tool_gof">χ²-Test</span><span class="mark" data-i18n-title="tool_used" title="Ergebnis vorhanden" hidden> ●</span></button>
-      <button class="btn alt small" data-tool="wmean"><span data-i18n="tool_wmean">Gewichteter Mittelwert</span><span class="mark" data-i18n-title="tool_used" title="Ergebnis vorhanden" hidden> ●</span></button>
-      <button class="btn alt small" data-tool="series"><span data-i18n="tool_series">Mehrere Messreihen</span><span class="mark" data-i18n-title="tool_used" title="Ergebnis vorhanden" hidden> ●</span></button>
-      <button class="btn alt small" data-tool="derived"><span data-i18n="tool_derived">Abgeleitete Größe</span><span class="mark" data-i18n-title="tool_used" title="Ergebnis vorhanden" hidden> ●</span></button>
-      <button class="btn alt small" data-tool="calib"><span data-i18n="tool_calib">Kalibriergerade</span><span class="mark" data-i18n-title="tool_used" title="Ergebnis vorhanden" hidden> ●</span></button>
-      <button class="btn alt small" data-tool="compare"><span data-i18n="tool_compare">Vergleich</span><span class="mark" data-i18n-title="tool_used" title="Ergebnis vorhanden" hidden> ●</span></button>
-      <button class="btn alt small" data-tool="logy"><span data-i18n="tool_logy">Logarithmische Achse</span><span class="mark" data-i18n-title="tool_used" title="Ergebnis vorhanden" hidden> ●</span></button>
-      <button class="btn alt small" data-tool="export"><span data-i18n="tool_export">Diagramm speichern</span><span class="mark" data-i18n-title="tool_used" title="Ergebnis vorhanden" hidden> ●</span></button>
+  <div class="msg" id="homemsg" role="alert" hidden></div>
+  <div class="hero">
+    <div>
+      <h1 data-i18n="home_h1">Vom Messwert zum fertigen Protokoll-Diagramm</h1>
+      <p class="lead" data-i18n="home_lead">Messwerte einfügen, Ausgleichsgerade berechnen, Ergebnis richtig gerundet ablesen. Kostenlos, direkt im Browser, ohne Anmeldung und ohne Installation.</p>
     </div>
-  </details>
+    <div>
+      <div class="drop" id="drop">
+        <strong data-i18n="home_drop">Datei hierher ziehen</strong>
+        <p data-i18n="home_drop2">Eine CSV-Datei oder ein gespeichertes Projekt. Eine Tabelle aus Excel kannst du mit Strg/Cmd+V einfügen.</p>
+        <div class="btns">
+          <a class="btn" id="go_example" href="app.html?start=example" data-i18n="home_b_example">Beispiel öffnen</a>
+          <a class="btn alt" id="go_blank" href="app.html?start=blank" data-i18n="home_b_blank">Leeres Projekt</a>
+          <button class="btn alt" id="pick" type="button" data-i18n="home_b_file">Datei wählen</button>
+          <input type="file" id="picker" hidden>
+        </div>
+        <div class="cont" id="cont" hidden><a href="app.html" data-i18n="home_cont">Mit meinem letzten Projekt weitermachen</a><br><span data-i18n="home_cont_note">Ein neues Projekt ersetzt das zuletzt gespeicherte.</span></div>
+      </div>
+      <p class="note" data-i18n="home_privacy">Deine Daten bleiben auf deinem Rechner.</p>
+    </div>
+  </div>
+
+  <div class="points">
+    <div><h3 data-i18n="home_v1h">Gleich ein fertiges Beispiel</h3><p data-i18n="home_v1">Beim ersten Öffnen siehst du ein geplottetes und angepasstes Beispiel. Du musst dich nicht anmelden.</p></div>
+    <div><h3 data-i18n="home_v2h">Richtig gerundet</h3><p data-i18n="home_v2">Gewichtete Fits mit Fehlerbalken und beiden Fehlerangaben. Das Ergebnis steht als (Wert ± u) Einheit da, nach der Praktikumsregel gerundet.</p></div>
+    <div><h3 data-i18n="home_v3h">Deine Daten bleiben bei dir</h3><p data-i18n="home_v3">Alles wird in deinem Browser gerechnet. Nichts wird hochgeladen.</p></div>
+  </div>
+
+  <section>
+    <h2 data-i18n="home_ex_h">So sieht ein Ergebnis aus</h2>
+    <p class="sub" data-i18n="home_ex_note">Beispiel: Federkonstante, erfundene Daten. Die Seite hat es geplottet und gefittet.</p>
+    <div class="ws">
+      <div class="panel"><h3 data-i18n="home_tbl">Messwerte</h3><table id="tbl"></table></div>
+      <div class="panel"><svg id="plot" viewBox="0 0 560 400" role="img" data-i18n-aria="home_plot_aria"></svg></div>
+      <div class="panel">
+        <h3 data-i18n="home_res">Ergebnis</h3>
+        <div class="result" id="res"></div>
+        <div class="kv" id="kv"></div>
+        <fieldset>
+          <legend data-i18n="home_meth">Unsicherheit der Parameter</legend>
+          <label><input type="radio" name="m" value="scaled" checked> <span data-i18n="home_scaled">skaliert mit √(χ²/DoF)</span></label>
+          <label><input type="radio" name="m" value="unscaled"> <span data-i18n="home_unscaled">nicht skaliert (aus den u(F))</span></label>
+        </fieldset>
+      </div>
+    </div>
   </section>
-<section class="tool" data-tool-panel="paste" hidden>
-  <div class="thead"><h2 data-i18n="h_paste">Daten einfügen</h2><button class="btn alt small tclose" data-close="paste" data-i18n="tool_close">Schließen</button></div>
-  <textarea id="paste" aria-label="Daten einfügen" data-i18n-aria="h_paste" spellcheck="false" placeholder="F / N;ΔL / mm;sΔL / mm&#10;10;0,26;0,02"></textarea>
-  <div class="btns"><button class="btn" id="pastego" data-i18n="b_paste">Als Tabelle übernehmen</button><span class="hint" data-i18n="hint_paste">Aus Excel oder einer CSV-Datei kopieren. Trennzeichen ; oder Tab, Dezimalkomma ist in Ordnung. Die ersten drei Spalten sind x, y und Fehler von y.</span></div>
-</section>
-<section class="tool" data-tool-panel="formula" hidden>
-  <div class="thead"><h2 data-i18n="h_formula">Formelspalte</h2><button class="btn alt small tclose" data-close="formula" data-i18n="tool_close">Schließen</button></div>
-  <p class="hint" data-i18n="hint_formula">Eine neue Spalte aus anderen Spalten rechnen, zum Beispiel r² aus dem Durchmesser D. Erlaubt: + − * / ^ und Klammern, Zahlen mit Komma, die Namen der Spalten links davon (der Teil vor „ / “, sonst in eckigen Klammern) und die Funktionen sqrt, ln, log10, exp, abs, sin, cos, tan (Bogenmaß) sowie pi.</p>
-  <div class="fitbar">
-    <label><span data-i18n="l_name">Name</span> <input class="txt" id="f_name" aria-label="Name der neuen Spalte" data-i18n-aria="aria_fname" placeholder="r² / mm²" autocomplete="off"></label>
-    <label><span data-i18n="l_formula">Formel</span> <input class="txt" id="f_expr" aria-label="Formel der neuen Spalte" data-i18n-aria="aria_fexpr" placeholder="(D/2)^2" autocomplete="off" spellcheck="false"></label>
-    <label><span data-i18n="l_func">Unsicherheiten (optional)</span> <input class="txt" id="f_unc" aria-label="Unsicherheiten der Eingangsgrößen" data-i18n-aria="aria_func" placeholder="D = sD; c = 0,01" data-i18n-ph="ph_func" autocomplete="off" spellcheck="false"></label>
-    <button class="btn" id="f_add" data-i18n="b_fadd" disabled>Spalte berechnen</button>
-  </div>
-  <p class="hint" data-i18n="hint_func">Mit Unsicherheiten entsteht zusätzlich die Spalte „u(Name)“ mit der Gaußschen Fehlerfortpflanzung u(f)² = Σ (∂f/∂xᵢ)²·u(xᵢ)². Pro Eingangsgröße steht links vom „=“ die Spalte und rechts ihre Unsicherheit (eine Spalte, eine Zahl oder ein Ausdruck wie 0,01*D), getrennt durch „;“. Eingangsgrößen ohne Angabe gelten als genau. Die Eingangsgrößen müssen voneinander unabhängig sein.</p>
-  <div id="fmsg" class="msg" role="alert" hidden></div>
-</section>
-<section class="tool" data-tool-panel="stats" hidden>
-  <div class="thead"><h2 data-i18n="h_stats">Mittelwert und Streuung einer Spalte</h2><button class="btn alt small tclose" data-close="stats" data-i18n="tool_close">Schließen</button></div>
-  <p class="hint" data-i18n-html="hint_stats">Mittelwert x̄, Standardabweichung (Teiler n oder n−1) und Standardfehler s/√n der gewählten Spalte. Der Standardfehler nutzt immer s mit n−1, auch wenn du für die Standardabweichung n wählst. Mit einem Gerätefehler (Ablesefehler, in der Einheit der Spalte) wird zusätzlich u = √(u<sub>zufällig</sub>² + u<sub>Gerät</sub>²) angegeben. Mit einem Vertrauensniveau wird das Vertrauensintervall x̄ ± t·s/√n mit dem Faktor t der Student-Verteilung (n−1 Freiheitsgrade) angegeben; der Gerätefehler ist darin nicht enthalten.</p>
-  <div class="fitbar" id="stats">
-    <label><span data-i18n="l_col">Spalte</span> <select id="s_col" aria-label="Spalte für Mittelwert und Streuung" data-i18n-aria="aria_scol"></select></label>
-    <label><span data-i18n="l_ddof">Standardabweichung mit</span> <select id="s_ddof" aria-label="Teiler der Standardabweichung" data-i18n-aria="aria_sddof"><option value="1" data-i18n="o_ddof1">n−1 (Stichprobe, s)</option><option value="0" data-i18n="o_ddof0">n (σ)</option></select></label>
-    <label><span data-i18n="l_instr">Gerätefehler (optional)</span> <input class="num" id="s_instr" aria-label="Gerätefehler in der Einheit der Spalte" data-i18n-aria="aria_instr" inputmode="decimal"></label>
-    <label><span data-i18n="l_conf">Vertrauensintervall</span> <select id="s_conf" aria-label="Vertrauensniveau des t-Intervalls" data-i18n-aria="aria_conf"><option value="" data-i18n="o_noci">keines</option><option value="0.9">90 %</option><option value="0.95">95 %</option><option value="0.99">99 %</option></select></label>
-    <button class="btn" id="s_go" data-i18n="b_calc" disabled>Berechnen</button>
-  </div>
-  <div id="statsmsg" class="msg" role="alert" hidden></div>
-</section>
-<section class="tool" data-tool-panel="hist" hidden>
-  <div class="thead"><h2 data-i18n="h_hist">Häufigkeitstabelle und Histogramm</h2><button class="btn alt small tclose" data-close="hist" data-i18n="tool_close">Schließen</button></div>
-  <p class="hint" data-i18n="hint_hist">Teilt die Werte einer Spalte in Klassen [von, bis) ein und zählt sie: absolute, relative und kumulierte Häufigkeit. Die Klassen sind links geschlossen, ein Wert genau auf einer Grenze gehört zur oberen Klasse. Das Histogramm zeigt die Anzahl je Klasse und dazu die Normalverteilung mit dem Mittelwert x̄ und der Standardabweichung s (Teiler n oder n−1): erwartete Anzahl je Klasse = n·Klassenbreite·φ(x). Bleiben Klassenbreite und Beginn leer, werden sie automatisch gewählt.</p>
-  <div class="fitbar" id="hist">
-    <label><span data-i18n="l_col">Spalte</span> <select id="h_col" aria-label="Spalte für das Histogramm" data-i18n-aria="aria_hcol"></select></label>
-    <label><span data-i18n="l_ddof">Standardabweichung mit</span> <select id="h_ddof" aria-label="Teiler der Standardabweichung für die Normalverteilung" data-i18n-aria="aria_hddof"><option value="1" data-i18n="o_ddof1h">n−1 (s)</option><option value="0" data-i18n="o_ddof0">n (σ)</option></select></label>
-    <label><span data-i18n="l_width">Klassenbreite</span> <input class="num" id="h_w" aria-label="Klassenbreite in der Einheit der Spalte, leer für automatisch" data-i18n-aria="aria_hw" inputmode="decimal" placeholder="automatisch" data-i18n-ph="ph_auto"></label>
-    <label><span data-i18n="l_start">Beginn</span> <input class="num" id="h_s" aria-label="Beginn der ersten Klasse in der Einheit der Spalte, leer für automatisch" data-i18n-aria="aria_hs" inputmode="decimal" placeholder="automatisch" data-i18n-ph="ph_auto"></label>
-    <button class="btn" id="h_go" data-i18n="b_calc" disabled>Berechnen</button>
-  </div>
-  <div id="hmsg" class="msg" role="alert" hidden></div>
-  <div id="histplot"><div class="empty" data-i18n="hist_none">Noch kein Histogramm. Wähle eine Spalte und drücke „Berechnen“.</div></div>
-</section>
-<section class="tool" data-tool-panel="cum" hidden>
-  <div class="thead"><h2 data-i18n="h_cum">Summenhäufigkeit mit Ablesung bei 16 % und 84 %</h2><button class="btn alt small tclose" data-close="cum" data-i18n="tool_close">Schließen</button></div>
-  <p class="hint" data-i18n="hint_cum">Aus derselben Klasseneinteilung: die kumulierte relative Häufigkeit an den Klassengrenzen, mit geraden Linien dazwischen. Bei 16 % und 84 % wird der Wert x abgelesen; bei normalverteilten Messwerten liegen diese Werte bei x̄ − s und x̄ + s, und die halbe Differenz (x₈₄ − x₁₆)/2 ist eine Abschätzung für s.</p>
-  <div id="cumplot"><div class="empty" data-i18n="cum_none">Noch keine Summenhäufigkeit. Berechne zuerst das Histogramm.</div></div>
-</section>
-<section class="tool" data-tool-panel="gof" hidden>
-  <div class="thead"><h2 data-i18n="h_gof">χ²-Test: Poisson- und Gauß-Verteilung (Zählraten)</h2><button class="btn alt small tclose" data-close="gof" data-i18n="tool_close">Schließen</button></div>
-  <p class="hint" data-i18n="hint_gof">Prüft, ob Zählwerte je Messintervall (zum Beispiel Zerfälle in 10 s, P8) zu einer Poisson- oder einer Gauß-Verteilung passen. Die Zählwerte werden in Klassen aus ganzen Zahlen eingeteilt. Für jede Klasse wird die erwartete Anzahl berechnet, daraus χ², die Freiheitsgrade und der p-Wert. Ist die erwartete Anzahl einer Klasse kleiner als 5, erscheint eine Warnung. Bleiben Klassenbreite und Beginn leer, werden sie automatisch gewählt.</p>
-  <div class="fitbar" id="gof">
-    <label><span data-i18n="l_gcol">Spalte mit Zählwerten</span> <select id="g_col" aria-label="Spalte mit den Zählwerten" data-i18n-aria="aria_gcol"></select></label>
-    <label><span data-i18n="l_width">Klassenbreite</span> <input class="num" id="g_w" aria-label="Klassenbreite als ganze Zahl, leer für automatisch" data-i18n-aria="aria_gw" inputmode="numeric" placeholder="automatisch" data-i18n-ph="ph_auto"></label>
-    <label><span data-i18n="l_start">Beginn</span> <input class="num" id="g_s" aria-label="Beginn der ersten Klasse als ganze Zahl, leer für automatisch" data-i18n-aria="aria_gs" inputmode="numeric" placeholder="automatisch" data-i18n-ph="ph_auto"></label>
-    <button class="btn" id="g_go" data-i18n="b_calc" disabled>Berechnen</button>
-  </div>
-  <div id="gofmsg" class="msg" role="alert" hidden></div>
-  <div id="gofplot"><div class="empty" data-i18n="gof_none">Noch kein χ²-Test. Wähle die Spalte mit den Zählwerten und drücke „Berechnen“.</div></div>
-</section>
-<section class="tool" data-tool-panel="wmean" hidden>
-  <div class="thead"><h2 data-i18n="h_wm">Gewichteter Mittelwert und Überlappung mehrerer Ergebnisse</h2><button class="btn alt small tclose" data-close="wmean" data-i18n="tool_close">Schließen</button></div>
-  <p class="hint" data-i18n="hint_wm">Jede Zeile ist ein Ergebnis x mit seiner Unsicherheit u (zum Beispiel drei Volumenmessungen). Gewichte w = 1/u², Mittelwert = Σ(w·x)/Σw, Unsicherheit = 1/√Σw. Die Unsicherheit wird so übernommen, wie sie in der Tabelle steht. Überlappung: Die Intervalle x ± k·u müssen sich alle gemeinsam schneiden.</p>
-  <div class="fitbar" id="wmean">
-    <label><span data-i18n="l_wval">Ergebnisse x</span> <select id="w_val" aria-label="Spalte mit den Ergebnissen" data-i18n-aria="aria_wval"></select></label>
-    <label><span data-i18n="l_wunc">Unsicherheit u</span> <select id="w_unc" aria-label="Spalte mit den Unsicherheiten" data-i18n-aria="aria_wunc"></select></label>
-    <label><span data-i18n="l_wk">Faktor k</span> <input class="num" id="w_k" aria-label="Faktor k für die Überlappung" data-i18n-aria="aria_wk" inputmode="decimal"></label>
-    <button class="btn" id="w_go" data-i18n="b_calc" disabled>Berechnen</button>
-  </div>
-  <div id="wmsg" class="msg" role="alert" hidden></div>
-</section>
-<section class="tool" data-tool-panel="series" hidden>
-  <div class="thead"><h2 data-i18n="h_series">Mehrere Messreihen in einem Diagramm</h2><button class="btn alt small tclose" data-close="series" data-i18n="tool_close">Schließen</button></div>
-  <p class="hint" data-i18n="hint_series">Jede Reihe ist eine y-Spalte gegen die x-Spalte, zum Beispiel Belastung und Entlastung (P3). Pro Reihe wird eine Gerade y = a·x + b über den gewählten x-Bereich angepasst (leer = alle Punkte). Mit Fehlerspalte wird gewichtet (1/s²), ohne Fehlerspalte ungewichtet. Alle Reihen erscheinen im Diagramm oben, jede mit ihrer Anpassungslinie; Punkte außerhalb des Bereichs sind blass und werden nicht angepasst. Danach werden die Steigungen verglichen: der Unterschied in kombinierten Unsicherheiten √(u₁² + u₂²) (unabhängige Reihen); unter 2 gelten sie als gleich.</p>
-  <div id="sr_rows"></div>
-  <div class="btns">
-    <button class="btn alt" id="sr_add" data-i18n="b_sradd" disabled>Reihe hinzufügen</button>
-    <button class="btn" id="sr_go" data-i18n="b_srgo" disabled>Reihen anpassen</button>
-  </div>
-  <div id="srmsg" class="msg" role="alert" hidden></div>
-</section>
-<section class="tool" data-tool-panel="derived" hidden>
-  <div class="thead"><h2 data-i18n="h_derived">Abgeleitete Größe aus den Fit-Parametern</h2><button class="btn alt small tclose" data-close="derived" data-i18n="tool_close">Schließen</button></div>
-  <p class="hint" data-i18n-html="hint_derived">Eine Größe aus der Steigung a und dem Achsenabschnitt b der Geraden rechnen, mit Fehlerfortpflanzung u(f)² = Σ (∂f/∂xᵢ)²·u(xᵢ)². Die Fehler von a und b kommen aus der Anpassung (skaliert oder unskaliert, wie oben gewählt) und werden als unabhängig behandelt. Weitere Größen mit Wert und Unsicherheit schreibst du als <code>L = 1 ± 0,002; d = 0,5 ± 0,01</code>. Die Einheiten stimmen nur, wenn die Formel die Umrechnung enthält: die Vorlagen sagen, in welchen Einheiten a und die weiteren Größen stehen müssen.</p>
-  <div class="btns">
-    <button class="btn alt" id="d_tE" data-i18n="b_dtE">Vorlage: Elastizitätsmodul E (P3)</button>
-    <button class="btn alt" id="d_tg" data-i18n="b_dtg">Vorlage: Fallbeschleunigung g aus T²(l) (P9)</button>
-  </div>
-  <div class="fitbar" id="derived">
-    <label><span data-i18n="l_name">Name</span> <input class="txt" id="d_name" aria-label="Name der abgeleiteten Größe" data-i18n-aria="aria_dname" placeholder="E" autocomplete="off"></label>
-    <label><span data-i18n="l_unit">Einheit</span> <input class="txt" id="d_unit" aria-label="Einheit der abgeleiteten Größe" data-i18n-aria="aria_dunit" placeholder="GPa" autocomplete="off"></label>
-    <label><span data-i18n="l_formula">Formel</span> <input class="txt" id="d_formula" aria-label="Formel der abgeleiteten Größe" data-i18n-aria="aria_dformula" placeholder="4*L/(pi*d^2*a)" autocomplete="off" spellcheck="false"></label>
-    <label><span data-i18n="l_dvars">Weitere Größen</span> <input class="txt" id="d_vars" aria-label="Weitere Größen mit Wert und Unsicherheit" data-i18n-aria="aria_dvars" placeholder="L = 1 ± 0,002; d = 0,5 ± 0,01" data-i18n-ph="ph_dvars" autocomplete="off" spellcheck="false"></label>
-    <label><span data-i18n="l_daunit">Einheit von a (optional)</span> <input class="txt" id="d_aunit" aria-label="Erwartete Einheit der Steigung a" data-i18n-aria="aria_daunit" placeholder="mm/N" autocomplete="off"></label>
-    <button class="btn" id="derive" data-i18n="b_calc">Berechnen</button>
-  </div>
-  <div id="derivemsg" class="msg" role="alert" hidden></div>
-</section>
-<section class="tool" data-tool-panel="calib" hidden>
-  <div class="thead"><h2 data-i18n="h_calib">Kalibriergerade: Unbekanntes ablesen</h2><button class="btn alt small tclose" data-close="calib" data-i18n="tool_close">Schließen</button></div>
-  <p class="hint" data-i18n="hint_calib">Mit der angepassten Geraden y = a·x + b aus einem gemessenen y₀ der unbekannten Probe das zugehörige x₀ = (y₀ − b)/a berechnen (P4, P7). Die Unsicherheit u(x₀)² = (u(y₀)² + x₀²·u(a)² + u(b)² + 2·x₀·cov(a,b)) / a² enthält die Kovarianz von a und b, denn beide Parameter hängen zusammen. Mehrere Proben mit „;“ trennen. Fehlt die Unsicherheit, gilt y₀ als genau.</p>
-  <div class="fitbar" id="calib">
-    <label><span data-i18n="l_cy0">Gemessene Werte y₀</span> <input class="txt" id="c_y0" aria-label="Gemessene Werte y0 mit Unsicherheit" data-i18n-aria="aria_cy0" placeholder="1,3405 ± 0,0003; 1,3372 ± 0,0002" data-i18n-ph="ph_cy0" autocomplete="off" spellcheck="false"></label>
-    <button class="btn" id="c_go" data-i18n="b_cgo">x₀ ablesen</button>
-  </div>
-  <div id="calibmsg" class="msg" role="alert" hidden></div>
-</section>
-<section class="tool" data-tool-panel="compare" hidden>
-  <div class="thead"><h2 data-i18n="h_cmp">Messwert und Vergleichswert vergleichen</h2><button class="btn alt small tclose" data-close="compare" data-i18n="tool_close">Schließen</button></div>
-  <p class="hint" data-i18n="hint_cmp">Zwei Werte mit Unsicherheit vergleichen, zum Beispiel einen gemessenen Widerstand mit dem berechneten (P6). Der Unterschied d = Messwert − Vergleichswert hat die Unsicherheit √(u₁² + u₂²) (die Werte gelten als unabhängig). Unter 2 solchen Unsicherheiten stimmen die Werte überein. Fehlt die Unsicherheit eines Werts, gilt er als genau (zum Beispiel ein Literaturwert).</p>
-  <div class="fitbar" id="compare">
-    <label><span data-i18n="l_kmeas">Messwert</span> <input class="txt" id="k_meas" aria-label="Messwert mit Unsicherheit" data-i18n-aria="aria_kmeas" placeholder="100,2 ± 0,3" data-i18n-ph="ph_kmeas" autocomplete="off" spellcheck="false"></label>
-    <label><span data-i18n="l_kref">Vergleichswert</span> <input class="txt" id="k_ref" aria-label="Berechneter oder Literaturwert mit Unsicherheit" data-i18n-aria="aria_kref" placeholder="100,0 ± 0,4" data-i18n-ph="ph_kref" autocomplete="off" spellcheck="false"></label>
-    <label><span data-i18n="l_unit">Einheit</span> <input class="txt" id="k_unit" aria-label="Einheit beider Werte" data-i18n-aria="aria_kunit" placeholder="Ω" autocomplete="off"></label>
-    <button class="btn" id="k_go" data-i18n="b_kgo">Vergleichen</button>
-  </div>
-  <div id="comparemsg" class="msg" role="alert" hidden></div>
-</section>
-<section class="tool" data-tool-panel="logy" hidden>
-  <div class="thead"><h2 data-i18n="h_logy">Logarithmische y-Achse</h2><button class="btn alt small tclose" data-close="logy" data-i18n="tool_close">Schließen</button></div>
-  <div class="fitbar"><label id="loglabel"><input type="checkbox" id="logy" disabled> <span data-i18n="logy">Logarithmische y-Achse (halblogarithmisch)</span></label><span class="hint" data-i18n="logy_hint">Es sind nur y-Werte größer als 0 möglich. Eine Anpassung y = a·x + b erscheint auf dieser Achse gekrümmt.</span></div>
-</section>
-<section class="tool" data-tool-panel="export" hidden>
-  <div class="thead"><h2 data-i18n="h_export">Diagramm speichern</h2><button class="btn alt small tclose" data-close="export" data-i18n="tool_close">Schließen</button></div>
-  <p class="hint" data-i18n="hint_export">Das Diagramm als PNG (2400 Pixel breit, für einen Bericht) oder als SVG (Vektorgrafik) speichern. Histogramm, Summenhäufigkeit und χ²-Test haben ihre Knöpfe in ihrem eigenen Werkzeug.</p>
-  <div id="exp_plot"></div>
-</section>
+
+  <section>
+    <h2 data-i18n="home_tpl_h">Versuchsvorlagen</h2>
+    <p class="sub" data-i18n="home_tpl_lead">Wähle deinen Versuch.</p>
+    <div class="cards">
+      <a class="card" href="app.html?start=p1"><strong data-i18n="tpl_p1_title">P1 Fehlerverteilung</strong><span data-i18n="home_p1"></span></a>
+      <a class="card" href="app.html?start=p2"><strong data-i18n="tpl_p2_title">P2 Volumenmessung</strong><span data-i18n="home_p2"></span></a>
+      <a class="card" href="app.html?start=p3"><strong data-i18n="tpl_p3_title">P3 Elastizität</strong><span data-i18n="home_p3"></span></a>
+      <a class="card" href="app.html?start=p4"><strong data-i18n="tpl_p4_title">P4 Oberflächenspannung</strong><span data-i18n="home_p4"></span></a>
+      <a class="card" href="app.html?start=p5a"><strong data-i18n="tpl_p5a_title">P5 Polarimetrie (Saccharose)</strong><span data-i18n="home_p5a"></span></a>
+      <a class="card" href="app.html?start=p5b"><strong data-i18n="tpl_p5b_title">P5 Newtonsche Ringe</strong><span data-i18n="home_p5b"></span></a>
+      <a class="card" href="app.html?start=p6a"><strong data-i18n="tpl_p6a_title">P6 Wheatstone-Brücke</strong><span data-i18n="home_p6a"></span></a>
+      <a class="card" href="app.html?start=p6b"><strong data-i18n="tpl_p6b_title">P6 Gitter</strong><span data-i18n="home_p6b"></span></a>
+      <a class="card" href="app.html?start=p7"><strong data-i18n="tpl_p7_title">P7 Refraktometer</strong><span data-i18n="home_p7"></span></a>
+      <a class="card" href="app.html?start=p8a"><strong data-i18n="tpl_p8a_title">P8 Radioaktivität: Zählraten</strong><span data-i18n="home_p8a"></span></a>
+      <a class="card" href="app.html?start=p8b"><strong data-i18n="tpl_p8b_title">P8 Radioaktivität: Zerfallskurve</strong><span data-i18n="home_p8b"></span></a>
+      <a class="card" href="app.html?start=p9"><strong data-i18n="tpl_p9_title">P9 Pendel</strong><span data-i18n="home_p9"></span></a>
+    </div>
+  </section>
 </main>
 <footer data-i18n="foot">Unabhängiges Studierendenwerkzeug. Nicht mit der Universität verbunden.</footer>
-<script src="vendor/plotly.min.js"></script>
 <script src="i18n.js"></script>
 <script src="round.js"></script>
-<script src="parse.js"></script>
-<script src="project.js"></script>
-<script src="templates.js"></script>
-<script src="formula.js"></script>
-<script src="propagate.js"></script>
-<script src="derived.js"></script>
 <script src="drop.js"></script>
-<script src="stats.js"></script>
-<script src="gof.js"></script>
-<script src="gofview.js"></script>
-<script src="series.js"></script>
-<script src="compare.js"></script>
-<script src="logaxis.js"></script>
-<script src="tools.js"></script>
-<script src="export.js"></script>
-<script src="toolui.js"></script>
-<script>
-const $ = id => document.getElementById(id);
-const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
-const fmt = nf({ maximumFractionDigits: 10 });
-// Steel wire, load F in N against extension in mm: slope about 0.0255 mm/N, so E is about 200 GPa for L = 1 m, d = 0.5 mm.
-const EXAMPLE2 = [["F / N", "ΔL / mm", "sΔL / mm"], [[10, 0.26, 0.02], [20, 0.50, 0.02], [30, 0.77, 0.02], [40, 1.03, 0.02], [50, 1.28, 0.02], [60, 1.51, 0.02]]];
-// Loading and unloading of the same wire (P3): extension against load, once while loading and once while unloading.
-const EXAMPLE3 = [["F / N", "ΔL auf / mm", "sΔL auf / mm", "ΔL ab / mm", "sΔL ab / mm"], [[10, 0.26, 0.02, 0.30, 0.02], [20, 0.50, 0.02, 0.55, 0.02], [30, 0.77, 0.02, 0.81, 0.02], [40, 1.03, 0.02, 1.05, 0.04], [50, 1.28, 0.02, 1.31, 0.04], [60, 1.51, 0.02, 1.54, 0.04]]];
-// Refractometer calibration (P7): refractive index n against mass fraction w, standards 0 to 10 %, errors grow with the reading.
-const EXAMPLE4 = [["w / %", "n / 1", "sn / 1"], [[0, 1.3331, 0.0002], [2, 1.3358, 0.0002], [4, 1.3389, 0.0002], [6, 1.3416, 0.0004], [8, 1.3445, 0.0004], [10, 1.3474, 0.0004]]];
-const EXAMPLE = [["t / s", "U / V", "sU / V"], [[1, 2.1, 0.2], [2, 4.3, 0.2], [3, 6.2, 0.3], [4, 8.4, 0.3], [5, 9.9, 0.4]]];
-const DKEYS = { d_name: "name", d_unit: "unit", d_formula: "formula", d_vars: "vars", d_aunit: "aUnit" };
-const KKEYS = { k_meas: "meas", k_ref: "ref", k_unit: "unit" };
-let proj = null;
-
-// "1,5" and "1.5" both work; empty means no value. Returns undefined for text that is not a number.
-function parseCell(t) {
-  t = t.trim().replace(",", ".");
-  if (t === "") return null;
-  return /^[+-]?(\d+\.?\d*|\.\d+)([eE][+-]?\d+)?$/.test(t) ? Number(t) : undefined;
-}
-const nrows = () => proj.columns[0].values.length;
-const col = role => proj.columns.find(c => c.role === role);
-
-// Undo and redo: whole-project snapshots (a project is small). Typing in one cell is one step.
-let undo = [], redo = [], editKey = null;
-const snap = () => JSON.stringify(proj);
-function updateHist() { $("undo").disabled = !undo.length; $("redo").disabled = !redo.length; }
-function pushUndo() { undo.push(snap()); if (undo.length > 200) undo.shift(); redo = []; updateHist(); }
-// Every change to the project except cell typing goes through here, so it can be undone.
-function change(fn) { pushUndo(); editKey = null; fn(); render(); }
-const setSetting = (k, v) => change(() => { proj.settings[k] = v; });
-function restore(s) { const tools = proj.settings.tools; proj = JSON.parse(s); proj.settings.tools = tools; editKey = null; $("msg").hidden = true; render(); updateHist(); }
-function undoStep() { if (!undo.length) return; redo.push(snap()); restore(undo.pop()); }
-function redoStep() { if (!redo.length) return; undo.push(snap()); restore(redo.pop()); }
-$("logy").onchange = e => setSetting("logy", e.target.checked);
-$("undo").onclick = undoStep;
-$("redo").onclick = redoStep;
-// Always take over Ctrl/Cmd+Z so the browser's own per-cell undo cannot disagree with ours.
-document.addEventListener("keydown", e => {
-  if (!(e.ctrlKey || e.metaKey) || e.altKey || e.target.matches?.("input.txt")) return;
-  const k = e.key.toLowerCase();
-  if (k === "z" || k === "y") { e.preventDefault(); (k === "y" || e.shiftKey) ? redoStep() : undoStep(); }
-});
-
-// Autosave: the whole project goes to this browser's storage after every change.
-const KEY = "plotlab-autosave";
-function autosave() {
-  $("note").hidden = true;
-  try { localStorage.setItem(KEY, save(proj)); $("storewarn").hidden = true; }
-  catch { $("storewarn").hidden = false; }
-}
-function restoreAutosave() {
-  let saved = null;
-  try { saved = localStorage.getItem(KEY); } catch {}
-  if (saved === null) return /[?&]start=leer\b/.test(location.search) ? undefined : startExample(); // ?start=leer opens with no table at all (used by the old tests that check the state before any data)
-  const r = open(saved);
-  if (r.error) { try { localStorage.removeItem(KEY); } catch {} startExample(); showMsg(t("autosave_bad")); return; }
-  setProject(r.project);
-  $("note").textContent = t("restored");
-  $("note").hidden = false;
-}
-
-// First visit: a finished example (P3, invented data). Once Python is ready the page presses its fit, E and series buttons itself (auto = the buttons still to press).
-let auto = null;
-function autoNext() {
-  while (auto?.length && !$("fit").disabled) $(auto.shift()).click();
-  if (auto && !auto.length && !$("fit").disabled) { auto = null; undo = []; redo = []; updateHist(); } // the example starts with a clean undo history
-}
-function startExample() {
-  const p = TEMPLATES.find(t => t.id === "p3").build();
-  p.settings.tools = []; // the first view shows only table, plot and results; the P3 template itself opens its tools
-  setProject(p);
-  $("intro").hidden = false;
-  auto = ["fit", "derive", "sr_go"];
-  if (worker?.ready) autoNext();
-}
-function setProject(p) {
-  proj = p; if (!toolsOpen(p)) p.settings.tools = [...new Set([...toolsUsed(p), ...noProject])]; noProject = []; // a project from before the tools opens the ones it has results in
-  undo = []; redo = []; editKey = null; updateHist(); auto = null; $("intro").hidden = true;
-  $("msg").hidden = true;
-  $("saveproj").disabled = $("addrow").disabled = $("f_add").disabled = $("s_go").disabled = $("w_go").disabled = $("h_go").disabled = $("sr_add").disabled = $("logy").disabled = false; if (worker?.ready && !pending) busy(false);
-  render();
-}
-function showMsg(t) { $("msg").textContent = t; $("msg").hidden = false; }
-
-const isCalc = c => c.formula !== undefined || c.uncert !== undefined;
-const fmtCalc = nf({ maximumSignificantDigits: 8 });
-const calcText = (c, i) => c.values[i] === null ? "" : fmtCalc.format(c.values[i]);
-function renderTable() {
-  const roleSel = (c, j) => `<select class="role" data-role="${j}" aria-label="${t("aria_role", { name: esc(c.name) })}">` +
-    ROLES.map(r => `<option value="${r}"${c.role === r ? " selected" : ""}>${t("role_" + r)}</option>`).join("") + "</select>";
-  const head = "<tr><th></th>" + proj.columns.map((c, j) => `<th>${esc(c.name)}${c.formula !== undefined ? `<div class="fx">= ${esc(c.formula)}</div>` : ""}${c.uncert ? `<div class="fx">${esc(t("fx_prop", { f: c.uncert.formula, m: c.uncert.map }))}</div>` : ""}${roleSel(c, j)}${isCalc(c) ? `<button class="btn alt small" data-delcol="${j}" aria-label="${t("aria_delcol", { name: esc(c.name) })}">${t("delcol")}</button>` : ""}</th>`).join("") + "<th></th></tr>";
-  const body = Array.from({ length: nrows() }, (_, i) => `<tr><td class="n">${i + 1}</td>` +
-    proj.columns.map((c, j) => isCalc(c) ? `<td class="calc" data-calc="${j}">${calcText(c, i)}</td>` : `<td><input data-r="${i}" data-c="${j}" aria-label="${t("aria_cell", { name: esc(c.name), i: i + 1 })}" value="${c.values[i] === null ? "" : fmt.format(c.values[i])}" inputmode="decimal"></td>`).join("") +
-    `<td><button class="btn alt small" data-del="${i}" aria-label="${t("aria_rowdel", { i: i + 1 })}">✕</button></td></tr>`).join("");
-  $("table").innerHTML = `<table><thead>${head}</thead><tbody>${body}</tbody></table>`;
-}
-const SERIES_STYLE = [{ c: "#00376C", sym: "circle", dash: "solid" }, { c: "#D55E00", sym: "square", dash: "dash" }, { c: "#009E73", sym: "diamond", dash: "dot" }, { c: "#CC79A7", sym: "triangle-up", dash: "dashdot" }];
-// The series result is drawn only while it is fresh and well-formed (a hand-edited project file may hold anything).
-const seriesOk = (r, n) => Array.isArray(r.fits) && r.fits.length === n && r.fits.every(f => f && f.a && f.b && [f.xlo, f.xhi, f.a.value, f.b.value].every(Number.isFinite));
-const freshSeries = () => { const r = proj.results.find(q => q.kind === "series" && !isStale(proj, q)); return r && seriesOk(r, seriesSettings(proj).length) ? r : null; };
-const axisStyle = t => ({ title: { text: t, standoff: 10 }, showline: true, linecolor: "#000", mirror: true, ticks: "outside", gridcolor: "#e4e4dc", zeroline: false, exponentformat: "none" });
-const plotFont = { family: "Arial, Helvetica, sans-serif", size: 16, color: "#000" };
-// Every series: its points (pale outside the fitted x range, with error bars when it has an error column) and its own fit line over the fitted range.
-function drawSeries(x, r) {
-  const traces = [], by = n => proj.columns.find(c => c.name === n), st = seriesSettings(proj);
-  st.forEach((s, k) => {
-    const yc = by(s.y), ec = s.err === null ? null : by(s.err), f = r.fits[k], sty = SERIES_STYLE[k];
-    const idx = x.values.map((_, i) => i).filter(i => x.values[i] !== null && yc.values[i] !== null);
-    const tr = { x: idx.map(i => x.values[i]), y: idx.map(i => yc.values[i]), mode: "markers", type: "scatter", name: s.y, marker: { color: sty.c, size: 9, symbol: sty.sym, opacity: idx.map(i => inRange(x.values[i], s) ? 1 : 0.3) } };
-    if (ec) tr.error_y = { type: "data", array: idx.map(i => ec.values[i] ?? 0), visible: true, color: sty.c, thickness: 1.6, width: 5 };
-    traces.push(tr, { x: [f.xlo, f.xhi], y: [f.a.value * f.xlo + f.b.value, f.a.value * f.xhi + f.b.value], mode: "lines", type: "scatter", name: t("tr_fit") + " " + s.y, line: { color: sty.c, width: 2.5, dash: sty.dash } });
-  });
-  Plotly.react("plot", traces, { font: plotFont, separators: plotSeparators(), margin: plotMargin(), xaxis: axisStyle(x.name), yaxis: { ...axisStyle(seriesAxisTitle(st.map(s => s.y))), type: logY() ? "log" : "linear" },
-    paper_bgcolor: "#fff", plot_bgcolor: "#fff", showlegend: true, legend: legendFor() }, { displaylogo: false, responsive: true });
-}
-const logY = () => proj.settings.logy === true;
-// Decay curves start top left, where the usual legend sits, so on the log axis the legend goes above the plot.
-const legendFor = () => logY() ? { orientation: "h", x: 0, y: 1.02, yanchor: "bottom", bgcolor: "#fff", bordercolor: "#999", borderwidth: 1 } : { x: 0.02, y: 0.98, bgcolor: "#fff", bordercolor: "#999", borderwidth: 1 };
-const plotMargin = () => ({ l: 70, r: 20, t: logY() ? 50 : 20, b: 60 });
-function renderPlot() {
-  const x = col("x"), y = col("y"), e = col("yerr"), sr = freshSeries();
-  $("plotmsg").hidden = true;
-  if (!x || (!y && !sr)) { Plotly.purge("plot"); $("plot").innerHTML = `<div class="empty">${t("plot_need")}</div>`; return; }
-  const bad = logY() && logYProblem(sr ? seriesSettings(proj).map(s => proj.columns.find(c => c.name === s.y)) : [y]);
-  if (bad) { Plotly.purge("plot"); $("plot").textContent = ""; const d = document.createElement("div"); d.className = "empty"; d.textContent = bad; $("plot").append(d); return; }
-  $("plot").querySelector(".empty")?.remove();
-  if (logY()) {
-    const cut = (sr ? seriesSettings(proj).filter(s => s.err !== null).map(s => [proj.columns.find(c => c.name === s.y), proj.columns.find(c => c.name === s.err)]) : e ? [[y, e]] : [])
-      .reduce((n, [c, ec]) => n + clippedBars(c.values, ec.values), 0);
-    if (cut) { $("plotmsg").textContent = cut === 1 ? t("plot_cut1") : t("plot_cutn", { n: cut }); $("plotmsg").hidden = false; }
-  }
-  if (sr) return drawSeries(x, sr);
-  const idx = x.values.map((_, i) => i).filter(i => x.values[i] !== null && y.values[i] !== null);
-  const trace = { x: idx.map(i => x.values[i]), y: idx.map(i => y.values[i]), mode: "markers", type: "scatter", name: t("tr_data"), marker: { color: "#00376C", size: 9 } };
-  if (e) trace.error_y = { type: "data", array: idx.map(i => e.values[i] ?? 0), visible: true, color: "#00376C", thickness: 1.6, width: 5 };
-  const ax = t => ({ title: { text: t, standoff: 10 }, showline: true, linecolor: "#000", mirror: true, ticks: "outside", gridcolor: "#e4e4dc", zeroline: false, exponentformat: "none" });
-  const traces = [trace], fit = freshFit();
-  let yRange = null;
-  if (fit) {
-    const xs = idx.map(i => x.values[i]), lo = Math.min(...xs), hi = Math.max(...xs), [a, b] = fit.params.map(q => q.value);
-    traces.push({ x: [lo, hi], y: [a * lo + b, a * hi + b], mode: "lines", type: "scatter", name: t("tr_fit"), line: { color: "#D55E00", width: 2.5 } });
-    // Calibration read-off: dashed guides from each measured y0 across to the line and down to the x axis, a marker at x0 with its uncertainty.
-    const cal = freshCalib();
-    if (cal) {
-      const reads = calibReads(cal), ys = [...idx.map(i => y.values[i] - (e?.values[i] ?? 0)), ...idx.map(i => y.values[i] + (e?.values[i] ?? 0)), ...reads.map(q => q.y0)];
-      const yl = Math.min(...ys), yh = Math.max(...ys), pad = 0.05 * ((yh - yl) || 1);
-      yRange = [yl - pad, yh + pad];
-      reads.forEach(q => traces.push({ x: [Math.min(lo, q.x0), q.x0, q.x0], y: [q.y0, q.y0, yRange[0]], mode: "lines", type: "scatter", showlegend: false, hoverinfo: "skip", line: { color: "#009E73", width: 1.5, dash: "dash" } }));
-      traces.push({ x: reads.map(q => q.x0), y: reads.map(q => q.y0), mode: "markers", type: "scatter", name: t("tr_read"), marker: { color: "#009E73", size: 11, symbol: "diamond" },
-        error_x: { type: "data", array: reads.map(q => uOf(q) ?? 0), visible: true, color: "#009E73", thickness: 1.6, width: 5 } });
-    }
-  }
-  Plotly.react("plot", traces, { font: { family: "Arial, Helvetica, sans-serif", size: 16, color: "#000" }, separators: plotSeparators(),
-    margin: plotMargin(), xaxis: ax(x.name), yaxis: { ...ax(y.name), type: logY() ? "log" : "linear", ...(yRange && !logY() ? { range: yRange } : {}) }, paper_bgcolor: "#fff", plot_bgcolor: "#fff",
-    showlegend: true, legend: legendFor() }, { displaylogo: false, responsive: true });
-}
-const freshFit = () => proj.results.find(r => r.kind === "fit" && !isStale(proj, r));
-const uOf = q => (proj.settings.errMethod === "unscaled" && q.uUnscaled !== undefined) ? q.uUnscaled : (q.uScaled ?? q.u);
-function fitDetail(r) {
-  const f = nf({ maximumSignificantDigits: 6 }), un = proj.settings.errMethod === "unscaled" && r.weighted;
-  const how = t(!r.weighted ? "how_ols" : un ? "how_wun" : "how_wsc");
-  const rows = r.params.map(q => `<tr><td>${esc(q.name)}</td><td>${f.format(q.value)}</td><td>${f.format(q.uScaled)}</td>${r.weighted ? `<td>${f.format(q.uUnscaled)}</td>` : ""}</tr>`).join("");
-  return `<table><thead><tr><th>${t("th_param")}</th><th>${t("th_value")}</th><th>${t("th_uscaled")}</th>${r.weighted ? `<th>${t("th_uunscaled")}</th>` : ""}</tr></thead><tbody>${rows}</tbody></table>` +
-    `<div class="detail" data-how>${t("fit_method", { how, dof: f.format(r.dof) })}` + (r.weighted ? t("fit_chi2", { chi2: f.format(r.chi2), red: f.format(r.chi2 / r.dof) }) : t("fit_ssr", { ssr: f.format(r.ssr) })) + "</div>";
-}
-// Every number goes through a number formatter and every text through esc(), so a hand-edited project file cannot inject markup.
-function derivedDetail(r) {
-  const f = nf({ maximumSignificantDigits: 3 }), g = nf({ maximumSignificantDigits: 6 }), un = proj.settings.errMethod === "unscaled" && r.weighted;
-  const name = esc(((r.params || [])[0] || {}).name), list = a => (Array.isArray(a) ? a : []).slice(0, 22);
-  const parts = list(un ? r.partsUnscaled : r.partsScaled).map(q => `${esc(q.name)}: ${q.share == null ? "–" : f.format(Number(q.share) * 100) + " %"}`).join(", ");
-  const used = list(r.used), used2 = used.map(q => `${esc(q.name)} = ${g.format(Number(q.value))}${q.u == null ? "" : " ± " + g.format(Number(q.u))}${q.unit ? " " + esc(q.unit) : ""}`).join("; ");
-  return `<div class="detail" data-how>${t("dv_how1", { name, formula: esc(r.formula), used: used2 })}` +
-    t("dv_how2", { name, parts: parts || t("dv_noparts"), err: t(un ? "dv_err_un" : "dv_err_sc") }) +
-    (used.some(q => q.name === "a") && used.some(q => q.name === "b") ? t("dv_note") : "") + "</div>";
-}
-// Calibration read-off result: the numbers behind each x0, the share of each term in u(x0)², a warning outside the calibrated range.
-// Every number goes through a number formatter and every text through esc(), so a hand-edited project file cannot inject markup.
-const calibReads = r => (Array.isArray(r.reads) ? r.reads : []).filter(q => q && [q.y0, q.x0].every(Number.isFinite)).slice(0, 10);
-const calibOk = r => Array.isArray(r.reads) && r.reads.length > 0 && r.reads.length <= 10 && r.reads.every(q => q && [q.y0, q.x0, q.uScaled].every(Number.isFinite)) && Array.isArray(r.range) && r.range.every(Number.isFinite);
-const freshCalib = () => { const r = proj.results.find(q => q.kind === "calib" && !isStale(proj, q)); return r && calibOk(r) ? r : null; };
-function calibDetail(r) {
-  const f = nf({ maximumSignificantDigits: 4 }), g = nf({ maximumSignificantDigits: 6 }), sci = nf({ notation: "scientific", maximumFractionDigits: 3 });
-  const pc = nf({ maximumFractionDigits: 0 }), un = proj.settings.errMethod === "unscaled" && r.weighted;
-  const m = (r.used || {})[un ? "unscaled" : "scaled"] || {}, u = r.used || {}, unit = esc(u.xUnit ?? ""), lo = Number((r.range || [])[0]), hi = Number((r.range || [])[1]);
-  const how = t(!r.weighted ? "cal_how_ols" : un ? "cal_how_wun" : "cal_how_wsc");
-  const rows = calibReads(r).map(q => {
-    const parts = (un ? q.partsUnscaled : q.partsScaled) || {}, sh = k => parts[k] == null ? "–" : pc.format(Number(parts[k]) * 100) + " %", out = q.x0 < lo || q.x0 > hi, us = unit ? " " + unit : "";
-    return `<div class="detail" data-readoff>${t("cal_row", { y0: fmt.format(q.y0), u0: fmt.format(Number(q.u0)), x0: f.format(q.x0), unit: us, sy: sh("y0"), sa: sh("a"), sb: sh("b"), sc: sh("cov") })}` +
-      (out ? t("cal_out", { lo: f.format(lo), hi: f.format(hi), unit: us }) : "") + "</div>";
-  }).join("");
-  return `<div class="detail" data-calibhow>${t("cal_calc", { a: g.format(Number(u.a)), b: g.format(Number(u.b)), ua: g.format(Number(m.ua)), ub: g.format(Number(m.ub)), cov: sci.format(Number(m.cov)), how })}</div>` + rows;
-}
-// Series result: one row per series, then every pair of slopes compared. Numbers go through formatters, text through esc().
-function seriesDetail(r) {
-  const fits = (Array.isArray(r.fits) ? r.fits : []).filter(f => f && f.a && f.b).slice(0, 4), g = nf({ maximumSignificantDigits: 4 }), un = proj.settings.errMethod === "unscaled";
-  const short = f => esc(String(f.y).split(" / ")[0]), end = v => v === null || v === undefined ? null : g.format(Number(v));
-  const rows = fits.map(f => `<tr><td>${esc(f.y)}</td><td>${t("sr_rangecell", { lo: end(f.xmin) ?? t("sr_begin"), hi: end(f.xmax) ?? t("sr_end") })}</td><td>${g.format(Number(f.n))}</td>` +
-    `<td>${f.weighted ? t("sr_weighted", { err: esc(f.err) }) : t("sr_unweighted")}</td><td>${f.weighted ? t("sr_chi", { v: g.format(Number(f.chi2) / Number(f.dof)) }) : t("sr_ssr", { v: g.format(Number(f.ssr)) })}</td></tr>`).join("");
-  const cmp = [];
-  for (let i = 0; i < fits.length; i++) for (let j = i + 1; j < fits.length; j++) {
-    const A = fits[i].a, B = fits[j].a, who = `a (${short(fits[i])}) − a (${short(fits[j])})`;
-    if (A.unit !== B.unit) { cmp.push(t("sr_units", { who, a: esc(A.unit), b: esc(B.unit) })); continue; }
-    const c = compareSlopes(Number(A.value), uOf(A), Number(B.value), uOf(B)), h = huRound(c.diff, c.u), unit = A.unit ? " " + esc(A.unit) : "";
-    cmp.push(t("sr_val", { who, val: h ? `(${h[0]} ± ${h[1]})` : fmt.format(c.diff), unit }) + (c.z === null ? t("sr_nocmp")
-      : t("sr_z", { z: g.format(c.z) }) + (c.z < SERIES_K ? t("sr_same", { k: SERIES_K }) : t("sr_diff", { k: SERIES_K }))));
-  }
-  return `<table data-series><thead><tr><th>${t("th_sr")}</th><th>${t("th_srrange")}</th><th>${t("th_srpoints")}</th><th>${t("th_srmethod")}</th><th>${t("th_srquality")}</th></tr></thead><tbody>${rows}</tbody></table>` +
-    `<div class="detail" data-how>${t("sr_how", { err: t(un ? "sr_err_un" : "sr_err_sc") })}</div>` +
-    cmp.map(c => `<div class="detail" data-compare>${t("sr_cmp", { c })}</div>`).join("");
-}
-const fmtPlain = nf({ maximumSignificantDigits: 3 });
-const fmtRead = nf({ maximumSignificantDigits: 4 }); // values read off a table: 4 digits, no uncertainty attached
-function statsDetail(r) {
-  const i = r.inputs || {}, n = fmt.format(Number(r.n));
-  return `<div class="detail" data-how>${t("stats_how", { col: esc(i.col), n, div: i.ddof === 0 ? "n" : "n−1" })}` +
-    (i.instr != null ? t("stats_instr", { u: fmt.format(Number(i.instr)) }) : "") + "</div>" + ciDetail(r);
-}
-const fmtT = nf({ maximumSignificantDigits: 4 });
-function ciDetail(r) {
-  const c = r.ci, i = r.inputs || {};
-  if (!c || !(c.level > 0 && c.level < 1) || !Number.isFinite(c.t) || !Number.isFinite(c.lo) || !Number.isFinite(c.hi) || !Number.isFinite(c.df)) return "";
-  const u = (c.hi - c.lo) / 2, a = huRound(c.lo, u), b = huRound(c.hi, u), pct = fmt.format(Math.round(c.level * 100)), unit = r.params && r.params[0] && r.params[0].unit ? " " + esc(r.params[0].unit) : "";
-  return `<div class="detail" data-ci>${t("ci_detail", { pct, p: fmtT.format((1 + c.level) / 2), df: fmt.format(c.df), t: fmtT.format(c.t), dfw: t(c.df === 1 ? "ci_dof1" : "ci_dofn") })}` +
-    (a && b ? t("ci_interval", { lo: a[0], hi: b[0], unit }) : "") + "</div>";
-}
-// Verdicts of the weighted mean and the comparison are stored in German (verdict) with a key and raw values (vk, vv), so the page can show them in the chosen language.
-// A project without a key (an older file) shows its stored text. Everything passes through the number formatters and esc().
-function verdictFor(vk, v, lang) {
-  v = v && typeof v === "object" ? v : {};
-  const fp = x => numFmt(lang, { maximumSignificantDigits: 3 }).format(Number(x)), fi = x => numFmt(lang, { maximumFractionDigits: 10 }).format(Number(x));
-  if (vk === "cmp_ok" || vk === "cmp_bad") return t(vk, { z: fp(v.z), k: fi(v.k) }, lang);
-  if (vk === "wm_ok") return t("wm_ok", {}, lang);
-  if (vk === "wm_bad") return t("wm_bad", { list: (Array.isArray(v.pairs) ? v.pairs : []).slice(0, 50).map(q => t("wm_pair", { a: fi((q || [])[0]), b: fi((q || [])[1]), gap: fp((q || [])[2]), unit: v.unit ? " " + v.unit : "" }, lang)).join("; ") }, lang);
-  return null;
-}
-const verdictText = r => esc(verdictFor(r.vk, r.vv, LANG) ?? r.verdict);
-// Comparison result: both values in HU format and the verdict. Everything passes through the number formatter or esc.
-function compareDetail(r) {
-  const unit = r.unit ? " " + esc(r.unit) : "", hv = q => { q = q || {}; const h = huRound(Number(q.value), Number(q.u)); return (h ? `(${h[0]} ± ${h[1]})` : fmt.format(Number(q.value))) + unit; };
-  return `<div class="detail" data-how>${t("cmp_how", { m: hv(r.m), c: hv(r.c), rel: r.rel == null ? "" : t("cmp_rel", { v: fmtPlain.format(Number(r.rel)) }) })}</div>` +
-    `<div class="detail" data-verdict>${verdictText(r)}</div>`;
-}
-function wmeanDetail(r) {
-  const i = r.inputs || {}, k = fmt.format(Number(i.k));
-  return `<div class="detail" data-how>${t("wm_how", { val: esc(i.val), unc: esc(i.unc), n: fmt.format(Number(r.n)) })}</div>` +
-    `<div class="detail" data-verdict>${t("wm_overlap", { k, verdict: verdictText(r) })}</div>`;
-}
-// Frequency table of the "hist" result. Every number goes through the number formatter, so text from a project file shows as NaN, not as markup.
-const pct = nf({ minimumFractionDigits: 1, maximumFractionDigits: 1 });
-const histOk = r => Array.isArray(r.counts) && r.counts.length > 0 && r.counts.length <= 200 && r.counts.every(Number.isFinite) && [r.start, r.width, r.mean, r.s, r.n].every(Number.isFinite) && r.width > 0 && r.s > 0 && r.n > 0;
-function histDetail(r) {
-  const i = r.inputs || {}, n = Number(r.n), w = Number(r.width), s0 = Number(r.start), c = (Array.isArray(r.counts) ? r.counts : []).slice(0, 200).map(Number);
-  const e = j => fmt.format(Number((s0 + j * w).toPrecision(12))), unit = colUnit(i.col);
-  let cum = 0;
-  const rows = c.map((k, j) => { cum += k; return `<tr><td>${t("hist_row", { lo: e(j), hi: e(j + 1) })}</td><td>${fmt.format(k)}</td><td>${pct.format(k / n * 100)} %</td><td>${fmt.format(cum)}</td><td>${pct.format(cum / n * 100)} %</td></tr>`; }).join("");
-  return `<table data-freq><thead><tr><th>${t("th_class")}${unit ? " / " + esc(unit) : ""}</th><th>${t("th_abs")}</th><th>${t("th_rel")}</th><th>${t("th_cumabs")}</th><th>${t("th_cumrel")}</th></tr></thead><tbody>${rows}</tbody></table>` +
-    `<div class="detail" data-how>${t("hist_how", { col: esc(i.col), n: fmt.format(n), k: fmt.format(c.length), w: fmt.format(w), wa: i.width == null ? t("auto_par") : "", s0: fmt.format(s0), sa: i.start == null ? t("auto_par") : "" })}` +
-    `${t("hist_norm", { sd: t(i.ddof === 0 ? "sd0_short" : "sd1_short") })}</div>` +
-    (histOk(r) ? (() => {
-      const lo = cumRead(c, s0, w, 0.16), hi = cumRead(c, s0, w, 0.84), u = unit ? " " + esc(unit) : "", f = v => fmtRead.format(v) + u;
-      return `<div class="detail" data-readoff>${t("hist_read", { lo: f(lo), hi: f(hi), half: f((hi - lo) / 2), m1: f(Number(r.mean) - Number(r.s)), m2: f(Number(r.mean) + Number(r.s)) })}</div>`;
-    })() : "");
-}
-// The histogram is drawn from a fresh result only; an out-of-date one is removed like the fit line.
-function renderHist() {
-  const r = proj.results.find(q => q.kind === "hist");
-  if (!r || isStale(proj, r) || !histOk(r)) {
-    Plotly.purge("histplot");
-    $("histplot").innerHTML = `<div class="empty">${t(r && isStale(proj, r) ? "hist_stale" : "hist_none")}</div>`; return;
-  }
-  $("histplot").querySelector(".empty")?.remove();
-  const c = r.counts, lo = r.start, hi = r.start + c.length * r.width, N = 120;
-  const xs = Array.from({ length: N + 1 }, (_, j) => lo + (hi - lo) * j / N);
-  const bars = { type: "bar", x: c.map((_, j) => lo + (j + 0.5) * r.width), y: c, width: c.map(() => r.width), name: t("tr_hbars"), marker: { color: "#00376C", line: { color: "#fff", width: 1.5 } } };
-  const curve = { type: "scatter", mode: "lines", x: xs, y: xs.map(x => normalCount(x, r.mean, r.s, r.n, r.width)), name: t("tr_hnorm", { sd: (r.inputs || {}).ddof === 0 ? "σ" : "s" }), line: { color: "#D55E00", width: 2.5 } };
-  const ax = t => ({ title: { text: t, standoff: 10 }, showline: true, linecolor: "#000", mirror: true, ticks: "outside", gridcolor: "#e4e4dc", zeroline: false, exponentformat: "none" });
-  Plotly.react("histplot", [bars, curve], { font: { family: "Arial, Helvetica, sans-serif", size: 16, color: "#000" }, separators: plotSeparators(),
-    margin: { l: 70, r: 20, t: 20, b: 60 }, xaxis: ax(String((r.inputs || {}).col)), yaxis: ax(t("ax_hcount")), paper_bgcolor: "#fff", plot_bgcolor: "#fff",
-    showlegend: true, legend: { x: 0.02, y: 0.98, bgcolor: "#fff", bordercolor: "#999", borderwidth: 1 } }, { displaylogo: false, responsive: true });
-}
-// Cumulative share (%) at the class limits from the same fresh "hist" result; horizontal and vertical guides mark the read-off at 16 % and 84 %.
-function renderCum() {
-  const r = proj.results.find(q => q.kind === "hist");
-  if (!r || isStale(proj, r) || !histOk(r)) {
-    Plotly.purge("cumplot");
-    $("cumplot").innerHTML = `<div class="empty">${t(r && isStale(proj, r) ? "cum_stale" : "cum_none")}</div>`; return;
-  }
-  $("cumplot").querySelector(".empty")?.remove();
-  const c = r.counts, w = r.width, x0 = r.start, n = r.n; let cum = 0;
-  const xs = [x0, ...c.map((_, j) => x0 + (j + 1) * w)], ys = [0, ...c.map(k => (cum += k) / n * 100)];
-  const lv = [16, 84].map(p => ({ p, x: cumRead(c, x0, w, p / 100) }));
-  const line = { type: "scatter", mode: "lines+markers", x: xs, y: ys, name: t("tr_cum"), line: { color: "#00376C", width: 2.5 }, marker: { color: "#00376C", size: 7 } };
-  const marks = { type: "scatter", mode: "markers+text", x: lv.map(q => q.x), y: lv.map(q => q.p), name: t("tr_cumread"), marker: { color: "#D55E00", size: 11, symbol: "diamond" },
-    text: lv.map(q => fmtRead.format(q.x)), textposition: ["top left", "bottom right"], textfont: { size: 16, color: "#D55E00" } };
-  const guide = (x0_, y0, x1, y1) => ({ type: "line", x0: x0_, y0, x1, y1, line: { color: "#D55E00", width: 1.5, dash: "dash" } });
-  const ax = t => ({ title: { text: t, standoff: 10 }, showline: true, linecolor: "#000", mirror: true, ticks: "outside", gridcolor: "#e4e4dc", zeroline: false, exponentformat: "none" });
-  Plotly.react("cumplot", [line, marks], { font: { family: "Arial, Helvetica, sans-serif", size: 16, color: "#000" }, separators: plotSeparators(),
-    margin: { l: 70, r: 20, t: 20, b: 60 }, xaxis: ax(String((r.inputs || {}).col)), yaxis: { ...ax(t("ax_cum")), range: [0, 100] }, paper_bgcolor: "#fff", plot_bgcolor: "#fff",
-    shapes: lv.flatMap(q => [guide(x0, q.p, q.x, q.p), guide(q.x, q.p, q.x, 0)]),
-    showlegend: true, legend: { x: 0.02, y: 0.98, bgcolor: "#fff", bordercolor: "#999", borderwidth: 1 } }, { displaylogo: false, responsive: true });
-}
-const resLine = q => {
-  const u = uOf(q), h = huRound(q.value, u);
-  return `<div class="res">${esc(storedName(q))} = ${q.tk === "gof_line" && q.tv ? esc(gofLineText(q.tv)) : q.text !== undefined ? esc(q.text) : h ? `(${h[0]} ± ${h[1]})` : q.plain ? fmtPlain.format(q.value) : fmt.format(q.value)}${q.unit ? " " + esc(q.unit) : ""}</div>`;
-};
-function renderResults() {
-  // The first-visit note repeats the headline result (E) so it is in the first view, above the long page.
-  const head = proj.results.find(r => r.kind === "derived" && !isStale(proj, r));
-  $("introres").innerHTML = head ? (head.params || []).map(resLine).join("") : "";
-  renderHist(); renderCum(); renderGofPlot();
-  if (!proj.results.length) { $("results").innerHTML = `<div class="empty">${t("res_none")}</div>`; return; }
-  $("results").innerHTML = proj.results.map(r => {
-    const stale = isStale(proj, r);
-    const lines = (r.params || []).map(resLine).join("");
-    return `<div class="result${stale ? " stale" : ""}">${stale ? `<div class="msg stalemsg">${t("stale", { verb: t(["stats", "wmean", "hist", "gof", "derived", "calib", "compare"].includes(r.kind) ? "verb_calc" : "verb_fit") })}</div>` : ""}${lines}${r.kind === "fit" && r.dof ? fitDetail(r) : ""}${r.kind === "derived" ? derivedDetail(r) : ""}${r.kind === "stats" ? statsDetail(r) : ""}${r.kind === "wmean" ? wmeanDetail(r) : ""}${r.kind === "hist" ? histDetail(r) : ""}${r.kind === "gof" ? gofDetail(r) : ""}${r.kind === "series" ? seriesDetail(r) : ""}${r.kind === "calib" ? calibDetail(r) : ""}${r.kind === "compare" ? compareDetail(r) : ""}</div>`;
-  }).join("");
-}
-// Weighting needs an error column; errors method only matters for a weighted fit.
-function syncControls() {
-  const has = !!col("yerr"), w = has && proj.settings.weighted;
-  $("weighted").checked = w; $("weighted").disabled = !has;
-  $("wlabel").classList.toggle("off", !has);
-  $("logy").checked = logY();
-  $("wlabel").title = has ? "" : t("weighted_need");
-  $("errm").value = proj.settings.errMethod || "scaled"; $("errm").disabled = !w;
-  $("srmsg").hidden = true;
-  const ss = seriesSettings(proj), sopts = (v, none) => (none ? `<option value=""${v === null ? " selected" : ""}>${t("opt_none")}</option>` : "") + proj.columns.map(c => `<option value="${esc(c.name)}"${c.name === v ? " selected" : ""}>${esc(c.name)}</option>`).join("");
-  $("sr_rows").innerHTML = ss.map((s, k) => `<div class="fitbar" data-k="${k}"><strong>${t("sr_label", { k: k + 1 })}</strong>` +
-    `<label>y <select data-f="y" aria-label="${t("aria_sry", { k: k + 1 })}">${sopts(s.y)}</select></label>` +
-    `<label>${t("sr_err")} <select data-f="err" aria-label="${t("aria_srerr", { k: k + 1 })}">${sopts(s.err, true)}</select></label>` +
-    ["xmin", "xmax"].map(f => `<label>${t(f === "xmin" ? "sr_from" : "sr_to")} <input class="num" data-f="${f}" aria-label="${t(f === "xmin" ? "aria_srfrom" : "aria_srto", { k: k + 1 })}" inputmode="decimal" placeholder="${t(f === "xmin" ? "sr_begin" : "sr_end")}" value="${s[f] === null ? "" : fmt.format(s[f])}"></label>`).join("") +
-    `<button class="btn alt small" data-sdel="${k}" aria-label="${t("aria_srdel", { k: k + 1 })}">${t("sr_del")}</button></div>`).join("") || `<div class="hint">${t("sr_none")}</div>`;
-  $("fitmsg").hidden = true; $("derivemsg").hidden = true; $("statsmsg").hidden = true; $("wmsg").hidden = true; $("hmsg").hidden = true; $("gofmsg").hidden = true;
-  const st = statsSettings(proj);
-  $("s_col").replaceChildren(...proj.columns.map(c => Object.assign(document.createElement("option"), { value: c.name, textContent: c.name })));
-  $("s_col").value = st.col; $("s_ddof").value = st.ddof; $("s_conf").value = st.conf ? String(st.conf) : ""; $("s_instr").value = st.instr == null ? "" : fmt.format(st.instr); $("s_instr").classList.remove("bad");
-  const wm = wmeanSettings(proj), opts = (none) => [...(none ? [Object.assign(document.createElement("option"), { value: "", textContent: t("opt_none") })] : []), ...proj.columns.map(c => Object.assign(document.createElement("option"), { value: c.name, textContent: c.name }))];
-  $("w_val").replaceChildren(...opts(false)); $("w_unc").replaceChildren(...opts(true));
-  $("w_val").value = wm.val; $("w_unc").value = wm.unc ?? ""; $("w_k").value = fmt.format(wm.k); $("w_k").classList.remove("bad");
-  const hs = histSettings(proj);
-  $("h_col").replaceChildren(...proj.columns.map(c => Object.assign(document.createElement("option"), { value: c.name, textContent: c.name })));
-  $("h_col").value = hs.col; $("h_ddof").value = hs.ddof;
-  for (const [id, v] of [["h_w", hs.width], ["h_s", hs.start]]) { $(id).value = v === null ? "" : fmt.format(v); $(id).classList.remove("bad"); }
-  const gs = gofSettings(proj);
-  $("g_col").replaceChildren(...proj.columns.map(c => Object.assign(document.createElement("option"), { value: c.name, textContent: c.name }))); $("g_col").value = gs.col;
-  for (const [id, v] of [["g_w", gs.width], ["g_s", gs.start]]) { $(id).value = v === null ? "" : fmt.format(v); $(id).classList.remove("bad"); }
-  const ds = derivedSettings(proj);
-  for (const [id, k] of Object.entries(DKEYS)) $(id).value = localDec(ds[k]); // example numbers are stored as typed; the field shows the decimal sign of the chosen language
-  $("c_y0").value = localDec(calibSettings(proj).y0); $("calibmsg").hidden = true;
-  const cs = compareSettings(proj);
-  for (const [id, k] of Object.entries(KKEYS)) $(id).value = localDec(cs[k]);
-  $("comparemsg").hidden = true;
-}
-// Template projects: the project only stores the id; title and texts come from TEMPLATES (templates.js), so a project file cannot put text on the page.
-const tplOf = () => TEMPLATES.find(t => t.id === proj.template);
-$("tpl_sel").append(...TEMPLATES.map(q => Object.assign(document.createElement("option"), { value: q.id })));
-// The titles follow the chosen language: called once the language is known and after every switch.
-const relabelTemplates = () => { for (const o of $("tpl_sel").options) { const q = TEMPLATES.find(x => x.id === o.value); if (q) o.textContent = q.title; } };
-$("tpl_load").onclick = () => {
-  const tp = TEMPLATES.find(q => q.id === $("tpl_sel").value);
-  if (!tp) { $("tplmsg").textContent = t("tpl_pick"); $("tplmsg").hidden = false; return; }
-  $("tplmsg").hidden = true; setProject(tp.build());
-};
-function renderTemplate() {
-  const tp = tplOf(), box = $("tpl_info");
-  box.hidden = !tp;
-  if (!tp) return;
-  box.innerHTML = `<h3>${esc(tp.title)}</h3><div class="warn" data-invented>${t("tpl_invented")}</div>` +
-    `<div>${esc(tp.note)}</div><ol>` + tp.steps.map(s => `<li>${esc(s.text)}${s.go ? ` <a href="#" class="go" data-go="${esc(s.go)}">${t("tpl_show")}</a>` : ""}</li>`).join("") + "</ol>";
-}
-$("tpl_info").addEventListener("click", e => {
-  const el = e.target.dataset.go && $(e.target.dataset.go);
-  if (!el) return;
-  e.preventDefault();
-  const panel = el.closest("[data-tool-panel]"); // the button may sit in a tool that is closed: open it first
-  if (panel) openTool(panel.dataset.toolPanel);
-  el.scrollIntoView({ block: "center" }); el.focus();
-});
-// Formula columns are recomputed from the data on every change; rows that cannot be calculated are named in the message.
-function recalc() {
-  const m = recalcFormulas(proj);
-  $("fmsg").textContent = m.join("\n"); $("fmsg").hidden = !m.length;
-}
-function render() { recalc(); renderTable(); renderPlot(); renderResults(); syncControls(); renderTemplate(); syncTools(); autosave(); }
-
-// An edit changes data only: keep the focused table as it is, redraw plot and results.
-$("table").addEventListener("input", e => {
-  const el = e.target;
-  if (el.tagName !== "INPUT") return;
-  const v = parseCell(el.value);
-  if (v === undefined) { el.classList.add("bad"); showMsg(t("not_number", { r: +el.dataset.r + 1, c: +el.dataset.c + 1, v: el.value })); return; }
-  el.classList.remove("bad");
-  if (!$("table").querySelector(".bad")) $("msg").hidden = true;
-  const key = el.dataset.r + "," + el.dataset.c;
-  if (editKey !== key) { pushUndo(); editKey = key; }
-  proj.columns[+el.dataset.c].values[+el.dataset.r] = v;
-  recalc();
-  $("table").querySelectorAll("td.calc").forEach(td => { td.textContent = calcText(proj.columns[+td.dataset.calc], +td.parentNode.rowIndex - 1); });
-  renderPlot(); renderResults(); autosave();
-});
-// Several cells pasted from Excel or a CSV fill the typed columns from the clicked cell down and to the right (one undo step).
-// A single value pastes as usual. Formula columns, roles, settings and the template stay; results become out of date.
-$("table").addEventListener("paste", e => {
-  const el = e.target, text = e.clipboardData?.getData("text") ?? "";
-  if (el.tagName !== "INPUT" || !/[\n\t;]/.test(text)) return;
-  e.preventDefault();
-  const b = parseBlock(text);
-  if (b.error) return showMsg(b.error);
-  const cols = structuredClone(proj.columns), err = pasteInto(cols, +el.dataset.r, +el.dataset.c, b.rows);
-  if (err) return showMsg(err);
-  $("msg").hidden = true;
-  change(() => proj.columns.forEach((c, j) => { c.values = cols[j].values; }));
-});
-// Choosing a role: x, y and error each belong to one column, so taking a role frees it from its old column.
-$("table").addEventListener("change", e => {
-  if (!e.target.matches("select.role")) return;
-  const j = +e.target.dataset.role, role = e.target.value;
-  change(() => {
-    if (role !== "unused") proj.columns.forEach((c, k) => { if (k !== j && c.role === role) c.role = "unused"; });
-    proj.columns[j].role = role;
-  });
-});
-// After leaving a cell, show the number in German format.
-$("table").addEventListener("focusout", e => {
-  editKey = null;
-  const el = e.target, v = el.tagName === "INPUT" ? parseCell(el.value) : undefined;
-  if (v !== undefined) el.value = v === null ? "" : fmt.format(v);
-});
-$("table").addEventListener("click", e => {
-  const dc = e.target.dataset.delcol;
-  if (dc !== undefined) { $("msg").hidden = true; change(() => proj.columns.splice(+dc, 1)); return; }
-  const i = e.target.dataset.del;
-  if (i === undefined) return;
-  $("msg").hidden = true;
-  change(() => proj.columns.forEach(c => c.values.splice(+i, 1)));
-});
-$("addrow").onclick = () => { change(() => proj.columns.forEach(c => c.values.push(null))); $("table").querySelector("tr:last-child input")?.focus(); };
-$("blank").onclick = () => setProject(newProject(["x", "y", "sy"], Array.from({ length: 8 }, () => [null, null, null])));
-$("example").onclick = () => setProject(newProject(...EXAMPLE));
-$("example3").onclick = () => {
-  const p = newProject(...EXAMPLE3);
-  p.settings.series = [{ y: "ΔL auf / mm", err: "sΔL auf / mm", xmin: null, xmax: null }, { y: "ΔL ab / mm", err: "sΔL ab / mm", xmin: null, xmax: null }];
-  setProject(p);
-};
-$("example4").onclick = () => {
-  const p = newProject(...EXAMPLE4);
-  p.settings.calib = { y0: "1,3405 ± 0,0003" };
-  setProject(p);
-};
-$("example2").onclick = () => {
-  const p = newProject(...EXAMPLE2);
-  p.settings.derived = { ...DERIVED_TEMPLATES.E };
-  setProject(p);
-};
-$("f_add").onclick = () => {
-  const name = $("f_name").value.trim(), expr = $("f_expr").value, fail = m => { $("fmsg").textContent = m; $("fmsg").hidden = false; };
-  if (!name) return fail(t("f_noname"));
-  if (proj.columns.some(c => c.name === name)) return fail(t("f_exists", { name }));
-  const r = parseFormula(expr, proj.columns);
-  if (r.error) return fail(r.error);
-  const unc = $("f_unc").value.trim(), [short, ...unit] = name.split(" / "), uname = `u(${short.trim()})` + (unit.length ? " / " + unit.join(" / ") : "");
-  if (unc) {
-    if (proj.columns.some(c => c.name === uname)) return fail(t("f_exists", { name: uname }));
-    const u = parseUncertainty(expr.trim(), unc, proj.columns, proj.columns.length);
-    if (u.error) return fail(u.error);
-  }
-  change(() => {
-    proj.columns.push({ name, role: "unused", values: [], formula: expr.trim() });
-    if (unc) proj.columns.push({ name: uname, role: "unused", values: [], uncert: { formula: expr.trim(), map: unc } });
-  });
-  $("f_name").value = $("f_expr").value = $("f_unc").value = "";
-};
-$("pastego").onclick = () => {
-  const r = parseTable($("paste").value);
-  if (r.error) return showMsg(r.error);
-  setProject(newProject(r.header, r.rows));
-};
-$("saveproj").onclick = () => {
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(new Blob([save(proj)], { type: "application/json" }));
-  a.download = t("save_name"); a.click();
-};
-// project.js defines open(text) as a global; it replaces window.open on this page.
-$("openfile").onchange = async e => {
-  const f = e.target.files[0]; if (!f) return;
-  const r = open(await f.text());
-  r.error ? showMsg(r.error) : setProject(r.project);
-  e.target.value = "";
-};
-// A file dropped anywhere on the page: a project or a table of numbers (same readers as "Projekt öffnen" and "Daten einfügen").
-const dragFiles = e => e.dataTransfer?.types?.includes("Files");
-addEventListener("dragover", e => { if (dragFiles(e)) { e.preventDefault(); document.body.classList.add("dropping"); } });
-addEventListener("dragleave", e => { if (!e.relatedTarget) document.body.classList.remove("dropping"); });
-addEventListener("drop", async e => {
-  if (!dragFiles(e)) return;
-  e.preventDefault(); document.body.classList.remove("dropping");
-  const f = e.dataTransfer.files[0];
-  if (!f) return;
-  if (f.size > 5e6) return showMsg(t("too_big", { name: f.name }));
-  const d = classifyDrop(f.name, f.type, await f.text());
-  if (d.error) return showMsg(d.error);
-  const r = d.kind === "project" ? open(d.text) : parseTable(d.text);
-  if (r.error) return showMsg(r.error);
-  setProject(d.kind === "project" ? r.project : newProject(r.header, r.rows));
-});
-// SciPy runs in a Web Worker. A module worker cannot start from a file:// page; table and plot still work then, only the fit is off.
-let worker = null, pending = null;
-// The status text next to the fit button keeps its key, so a language switch can translate it.
-const fitState = k => { $("fitstate").dataset.i18n = k; $("fitstate").textContent = t(k); };
-const busy = b => { $("fit").disabled = $("sr_go").disabled = $("g_go").disabled = b; };
-try { worker = new Worker("fit-worker.js", { type: "module" }); }
-catch { fitState("fs_nofile"); }
-function fitFailed(why) { busy(false); pending = null; auto = null; $("fitmsg").textContent = t("fit_failed", { why }); $("fitmsg").hidden = false; }
-if (worker) {
-  worker.onerror = () => fitState("fs_err");
-  worker.onmessage = ev => {
-    const m = ev.data;
-    if (m.ready) { worker.ready = true; busy(!proj); fitState("fs_ready"); autoNext(); return; }
-    if (m.loadError) { fitState("fs_err"); return; }
-    if (pending.series) return seriesStep(pending, m);
-    if (pending.gof) return gofStep(pending, m);
-    const job = pending; pending = null; busy(false);
-    if (m.error) return fitFailed(m.error);
-    // The student may have edited while Python was working: then the result belongs to old data.
-    if (fingerprint(proj) !== job.fp || proj.settings.weighted !== job.weightedSetting) return fitFailed(t("fit_changed"));
-    const out = m.result;
-    change(() => addResult(proj, {
-      kind: "fit", model: "line", weighted: job.weighted, dof: out.dof, n: job.n, cov: { scaled: out.cov_scaled, ...(job.weighted ? { unscaled: out.cov_unscaled } : {}) },
-      ...(job.weighted ? { chi2: out.chi2 } : { ssr: out.ssr }),
-      params: job.names.map(([name, unit], i) => ({ name, unit, value: out.p[i], uScaled: out.err_scaled[i], ...(job.weighted ? { uUnscaled: out.err_unscaled[i] } : {}) })),
-    }));
-    autoNext();
-  };
-}
-$("fit").onclick = () => {
-  const x = col("x"), y = col("y"), e = col("yerr");
-  if (!x || !y) return fitFailed(t("fit_needxy"));
-  const weighted = proj.settings.weighted && !!e;
-  const idx = x.values.map((_, i) => i).filter(i => x.values[i] !== null && y.values[i] !== null);
-  if (idx.length < 3) return fitFailed(t("fit_min3"));
-  const badRow = weighted ? idx.find(i => !(e.values[i] > 0)) : undefined;
-  if (badRow !== undefined) return fitFailed(t("fit_err0", { row: badRow + 1 }));
-  const unit = c => colUnit(c.name), ux = unit(x), uy = unit(y);
-  const per = ux ? (uy ? uy + "/" + ux : "1/" + ux) : uy;
-  pending = { fp: fingerprint(proj), weighted, weightedSetting: proj.settings.weighted, n: idx.length, names: [["a", per], ["b", uy]] };
-  busy(true); $("fitmsg").hidden = true;
-  worker.postMessage({ model: "line", x: idx.map(i => x.values[i]), y: idx.map(i => y.values[i]), sy: weighted ? idx.map(i => e.values[i]) : null });
-};
-// Several series: settings (y, error, x range per series) live in the project; the fits run one after the other in the worker.
-function seriesFailed(why) { auto = null; $("srmsg").textContent = why; $("srmsg").hidden = false; }
-const setSeries = list => setSetting("series", list);
-$("sr_add").onclick = () => {
-  const list = seriesSettings(proj), x = col("x");
-  if (list.length >= SERIES_MAX) return seriesFailed(t("sr_max", { max: SERIES_MAX }));
-  const free = proj.columns.filter(c => c !== x), taken = c => list.some(s => s.y === c.name || s.err === c.name);
-  const pick = free.find(c => c.role !== "yerr" && !taken(c)) || free.find(c => !taken(c)) || free[0];
-  if (!pick) return seriesFailed(t("sr_nocol"));
-  // The error column is guessed from the naming of the examples ("ΔL / mm" and "sΔL / mm") or from the role "Fehler von y".
-  const e = proj.columns.find(c => c.name === "s" + pick.name) || (pick.role === "y" ? col("yerr") : null);
-  setSeries([...list, { y: pick.name, err: e ? e.name : null, xmin: null, xmax: null }]);
-};
-$("sr_rows").addEventListener("change", e => {
-  const f = e.target.dataset.f, k = +e.target.closest("[data-k]")?.dataset.k;
-  if (!["y", "err"].includes(f)) return;
-  const list = seriesSettings(proj); list[k] = { ...list[k], [f]: e.target.value || null }; setSeries(list);
-});
-$("sr_rows").addEventListener("input", e => {
-  const f = e.target.dataset.f, k = +e.target.closest("[data-k]")?.dataset.k;
-  if (!["xmin", "xmax"].includes(f)) return;
-  const v = parseCell(e.target.value);
-  e.target.classList.toggle("bad", v === undefined);
-  if (v === undefined) return;
-  if (editKey !== `series.${k}.${f}`) { pushUndo(); editKey = `series.${k}.${f}`; }
-  const list = seriesSettings(proj); list[k] = { ...list[k], [f]: v }; proj.settings.series = list;
-  renderPlot(); renderResults(); autosave();
-});
-$("sr_rows").addEventListener("focusout", () => { editKey = null; });
-$("sr_rows").addEventListener("click", e => {
-  const k = e.target.dataset.sdel;
-  if (k !== undefined) setSeries(seriesSettings(proj).filter((_, i) => i !== +k));
-});
-const sendSeries = job => { const j = job.jobs[job.done.length]; worker.postMessage({ model: "line", x: j.x, y: j.yv, sy: j.sy }); };
-function seriesStep(job, m) {
-  const j = job.jobs[job.done.length];
-  if (m.error) { pending = null; busy(false); return seriesFailed(t("sr_stepfail", { k: job.done.length + 1, y: j.y, why: m.error })); }
-  job.done.push(m.result);
-  if (job.done.length < job.jobs.length) return sendSeries(job);
-  pending = null; busy(false);
-  if (seriesKey(proj) !== job.fp) return seriesFailed(t("fit_changed"));
-  const fits = job.jobs.map((q, i) => {
-    const o = job.done[i], par = (n, unit) => ({ value: o.p[n], uScaled: o.err_scaled[n], ...(q.weighted ? { uUnscaled: o.err_unscaled[n] } : {}), unit });
-    return { y: q.y, err: q.err, xmin: q.xmin, xmax: q.xmax, n: q.idx.length, weighted: q.weighted, dof: o.dof, xlo: q.xlo, xhi: q.xhi, ...(q.weighted ? { chi2: o.chi2 } : { ssr: o.ssr }), a: par(0, q.unit), b: par(1, q.yunit) };
-  });
-  const params = fits.flatMap(f => ["a", "b"].map(n => ({ name: `${n} (${f.y.split(" / ")[0]})`, ...f[n] })));
-  change(() => addResult(proj, { kind: "series", inputs: seriesSettings(proj), fits, params }));
-  autoNext();
-}
-$("sr_go").onclick = () => {
-  if ($("sr_rows").querySelector(".bad")) return seriesFailed(t("sr_badrange"));
-  const r = prepareSeries(proj, seriesSettings(proj));
-  if (r.error) return seriesFailed(r.error);
-  $("srmsg").hidden = true; busy(true);
-  pending = { series: true, fp: seriesKey(proj), jobs: r.jobs, done: [] };
-  sendSeries(pending);
-};
-// The derived quantity's text fields live in the project settings. Typing in one field is one undo step.
-$("derived").addEventListener("input", e => {
-  const k = DKEYS[e.target.id];
-  if (!k) return;
-  if (editKey !== "derived." + k) { pushUndo(); editKey = "derived." + k; }
-  proj.settings.derived = { ...derivedSettings(proj), [k]: e.target.value };
-  renderResults(); autosave();
-});
-$("derived").addEventListener("focusout", () => { editKey = null; });
-for (const k of ["E", "g"]) $("d_t" + k).onclick = () => { if (proj) setSetting("derived", { ...DERIVED_TEMPLATES[k] }); };
-function deriveFailed(why) { $("derivemsg").textContent = why; $("derivemsg").hidden = false; }
-$("derive").onclick = () => {
-  const fit = freshFit(), ds = derivedSettings(proj), name = ds.name.trim();
-  if (!fit) return deriveFailed(t("need_fit"));
-  if (!name) return deriveFailed(t("dv_noname"));
-  const [pa, pb] = fit.params, aUnit = ds.aUnit.trim();
-  if (aUnit && pa.unit !== aUnit) return deriveFailed(t("dv_unit", { want: aUnit, got: pa.unit || t("unit_none") }));
-  const v = parseDerivedVars(ds.vars);
-  if (v.error) return deriveFailed(v.error);
-  const calc = k => deriveQuantity(ds.formula, { a: { value: pa.value, u: pa[k], unit: pa.unit }, b: { value: pb.value, u: pb[k], unit: pb.unit } }, v.vars);
-  const s = calc("uScaled");
-  if (s.error) return deriveFailed(s.error);
-  const u = fit.weighted ? calc("uUnscaled") : null;
-  change(() => addResult(proj, {
-    kind: "derived", weighted: fit.weighted, formula: ds.formula.trim(), used: s.used, partsScaled: s.parts, partsUnscaled: (u || s).parts,
-    params: [{ name, unit: ds.unit.trim(), value: s.value, uScaled: s.u, ...(u ? { uUnscaled: u.u } : {}) }],
-  }));
-};
-// Calibration read-off: the measured values are a text setting (typing is one undo step); the calculation needs a fresh line fit with its covariance.
-$("c_y0").addEventListener("input", e => {
-  if (editKey !== "calib.y0") { pushUndo(); editKey = "calib.y0"; }
-  proj.settings.calib = { y0: e.target.value };
-  renderPlot(); renderResults(); autosave();
-});
-$("c_y0").addEventListener("focusout", () => { editKey = null; });
-function calibFailed(why) { $("calibmsg").textContent = why; $("calibmsg").hidden = false; }
-$("c_go").onclick = () => {
-  if (!proj) return;
-  const fit = freshFit(), x = col("x"), y = col("y");
-  if (!fit) return calibFailed(t("need_fit"));
-  const v = parseCalibValues(calibSettings(proj).y0);
-  if (v.error) return calibFailed(v.error);
-  const cv = k => { const c = (fit.cov || {})[k]; return Array.isArray(c) && c.length === 3 && c.every(Number.isFinite) ? c : null; };
-  const kinds = fit.weighted ? ["scaled", "unscaled"] : ["scaled"];
-  if (!kinds.every(cv)) return calibFailed(t("c_nocov"));
-  const [pa, pb] = fit.params, xs = x.values.filter((q, i) => q !== null && y.values[i] !== null), per = k => ({ a: pa.value, b: pb.value, ua: pa[k === "scaled" ? "uScaled" : "uUnscaled"], ub: pb[k === "scaled" ? "uScaled" : "uUnscaled"], cov: cv(k)[1] });
-  const unit = colUnit(x.name), reads = [];
-  for (const q of v.values) {
-    const s = readOff(per("scaled"), q.y0, q.u);
-    if (s.error) return calibFailed(s.error);
-    const u = fit.weighted ? readOff(per("unscaled"), q.y0, q.u) : null;
-    reads.push({ y0: q.y0, u0: q.u, x0: s.x0, uScaled: s.u, ...(u ? { uUnscaled: u.u } : {}), partsScaled: s.parts, partsUnscaled: (u || s).parts });
-  }
-  $("calibmsg").hidden = true;
-  change(() => addResult(proj, {
-    kind: "calib", weighted: fit.weighted, range: [Math.min(...xs), Math.max(...xs)],
-    used: { a: pa.value, b: pb.value, xUnit: unit, scaled: { ua: per("scaled").ua, ub: per("scaled").ub, cov: cv("scaled")[1] }, ...(fit.weighted ? { unscaled: { ua: per("unscaled").ua, ub: per("unscaled").ub, cov: cv("unscaled")[1] } } : {}) },
-    reads, params: reads.map(q => ({ ...stored("n_calib", { y0: q.y0 }), unit, value: q.x0, uScaled: q.uScaled, ...(q.uUnscaled !== undefined ? { uUnscaled: q.uUnscaled } : {}) })),
-  }));
-};
-// Comparison of two values: the three texts are project settings (typing in one field is one undo step); the result needs no fit and no table data.
-for (const id of Object.keys(KKEYS)) {
-  $(id).addEventListener("input", e => {
-    if (editKey !== "compare." + id) { pushUndo(); editKey = "compare." + id; }
-    proj.settings.compare = { ...compareSettings(proj), [KKEYS[id]]: e.target.value };
-    renderResults(); autosave();
-  });
-  $(id).addEventListener("focusout", () => { editKey = null; });
-}
-function compareFailed(why) { $("comparemsg").textContent = why; $("comparemsg").hidden = false; }
-$("k_go").onclick = () => {
-  if (!proj) return;
-  const st = compareSettings(proj), m = parseValue(st.meas, "Messwert"), c = parseValue(st.ref, "Vergleichswert");
-  if (m.error) return compareFailed(m.error);
-  if (c.error) return compareFailed(c.error);
-  const d = compareValues(m, c);
-  if (d.error) return compareFailed(d.error);
-  const unit = st.unit.trim(), vk = d.agree ? "cmp_ok" : "cmp_bad", vv = { z: d.z, k: COMPARE_K };
-  $("comparemsg").hidden = true;
-  change(() => addResult(proj, { kind: "compare", unit, m, c, z: d.z, rel: d.rel, verdict: verdictFor(vk, vv, "de"), vk, vv,
-    params: [{ ...stored("n_cdiff"), unit, value: d.diff, u: d.u }, { ...stored("n_cz"), unit: "", value: d.z, plain: true }] }));
-};
-// Typing the instrument error is one undo step; the two selects are one step each.
-$("s_instr").addEventListener("input", e => {
-  const v = parseCell(e.target.value);
-  e.target.classList.toggle("bad", v === undefined);
-  if (v === undefined) return;
-  if (editKey !== "stats.instr") { pushUndo(); editKey = "stats.instr"; }
-  proj.settings.stats = { ...statsSettings(proj), instr: v };
-  renderResults(); autosave();
-});
-$("s_instr").addEventListener("focusout", () => { editKey = null; });
-$("s_col").onchange = e => setSetting("stats", { ...statsSettings(proj), col: e.target.value });
-$("s_ddof").onchange = e => setSetting("stats", { ...statsSettings(proj), ddof: +e.target.value });
-$("s_conf").onchange = e => { const st = { ...statsSettings(proj) }; if (e.target.value) st.conf = +e.target.value; else delete st.conf; setSetting("stats", st); };
-function statsFailed(why) { $("statsmsg").textContent = why; $("statsmsg").hidden = false; }
-$("s_go").onclick = () => {
-  const st = statsSettings(proj), c = proj.columns.find(k => k.name === st.col), vals = c.values.filter(v => v !== null);
-  if (vals.length < 2) return statsFailed(t(vals.length === 1 ? "stats_few1" : "stats_fewn", { col: c.name, n: vals.length }));
-  if ($("s_instr").classList.contains("bad")) return statsFailed(t("stats_nonum"));
-  if (st.instr != null && !(st.instr >= 0)) return statsFailed(t("stats_neg"));
-  const d = describe(vals, st.ddof, st.instr), df = d.n - 1, tc = st.conf ? tCrit(st.conf, df) : null;
-  const ci = st.conf ? { level: st.conf, df, t: tc, lo: d.mean - tc * d.sem, hi: d.mean + tc * d.sem } : null, unit = colUnit(c.name), p = (nm, value, u) => ({ ...nm, unit, value, ...(u === undefined ? { plain: true } : { u }) });
-  change(() => addResult(proj, {
-    kind: "stats", inputs: st, n: d.n,
-    params: [p(stored("n_mean"), d.mean, d.sem), p(stored(st.ddof === 0 ? "n_sd0" : "n_sd1"), d.s), p(stored("n_sem"), d.sem),
-      ...(d.uTotal === null ? [] : [p(stored("n_mean_instr"), d.mean, d.uTotal)]),
-      ...(ci ? [p(stored("n_mean_ci", { pct: Math.round(st.conf * 100) }), d.mean, ci.t * d.sem)] : [])],
-    ...(ci ? { ci } : {}),
-  }));
-};
-// Weighted mean: the three settings live in the project (undo works); typing k is one undo step.
-const setWmean = patch => setSetting("wmean", { ...wmeanSettings(proj), ...patch });
-$("w_val").onchange = e => setWmean({ val: e.target.value });
-$("w_unc").onchange = e => setWmean({ unc: e.target.value || null });
-$("w_k").addEventListener("input", e => {
-  const v = parseCell(e.target.value);
-  e.target.classList.toggle("bad", v === undefined || v === null || !(v > 0));
-  if (!(v > 0)) return;
-  if (editKey !== "wmean.k") { pushUndo(); editKey = "wmean.k"; }
-  proj.settings.wmean = { ...wmeanSettings(proj), k: v };
-  renderResults(); autosave();
-});
-$("w_k").addEventListener("focusout", () => { editKey = null; });
-function wmeanFailed(why) { $("wmsg").textContent = why; $("wmsg").hidden = false; }
-$("w_go").onclick = () => {
-  const st = wmeanSettings(proj), cv = proj.columns.find(c => c.name === st.val), cu = proj.columns.find(c => c.name === st.unc);
-  if ($("w_k").classList.contains("bad")) return wmeanFailed(t("wm_kbad"));
-  if (!cu) return wmeanFailed(t("wm_nounc"));
-  if (cu === cv) return wmeanFailed(t("wm_same"));
-  const rows = cv.values.map((v, i) => i).filter(i => cv.values[i] !== null && cu.values[i] !== null);
-  const zero = rows.find(i => !(cu.values[i] > 0));
-  if (zero !== undefined) return wmeanFailed(t("wm_zero", { row: zero + 1 }));
-  if (rows.length < 2) return wmeanFailed(t(rows.length === 1 ? "wm_few1" : "wm_fewn", { n: rows.length }));
-  const unit = colUnit(cv.name), d = weightedMean(rows.map(i => cv.values[i]), rows.map(i => cu.values[i]), st.k), nr = j => rows[j - 1] + 1;
-  const vk = d.overlap ? "wm_ok" : "wm_bad", vv = d.overlap ? {} : { pairs: d.bad.map(b => [nr(b.i), nr(b.j), b.gap]), unit };
-  change(() => addResult(proj, { kind: "wmean", inputs: st, n: d.n, verdict: verdictFor(vk, vv, "de"), vk, vv, params: [{ ...stored("n_wmean"), unit, value: d.mean, u: d.u }] }));
-};
-// Histogram: column and divisor are one undo step each, typing class width or start is one step per field.
-const setHist = patch => setSetting("hist", { ...histSettings(proj), ...patch });
-$("h_col").onchange = e => setHist({ col: e.target.value });
-$("h_ddof").onchange = e => setHist({ ddof: +e.target.value });
-for (const [id, key] of [["h_w", "width"], ["h_s", "start"]]) {
-  $(id).addEventListener("input", e => {
-    const v = parseCell(e.target.value);
-    e.target.classList.toggle("bad", v === undefined || (key === "width" && v !== null && !(v > 0)));
-    if (e.target.classList.contains("bad")) return;
-    if (editKey !== "hist." + key) { pushUndo(); editKey = "hist." + key; }
-    proj.settings.hist = { ...histSettings(proj), [key]: v };
-    renderResults(); autosave();
-  });
-  $(id).addEventListener("focusout", () => { editKey = null; });
-}
-function histFailed(why) { $("hmsg").textContent = why; $("hmsg").hidden = false; }
-$("h_go").onclick = () => {
-  const st = histSettings(proj), c = proj.columns.find(k => k.name === st.col), vals = c.values.filter(v => v !== null);
-  if ($("h_w").classList.contains("bad")) return histFailed(t("hist_wbad"));
-  if ($("h_s").classList.contains("bad")) return histFailed(t("hist_sbad"));
-  if (vals.length < 2) return histFailed(t(vals.length === 1 ? "hist_few1" : "hist_fewn", { col: c.name, n: vals.length }));
-  const lo = Math.min(...vals), hi = Math.max(...vals);
-  if (lo === hi) return histFailed(t("hist_same", { col: c.name, v: fmt.format(lo) }));
-  const auto = autoBins(vals), width = st.width ?? auto.width, start = st.start ?? auto.start;
-  if (start > lo) return histFailed(t("hist_start", { s: fmt.format(start), lo: fmt.format(lo) }));
-  const k = Math.floor((hi - start) / width + 1e-9) + 1;
-  if (k > 100) return histFailed(t("hist_many", { w: fmt.format(width), k: fmt.format(k) }));
-  const h = histogram(vals, start, width), d = describe(vals, st.ddof), unit = colUnit(c.name);
-  change(() => addResult(proj, {
-    kind: "hist", inputs: st, n: d.n, start, width, counts: h.counts, mean: d.mean, s: d.s,
-    params: [{ ...stored("n_mean"), unit, value: d.mean, u: d.sem }, { ...stored(st.ddof === 0 ? "n_sd0" : "n_sd1"), unit, value: d.s, plain: true }],
-  }));
-};
-// χ² test: column is one undo step, typing class width or start is one step per field (whole numbers only).
-const setGof = patch => setSetting("gof", { ...gofSettings(proj), ...patch });
-$("g_col").onchange = e => setGof({ col: e.target.value });
-for (const [id, key, min] of [["g_w", "width", 1], ["g_s", "start", 0]]) {
-  $(id).addEventListener("input", e => {
-    const v = parseCell(e.target.value);
-    e.target.classList.toggle("bad", v === undefined || (v !== null && !(Number.isInteger(v) && v >= min)));
-    if (e.target.classList.contains("bad")) return;
-    if (editKey !== "gof." + key) { pushUndo(); editKey = "gof." + key; }
-    proj.settings.gof = { ...gofSettings(proj), [key]: v };
-    renderResults(); autosave();
-  });
-  $(id).addEventListener("focusout", () => { editKey = null; });
-}
-$("g_go").onclick = gofRun;
-$("weighted").onchange = e => setSetting("weighted", e.target.checked);
-$("errm").onchange = e => setSetting("errMethod", e.target.value);
-
-// DE / EN switch: fixed texts, number formats, plots and result lines are drawn again; the project itself does not change.
-for (const b of document.querySelectorAll("[data-lang]")) b.onclick = () => {
-  setLang(b.dataset.lang);
-  relabelTemplates();
-  for (const id of ["msg", "fitmsg", "tplmsg"]) $(id).hidden = true; // these hold text in the old language
-  if (proj) render();
-};
-// The "Beispiele" menu closes after a pick or a click elsewhere.
-document.addEventListener("click", e => { if (!e.target.closest("#exmenu summary")) $("exmenu").open = false; });
-initLang();
-relabelTemplates();
-restoreAutosave();
-syncTools(); // without a project (test address ?start=leer) too
-</script>
+<script src="home.js"></script>
 </body>
 </html>

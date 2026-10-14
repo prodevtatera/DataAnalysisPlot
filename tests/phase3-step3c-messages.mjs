@@ -151,7 +151,7 @@ const drop = (name, type, content) => p.evaluate(([n, t, c]) => {
   document.body.dispatchEvent(new DragEvent("drop", { dataTransfer: dt, bubbles: true, cancelable: true }));
 }, [name, type, content]);
 const dir = mkdtempSync(tmpdir() + "/plotlab-3c-");
-await p.goto(base + "app/index.html?start=leer");
+await p.goto(base + "app/app.html?start=leer");
 await p.evaluate(() => { localStorage.clear(); localStorage.setItem("plotlab-lang", "en"); });
 await p.reload();
 await p.waitForFunction(() => document.getElementById("fitstate").dataset.i18n === "fs_ready", null, { timeout: 120000 });
@@ -186,7 +186,7 @@ eq("log axis: message names the row, English number", (await text("#plot")).trim
 
 // 3. The finished example: derived quantity, calibration, comparison and series messages.
 await p.evaluate(() => localStorage.removeItem("plotlab-autosave"));
-await p.goto(base + "app/index.html");
+await p.goto(base + "app/app.html");
 await p.waitForFunction(() => /E = \(201 ± 8\) GPa/.test(document.getElementById("introres").textContent), null, { timeout: 120000 });
 eq("example: result line in English", (await lines()).slice(0, 3), ["a = (0.02529 ± 0.00029) mm/N", "b = (0.007 ± 0.011) mm", "E = (201 ± 8) GPa"]);
 await p.fill("#d_formula", "4*zz/a"); await p.click("#derive");

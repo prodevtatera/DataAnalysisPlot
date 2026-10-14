@@ -62,7 +62,7 @@ const b = await chromium.launch();
 const p = await (await b.newContext({ viewport: { width: 1200, height: 2700 } })).newPage();
 const external = [];
 p.on("request", r => { if (!r.url().startsWith("file:")) external.push(r.url()); });
-await p.goto(pathToFileURL(resolve("app/index.html")).href);
+await p.goto(pathToFileURL(resolve("app/app.html")).href);
 const lines = () => p.$$eval("#results .res", e => e.map(x => x.textContent));
 const how = () => p.textContent("#results [data-how]");
 const verdict = () => p.textContent("#results [data-verdict]");

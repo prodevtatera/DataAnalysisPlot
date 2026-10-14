@@ -36,7 +36,7 @@ const traces = () => p.evaluate(() => (document.getElementById("plot").data || [
 
 // 1. First visit: example, plotted, fitted, result line, no click.
 const t0 = Date.now();
-await p.goto(base + "app/index.html");
+await p.goto(base + "app/app.html");
 await p.waitForFunction(() => document.querySelectorAll("#plot .scatterlayer .trace").length > 0, null, { timeout: 120000 });
 const tPlot = Date.now() - t0;
 await p.waitForFunction(() => /E = \(201 ± 8\) GPa/.test(document.getElementById("introres").textContent), null, { timeout: 120000 });
@@ -128,7 +128,7 @@ eq("damaged autosave: message and example", await msg(), "Der automatisch gespei
 const c2 = await b.newContext({ viewport: { width: 1280, height: 800 } }), p2 = await c2.newPage();
 p2.on("pageerror", e => errors.push(String(e)));
 await p2.addInitScript(() => { Object.defineProperty(window, "localStorage", { get() { throw new Error("blocked"); } }); });
-await p2.goto(base + "app/index.html");
+await p2.goto(base + "app/app.html");
 await p2.waitForFunction(() => /E = \(201 ± 8\) GPa/.test(document.getElementById("introres").textContent), null, { timeout: 120000 });
 eq("storage blocked: example, warning about saving", [await p2.isVisible("#storewarn")], [true]);
 

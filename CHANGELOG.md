@@ -2,6 +2,13 @@
 
 Written in plain language for people who do not read code. Newest entry on top.
 
+## 2026-10-14: A home page
+
+- **What changed for a student:** the web address now opens a home page instead of the workbench. It has a headline, a drop zone, three buttons ("Beispiel öffnen", "Leeres Projekt", "Datei wählen"), a picture of a finished result, three short points about the tool and 12 experiment cards. A card opens the workbench with that experiment; "Beispiel öffnen" opens the finished example; a dragged, chosen or pasted CSV file arrives in the workbench as a table. A picture, an Excel file or a text without numbers is refused on the home page with a clear message, and nothing changes. If you worked here before, a link offers to continue with your last project. German and English, the language you choose is kept.
+- **The workbench moved** to `app/app.html`; the "PlotLab" name in its header leads back to the home page. Opening the workbench with a start choice is done once and the address is cleaned, so a reload never replaces your work.
+- **The home page is light:** about 180 KB, no Python engine, nothing loaded from outside.
+- **Tested:** `tests/phase4-step5-home.sh` in a real browser: root address, each button, all 12 cards (template and open tools), dropped, chosen and pasted German CSV, three kinds of refused files, both languages, 1200, 800 and 375 px without sideways scroll, no request leaving the machine.
+
 ## 2026-10-14: A tidier top of the page, and it fits tablets and phones
 
 - **What changed for a student:** the buttons at the top are now in three labelled groups on one row: "Datei" (Leere Tabelle, Beispiele, Öffnen, Speichern), "Bearbeiten" (Rückgängig, Wiederholen) and "Versuchsvorlage" (the experiment list and "Laden"). Before, they wrapped onto two lines. The labels are shorter ("Öffnen" instead of "Projekt öffnen", "Speichern" instead of "Projekt speichern"). The note on a first visit and the hint above the table are shorter (two lines less each). The table gets half of the width, so three columns show in full. An empty project says what to do in the results box: enter values and press "Anpassen". German and English.

@@ -46,7 +46,7 @@ const b = await chromium.launch();
 const p = await (await b.newContext({ viewport: { width: 1200, height: 2300 } })).newPage();
 const external = [];
 p.on("request", r => { if (!r.url().startsWith("file:")) external.push(r.url()); });
-await p.goto(pathToFileURL(resolve("app/index.html")).href);
+await p.goto(pathToFileURL(resolve("app/app.html")).href);
 const lines = () => p.$$eval("#results .res", e => e.map(x => x.textContent));
 const go = () => p.click("#s_go");
 const msg = () => p.textContent("#statsmsg");

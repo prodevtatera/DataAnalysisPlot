@@ -21,7 +21,7 @@ p.on("pageerror", e => errors.push(String(e)));
 const foot = () => p.textContent("footer");
 
 // The workbench, German first, then English, then German again.
-await p.goto(base + "app/index.html");
+await p.goto(base + "app/app.html");
 eq("app footer, German", await foot(), DE);
 await p.click("#lang_en");
 eq("app footer, English", await foot(), EN);

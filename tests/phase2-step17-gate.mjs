@@ -30,7 +30,7 @@ const br = await chromium.launch();
 const p = await (await br.newContext({ viewport: { width: 1200, height: 2600 } })).newPage();
 const errors = [];
 p.on("pageerror", e => errors.push(String(e)));
-await p.goto(base + "app/index.html");
+await p.goto(base + "app/app.html");
 await p.evaluate(() => localStorage.clear());
 const t0 = Date.now();
 await p.reload();

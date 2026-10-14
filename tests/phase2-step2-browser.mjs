@@ -25,7 +25,7 @@ const ctx = await b.newContext({ viewport: { width: 1200, height: 1900 } });
 const p = await ctx.newPage();
 const external = [];
 p.on("request", r => { if (!r.url().startsWith("file:")) external.push(r.url()); });
-await p.goto(pathToFileURL(resolve("app/index.html")).href);
+await p.goto(pathToFileURL(resolve("app/app.html")).href);
 const vals = j => p.evaluate(j => proj.columns[j].values, j);
 const cellsText = j => p.$$eval(`td[data-calc="${j}"]`, e => e.map(x => x.textContent));
 const addF = async (name, expr, unc = "") => { await p.fill("#f_name", name); await p.fill("#f_expr", expr); await p.fill("#f_unc", unc); await p.click("#f_add"); };

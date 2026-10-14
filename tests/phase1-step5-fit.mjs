@@ -34,7 +34,7 @@ const br = await chromium.launch();
 const p = await br.newPage({ viewport: { width: 1200, height: 1900 } });
 const external = [];
 p.on("request", r => { if (!r.url().startsWith(base) && !r.url().startsWith("blob:") && !r.url().startsWith("data:")) external.push(r.url()); });
-await p.goto(base + "app/index.html");
+await p.goto(base + "app/app.html");
 await p.evaluate(() => localStorage.clear());
 await p.reload();
 const cell = (r, c) => `input[data-r="${r}"][data-c="${c}"]`;

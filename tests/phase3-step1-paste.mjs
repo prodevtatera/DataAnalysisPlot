@@ -32,7 +32,7 @@ const b = await chromium.launch();
 const p = await (await b.newContext({ viewport: { width: 1200, height: 2000 } })).newPage();
 const errors = [];
 p.on("pageerror", e => errors.push(String(e)));
-await p.goto(base + "app/index.html");
+await p.goto(base + "app/app.html");
 await p.evaluate(() => localStorage.clear());
 await p.reload();
 await p.waitForFunction(() => !document.getElementById("fit").disabled || document.getElementById("fitstate").textContent === "Bereit.", null, { timeout: 120000 });

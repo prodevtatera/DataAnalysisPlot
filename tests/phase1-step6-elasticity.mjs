@@ -23,7 +23,7 @@ eq("formula uE/E", Math.abs(t.u / t.value - 0.3) < 1e-8, true);
 const { base, close } = await serve();
 const br = await chromium.launch();
 const p = await br.newPage({ viewport: { width: 1200, height: 2300 } });
-await p.goto(base + "app/index.html");
+await p.goto(base + "app/app.html");
 await p.evaluate(() => localStorage.clear());
 await p.reload();
 const lines = () => p.$$eval("#results .res", e => e.map(x => x.textContent));
