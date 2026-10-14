@@ -78,7 +78,7 @@ const ctx2 = await b.newContext();
 await ctx2.addInitScript(() => { Storage.prototype.setItem = () => { throw new DOMException("full", "QuotaExceededError"); }; });
 const q = await ctx2.newPage(); await q.goto(url);
 await q.click("#example");
-eq("no-storage warning", await q.textContent("#storewarn"), "Automatisches Speichern ist in diesem Browser nicht möglich. Bitte speichere das Projekt mit „Projekt speichern“.");
+eq("no-storage warning", await q.textContent("#storewarn"), "Automatisches Speichern ist in diesem Browser nicht möglich. Bitte speichere das Projekt mit „Speichern“.");
 await q.fill(cell(0, 1), "3");
 eq("warning stays while editing", await q.isVisible("#storewarn"), true);
 eq("app still works without storage", (await q.evaluate(() => document.getElementById("plot").data[0].y))[0], 3);

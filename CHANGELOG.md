@@ -2,6 +2,12 @@
 
 Written in plain language for people who do not read code. Newest entry on top.
 
+## 2026-10-14: A tidier top of the page, and it fits tablets and phones
+
+- **What changed for a student:** the buttons at the top are now in three labelled groups on one row: "Datei" (Leere Tabelle, Beispiele, Öffnen, Speichern), "Bearbeiten" (Rückgängig, Wiederholen) and "Versuchsvorlage" (the experiment list and "Laden"). Before, they wrapped onto two lines. The labels are shorter ("Öffnen" instead of "Projekt öffnen", "Speichern" instead of "Projekt speichern"). The note on a first visit and the hint above the table are shorter (two lines less each). The table gets half of the width, so three columns show in full. An empty project says what to do in the results box: enter values and press "Anpassen". German and English.
+- **Tablet and phone:** on a 375 px wide phone nothing sticks out sideways any more (the results tables used to push the page 45 px too wide; they now scroll inside their box, like the data table), the blue header is lower (64 px instead of 81 px), and the "Beispiele" menu stays inside the screen. At 800 px the groups wrap onto two rows without cutting anything.
+- **Tested:** `tests/phase4-step4-polish.sh` in a real browser at 1200, 800 and 375 px: one toolbar row, at most 15 visible buttons, no sideways scroll for the page, for each of the 13 tools and for each of the 12 templates, plus the empty state in both languages.
+
 ## 2026-10-14: Each experiment template opens only the tools it needs
 
 - **What changed for a student:** choosing an experiment (P1 to P9) from "Vorlage laden" now opens just the tools of that experiment under the results, for example P3 opens "Mehrere Messreihen" and "Abgeleitete Größe", P8 (counts) opens "χ²-Test", P5 (polarimetry) opens none because only the fit is needed. Pasting your own numbers into a template keeps those tools open. The first visit (finished example) still shows only table, plot and results.

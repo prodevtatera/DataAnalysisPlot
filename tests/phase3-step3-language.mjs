@@ -89,7 +89,7 @@ await p.fill('#table input[data-r="1"][data-c="1"]', "0.5");
 await p.click("#blank");
 await p.click("#fit");
 eq("fit without data: English message", await text("#fitmsg"), "The fit failed. At least three data points with x and y are needed.");
-eq("empty table: English placeholder in the plot area", await text("#results"), "No results yet.");
+eq("empty table: English placeholder in the plot area", await text("#results"), "No results yet. Enter your measured values and press “Fit”.");
 await p.screenshot({ path: "evidence/phase3-step3-en-error.png" });
 
 // 4. The choice survives a reload (autosave holds the blank table, so load the example again).

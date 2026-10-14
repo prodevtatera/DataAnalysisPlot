@@ -50,7 +50,7 @@
   #fmsg { white-space:pre-line; }
   input.num.bad { background:#fde8ea; border-color:#B00020; }
   td.n { padding:3px 10px; color:#555; text-align:right; width:44px; }
-  td input { width:100%; min-width:90px; border:0; border-radius:0; padding:3px 10px; font:inherit; text-align:right; background:transparent; }
+  td input { width:100%; min-width:72px; border:0; border-radius:0; padding:3px 10px; font:inherit; text-align:right; background:transparent; }
   td input:focus { outline:2px solid var(--blue); outline-offset:-2px; background:#fff; }
   td input.bad { background:#fde8ea; outline:2px solid #B00020; outline-offset:-2px; }
   textarea { width:100%; height:120px; font:15px/22px ui-monospace, Menlo, Consolas, monospace; padding:10px; border:1px solid var(--blue); border-radius:0; background:#fff; resize:vertical; }
@@ -69,7 +69,7 @@
   #tpl_info ol { margin:6px 0 0; padding-left:22px; }
   #tpl_info li { margin:6px 0; }
   #tpl_info .warn { border-left:6px solid #D55E00; padding-left:10px; margin:6px 0; }
-  #results { background:#fff; border:1px solid var(--line); padding:12px 16px; }
+  #results { background:#fff; border:1px solid var(--line); padding:12px 16px; overflow-x:auto; }
   .result.stale .res { opacity:.5; }
   .res { font:700 20px "Barlow", system-ui, sans-serif; margin:2px 0; }
   .empty { padding:24px 14px; color:#444; }
@@ -81,7 +81,7 @@
   .thead { display:flex; justify-content:space-between; align-items:center; gap:12px; margin:0 0 8px; }
   .thead h2 { margin:0; }
   .tool { border-top:2px solid var(--line); padding-top:14px; }
-  .work { display:grid; grid-template-columns:minmax(0,5fr) minmax(0,7fr); grid-template-areas:"left plot"; gap:24px; align-items:start; margin-top:12px; }
+  .work { display:grid; grid-template-columns:minmax(0,6fr) minmax(0,6fr); grid-template-areas:"left plot"; gap:24px; align-items:start; margin-top:12px; }
   .work .left { grid-area:left; min-width:0; }
   #s_plot { grid-area:plot; min-width:0; }
   .work .hint { margin:0 0 6px; }
@@ -96,38 +96,48 @@
   .toolbtns { display:flex; flex-wrap:wrap; gap:8px; margin:12px 0 0; }
   .toolbtns .btn { white-space:nowrap; }
   button[data-tool].open { background:var(--blue); color:var(--paper); }
-  .tplpick { display:flex; gap:6px; align-items:center; }
-  .tplpick select { font-size:16px; padding:6px 8px; }
+  .toolbar { display:flex; flex-wrap:wrap; gap:12px 28px; align-items:flex-start; margin:12px 0 16px; }
+  .grp { display:flex; flex-direction:column; gap:4px; }
+  .grp .cap { font:600 13px/16px "Source Sans 3", system-ui, sans-serif; letter-spacing:.06em; text-transform:uppercase; color:#444; }
+  .grp .row { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+  .toolbar .btn { padding:8px 14px; }
+  #tpl_sel { font-size:16px; padding:7px 8px; width:210px; }
   #tpl_info a.go { color:var(--blue); font-weight:600; }
   /* With a mouse the row delete buttons show only on the row under the pointer (or with the keyboard focus in the row); on a touch screen they always show. */
   @media (hover:hover) { td > .btn[data-del] { visibility:hidden; } tr:hover > td > .btn[data-del], tr:focus-within > td > .btn[data-del] { visibility:visible; } }
   @media (max-width:960px) { .work { grid-template-columns:minmax(0,1fr); grid-template-areas:"plot" "left"; } }
-  @media (max-width:768px) { h1 { font-size:28px; } header,footer { padding-left:12px; padding-right:12px; } main { padding:16px 12px 40px; } }
+  @media (max-width:768px) { h1 { font-size:28px; } header { height:64px; } header,footer { padding-left:12px; padding-right:12px; } main { padding:16px 12px 40px; } .toolbar .btn { padding:8px 10px; font-size:15px; } .toolbar { gap:10px 20px; } .grp .row, .grp { position:relative; } .menu { position:static; } .menuitems { max-width:calc(100vw - 24px); } }
 </style>
 </head>
 <body>
 <header><span class="brand">PlotLab</span><span class="lang" role="group" aria-label="Sprache / Language"><button id="lang_de" data-lang="de" aria-pressed="true">DE</button><button id="lang_en" data-lang="en" aria-pressed="false">EN</button></span></header>
 <main>
   <h1 data-i18n="h_data">Messdaten</h1>
-  <div class="btns" id="filebar">
-    <button class="btn" id="blank" data-i18n="b_blank">Leere Tabelle</button>
-    <details class="menu" id="exmenu"><summary class="btn alt" data-i18n="b_examples">Beispiele</summary><div class="menuitems">
-      <button class="btn alt" id="example" data-i18n="b_example">Beispiel laden</button>
-      <button class="btn alt" id="example2" data-i18n="b_example2">Beispiel Elastizität laden</button>
-      <button class="btn alt" id="example3" data-i18n="b_example3">Beispiel Belastung und Entlastung laden</button>
-      <button class="btn alt" id="example4" data-i18n="b_example4">Beispiel Kalibriergerade laden</button>
-    </div></details>
-    <label class="btn alt"><span data-i18n="b_open">Projekt öffnen</span><input id="openfile" type="file" accept=".json,.plotlab" hidden></label>
-    <button class="btn alt" id="saveproj" data-i18n="b_save" disabled>Projekt speichern</button>
-    <button class="btn alt" id="undo" disabled title="Strg/Cmd+Z" data-i18n="b_undo" data-i18n-title="k_undo">Rückgängig</button>
-    <button class="btn alt" id="redo" disabled title="Umschalt+Strg/Cmd+Z" data-i18n="b_redo" data-i18n-title="k_redo">Wiederholen</button>
-    <label class="tplpick" data-i18n-title="hint_tpl"><span data-i18n="tpl_exp">Versuch</span> <select id="tpl_sel" aria-label="Vorlage wählen" data-i18n-aria="tpl_aria"><option value="" data-i18n="tpl_choose">(bitte wählen)</option></select></label>
-    <button class="btn" id="tpl_load" data-i18n="b_tpl">Vorlage laden</button>
+  <div class="toolbar" id="filebar">
+    <div class="grp" role="group" aria-labelledby="cap_file"><span class="cap" id="cap_file" data-i18n="g_file">Datei</span><div class="row">
+      <button class="btn" id="blank" data-i18n="b_blank">Leere Tabelle</button>
+      <details class="menu" id="exmenu"><summary class="btn alt" data-i18n="b_examples">Beispiele</summary><div class="menuitems">
+        <button class="btn alt" id="example" data-i18n="b_example">Beispiel laden</button>
+        <button class="btn alt" id="example2" data-i18n="b_example2">Beispiel Elastizität laden</button>
+        <button class="btn alt" id="example3" data-i18n="b_example3">Beispiel Belastung und Entlastung laden</button>
+        <button class="btn alt" id="example4" data-i18n="b_example4">Beispiel Kalibriergerade laden</button>
+      </div></details>
+      <label class="btn alt"><span data-i18n="b_open">Öffnen</span><input id="openfile" type="file" accept=".json,.plotlab" hidden></label>
+      <button class="btn alt" id="saveproj" data-i18n="b_save" disabled>Speichern</button>
+    </div></div>
+    <div class="grp" role="group" aria-labelledby="cap_edit"><span class="cap" id="cap_edit" data-i18n="g_edit">Bearbeiten</span><div class="row">
+      <button class="btn alt" id="undo" disabled title="Strg/Cmd+Z" data-i18n="b_undo" data-i18n-title="k_undo">Rückgängig</button>
+      <button class="btn alt" id="redo" disabled title="Umschalt+Strg/Cmd+Z" data-i18n="b_redo" data-i18n-title="k_redo">Wiederholen</button>
+    </div></div>
+    <div class="grp" role="group" aria-labelledby="cap_tpl" data-i18n-title="hint_tpl"><span class="cap" id="cap_tpl" data-i18n="tpl_exp">Versuchsvorlage</span><div class="row">
+      <select id="tpl_sel" aria-label="Vorlage wählen" data-i18n-aria="tpl_aria"><option value="" data-i18n="tpl_choose">(bitte wählen)</option></select>
+      <button class="btn" id="tpl_load" data-i18n="b_tpl">Laden</button>
+    </div></div>
   </div>
   <div id="tplmsg" class="msg" role="alert" hidden></div>
-  <div id="intro" class="msg note" role="status" hidden><span data-i18n="intro">Das ist ein fertiges Beispiel (P3 Elastizität, erfundene Daten), schon angepasst und ausgewertet. Ziehe deine eigene Datei auf diese Seite (CSV mit Semikolon oder Tab, Dezimalkomma ist in Ordnung, oder ein .plotlab-Projekt) oder beginne mit „Leere Tabelle“.</span><div id="introres"></div></div>
+  <div id="intro" class="msg note" role="status" hidden><span data-i18n="intro">Das ist ein fertiges Beispiel (P3 Elastizität, erfundene Daten), schon angepasst und ausgewertet. Zieh deine eigene Datei (CSV oder .plotlab) auf die Seite oder beginne mit „Leere Tabelle“.</span><div id="introres"></div></div>
   <div id="note" class="msg note" role="status" hidden></div>
-  <div id="storewarn" class="msg" role="alert" data-i18n="store_warn" hidden>Automatisches Speichern ist in diesem Browser nicht möglich. Bitte speichere das Projekt mit „Projekt speichern“.</div>
+  <div id="storewarn" class="msg" role="alert" data-i18n="store_warn" hidden>Automatisches Speichern ist in diesem Browser nicht möglich. Bitte speichere das Projekt mit „Speichern“.</div>
   <div id="msg" class="msg" role="alert" hidden></div>
   <div class="work">
   <section id="s_plot">
@@ -138,8 +148,7 @@
   <div class="left">
   <section id="s_table">
   <h2 data-i18n="h_table">Tabelle</h2>
-  <p class="hint" data-i18n="hint_data">Klicke in eine Zelle und tippe. Dezimalkomma ist in Ordnung. Das Diagramm folgt sofort.</p>
-  <p class="hint" data-i18n="hint_table">Mehrere Zellen aus Excel oder einer CSV-Datei kannst du mit Strg/Cmd+V in eine Zelle einfügen. Sie füllen die Tabelle ab dieser Zelle nach unten und rechts; Formelspalten werden übersprungen.</p>
+  <p class="hint" data-i18n="hint_data">Klicke in eine Zelle und tippe, das Diagramm folgt sofort. Zellen aus Excel fügst du mit Strg/Cmd+V ein.</p>
   <div class="scroll" id="table"><div class="empty" data-i18n="table_none">Noch keine Daten. Lade das Beispiel oder öffne ein Projekt.</div></div>
   <div class="btns">
     <button class="btn alt" id="addrow" data-i18n="b_addrow" disabled>Zeile hinzufügen</button>
@@ -157,7 +166,7 @@
     <span class="hint" id="fitstate" data-i18n="fs_loading">Rechenmodul (SciPy) wird geladen …</span>
   </div>
   <div id="fitmsg" class="msg" role="alert" hidden></div>
-  <div id="results"><div class="empty" data-i18n="res_none">Noch keine Ergebnisse.</div></div>
+  <div id="results"><div class="empty" data-i18n="res_none">Noch keine Ergebnisse. Trage Messwerte ein und drücke „Anpassen“.</div></div>
   </section>
   <section id="s_tools">
   <h2 data-i18n="h_tools">Werkzeuge</h2>
