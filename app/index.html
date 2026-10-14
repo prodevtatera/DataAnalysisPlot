@@ -98,6 +98,15 @@
   <div id="fmsg" class="msg" role="alert" hidden></div>
   <h2>Diagramm</h2>
   <div id="plot"><div class="empty">Noch keine Daten.</div></div>
+  <h2>Mittelwert und Streuung einer Spalte</h2>
+  <p class="hint">Mittelwert x̄, Standardabweichung (Teiler n oder n−1) und Standardfehler s/√n der gewählten Spalte. Der Standardfehler nutzt immer s mit n−1, auch wenn du für die Standardabweichung n wählst. Mit einem Gerätefehler (Ablesefehler, in der Einheit der Spalte) wird zusätzlich u = √(u<sub>zufällig</sub>² + u<sub>Gerät</sub>²) angegeben.</p>
+  <div class="fitbar" id="stats">
+    <label>Spalte <select id="s_col" aria-label="Spalte für Mittelwert und Streuung"></select></label>
+    <label>Standardabweichung mit <select id="s_ddof" aria-label="Teiler der Standardabweichung"><option value="1">n−1 (Stichprobe, s)</option><option value="0">n (σ)</option></select></label>
+    <label>Gerätefehler (optional) <input class="num" id="s_instr" aria-label="Gerätefehler in der Einheit der Spalte" inputmode="decimal"></label>
+    <button class="btn" id="s_go" disabled>Berechnen</button>
+  </div>
+  <div id="statsmsg" class="msg" role="alert" hidden></div>
   <h2>Anpassung (Gerade y = a·x + b)</h2>
   <div class="fitbar">
     <label id="wlabel"><input type="checkbox" id="weighted"> Mit den Fehlerwerten gewichten</label>
@@ -127,6 +136,7 @@
 <script src="formula.js"></script>
 <script src="propagate.js"></script>
 <script src="derive.js"></script>
+<script src="stats.js"></script>
 <script>
 const $ = id => document.getElementById(id);
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
@@ -187,7 +197,7 @@ function restoreAutosave() {
 function setProject(p) {
   proj = p; undo = []; redo = []; editKey = null; updateHist();
   $("msg").hidden = true;
-  $("saveproj").disabled = $("addrow").disabled = $("f_add").disabled = false; if (worker?.ready && !pending) $("fit").disabled = false;
+  $("saveproj").disabled = $("addrow").disabled = $("f_add").disabled = $("s_go").disabled = false; if (worker?.ready && !pending) $("fit").disabled = false;
   render();
 }
 function showMsg(t) { $("msg").textContent = t; $("msg").hidden = false; }
@@ -238,15 +248,21 @@ function derivedDetail(r) {
   return `<div class="detail" data-how>Rechnung: E = 4·L / (π·d²·a), u(E)/E = √((u(L)/L)² + (2·u(d)/d)² + (u(a)/a)²). ` +
     `Beiträge: u(L)/L = ${rel[0]}, 2·u(d)/d = ${rel[1]}, u(a)/a = ${rel[2]}. Fehler von a: ${un ? "unskaliert" : "skaliert bzw. aus der Streuung"}.</div>`;
 }
+const fmtPlain = new Intl.NumberFormat("de-DE", { maximumSignificantDigits: 3 });
+function statsDetail(r) {
+  const i = r.inputs || {}, n = fmt.format(Number(r.n));
+  return `<div class="detail" data-how>Spalte „${esc(i.col)}“, n = ${n} Werte. Standardabweichung mit Teiler ${i.ddof === 0 ? "n" : "n−1"}. Mittelwert ± Standardfehler s/√n (s mit n−1).` +
+    (i.instr != null ? ` Mit Gerätefehler ${fmt.format(Number(i.instr))}: u = √(u<sub>zufällig</sub>² + u<sub>Gerät</sub>²).` : "") + "</div>";
+}
 function renderResults() {
   if (!proj.results.length) { $("results").innerHTML = '<div class="empty">Noch keine Ergebnisse.</div>'; return; }
   $("results").innerHTML = proj.results.map(r => {
     const stale = isStale(proj, r);
     const lines = (r.params || []).map(q => {
       const u = uOf(q), t = huRound(q.value, u);
-      return `<div class="res">${esc(q.name)} = ${t ? `(${t[0]} ± ${t[1]})` : fmt.format(q.value)}${q.unit ? " " + esc(q.unit) : ""}</div>`;
+      return `<div class="res">${esc(q.name)} = ${t ? `(${t[0]} ± ${t[1]})` : q.plain ? fmtPlain.format(q.value) : fmt.format(q.value)}${q.unit ? " " + esc(q.unit) : ""}</div>`;
     }).join("");
-    return `<div class="result${stale ? " stale" : ""}">${stale ? '<div class="msg stalemsg">Die Daten wurden geändert. Dieses Ergebnis ist veraltet. Bitte neu anpassen.</div>' : ""}${lines}${r.kind === "fit" && r.dof ? fitDetail(r) : ""}${r.kind === "derived" ? derivedDetail(r) : ""}</div>`;
+    return `<div class="result${stale ? " stale" : ""}">${stale ? `<div class="msg stalemsg">Die Daten wurden geändert. Dieses Ergebnis ist veraltet. Bitte neu ${r.kind === "stats" ? "berechnen" : "anpassen"}.</div>` : ""}${lines}${r.kind === "fit" && r.dof ? fitDetail(r) : ""}${r.kind === "derived" ? derivedDetail(r) : ""}${r.kind === "stats" ? statsDetail(r) : ""}</div>`;
   }).join("");
 }
 // Weighting needs an error column; errors method only matters for a weighted fit.
@@ -256,7 +272,10 @@ function syncControls() {
   $("wlabel").classList.toggle("off", !has);
   $("wlabel").title = has ? "" : "Dafür braucht es eine Spalte mit der Rolle „Fehler von y“.";
   $("errm").value = proj.settings.errMethod || "scaled"; $("errm").disabled = !w;
-  $("fitmsg").hidden = true; $("derivemsg").hidden = true;
+  $("fitmsg").hidden = true; $("derivemsg").hidden = true; $("statsmsg").hidden = true;
+  const st = statsSettings(proj);
+  $("s_col").replaceChildren(...proj.columns.map(c => Object.assign(document.createElement("option"), { value: c.name, textContent: c.name })));
+  $("s_col").value = st.col; $("s_ddof").value = st.ddof; $("s_instr").value = st.instr == null ? "" : fmt.format(st.instr); $("s_instr").classList.remove("bad");
   for (const k of ["L", "uL", "d", "ud"]) { const v = (proj.settings.young || {})[k]; $("y_" + k).value = v == null ? "" : fmt.format(v); $("y_" + k).classList.remove("bad"); }
 }
 // Formula columns are recomputed from the data on every change; rows that cannot be calculated are named in the message.
@@ -412,6 +431,31 @@ $("derive").onclick = () => {
     kind: "derived", weighted: fit.weighted,
     params: [{ name: "E", unit: "GPa", value: s.E, uScaled: s.uE, ...(u ? { uUnscaled: u.uE } : {}) }],
     relScaled: s.rel, relUnscaled: (u || s).rel,
+  }));
+};
+// Typing the instrument error is one undo step; the two selects are one step each.
+$("s_instr").addEventListener("input", e => {
+  const v = parseCell(e.target.value);
+  e.target.classList.toggle("bad", v === undefined);
+  if (v === undefined) return;
+  if (editKey !== "stats.instr") { pushUndo(); editKey = "stats.instr"; }
+  proj.settings.stats = { ...statsSettings(proj), instr: v };
+  renderResults(); autosave();
+});
+$("s_instr").addEventListener("focusout", () => { editKey = null; });
+$("s_col").onchange = e => setSetting("stats", { ...statsSettings(proj), col: e.target.value });
+$("s_ddof").onchange = e => setSetting("stats", { ...statsSettings(proj), ddof: +e.target.value });
+function statsFailed(why) { $("statsmsg").textContent = why; $("statsmsg").hidden = false; }
+$("s_go").onclick = () => {
+  const st = statsSettings(proj), c = proj.columns.find(k => k.name === st.col), vals = c.values.filter(v => v !== null);
+  if (vals.length < 2) return statsFailed(`Die Spalte „${c.name}“ hat ${vals.length} Wert${vals.length === 1 ? "" : "e"}. Mittelwert und Streuung brauchen mindestens zwei Werte.`);
+  if ($("s_instr").classList.contains("bad")) return statsFailed("Der Gerätefehler ist keine Zahl.");
+  if (st.instr != null && !(st.instr >= 0)) return statsFailed("Der Gerätefehler darf nicht negativ sein.");
+  const d = describe(vals, st.ddof, st.instr), unit = (c.name.split("/")[1] || "").trim(), p = (name, value, u) => ({ name, unit, value, ...(u === undefined ? { plain: true } : { u }) });
+  change(() => addResult(proj, {
+    kind: "stats", inputs: st, n: d.n,
+    params: [p("Mittelwert x̄", d.mean, d.sem), p(st.ddof === 0 ? "Standardabweichung σ (Teiler n)" : "Standardabweichung s (Teiler n−1)", d.s), p("Standardfehler des Mittelwerts s/√n", d.sem),
+      ...(d.uTotal === null ? [] : [p("Mittelwert x̄ mit Gerätefehler", d.mean, d.uTotal)])],
   }));
 };
 $("weighted").onchange = e => setSetting("weighted", e.target.checked);

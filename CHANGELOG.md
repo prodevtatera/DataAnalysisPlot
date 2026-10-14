@@ -2,6 +2,13 @@
 
 Written in plain language for people who do not read code. Newest entry on top.
 
+## 2026-10-14: Mean, standard deviation and standard error (P1, P2)
+
+- **What a student can now do:** choose a column under "Mittelwert und Streuung einer Spalte", pick n or n−1 for the standard deviation, optionally enter an instrument (reading) error and press "Berechnen". The page shows the mean as (value ± standard error) unit, the standard deviation, the standard error s/√n, and with an instrument error a second mean line where random and instrument error are added in quadrature, for example (10,110 ± 0,022) mL.
+- **Good to know:** the standard error always uses s with n−1, even when n is chosen for the standard deviation; the page says so. Changing the column, the choice, the instrument error or any value of that column marks the result as out of date.
+- **Messages:** a column with fewer than two values, or a negative or non-numeric instrument error, gives a plain German message.
+- **Tested:** `tests/phase2-step3-stats.sh`, ten burette readings against hand calculations (mean 10,11; s 0,0258 or 0,0245; standard error 0,00816; combined 0,0216), in the real page with undo, reload, save and reopen.
+
 ## 2026-10-14: Uncertainties for formula columns (P2, P5, P6)
 
 - **What a student can now do:** in "Formelspalte" fill the new field "Unsicherheiten", for example `R1 = sR1; R2 = sR2; R3 = sR3` for the Wheatstone bridge Rx = R1·R2/R3. Next to Rx the app adds a column "u(Rx)" with the Gaussian error propagation. Each input gets a column, a number or an expression such as 0,01*D as its uncertainty; inputs you leave out count as exact. The new column updates when data changes, is saved with the project, and can be set as "Fehler von y" so the plot shows the error bars.
