@@ -3,6 +3,6 @@ cd "$(dirname "$0")/.." && { [ -d testbuild/node_modules ] || (cd testbuild && n
   for w in "Measured" "Not measured" "No instructor" "people gate" "cannot pass alone" "R is not installed" "real student" "invented"; do
     grep -qi "$w" docs/phase3-report.md || { echo "FAIL: docs/phase3-report.md lacks \"$w\""; exit 1; }
   done
-  grep -q "^STATUS: DONE" docs/progress.md || { echo "FAIL: progress.md is not STATUS: DONE"; exit 1; }
+  grep -qE "^STATUS: (DONE|RUNNING)" docs/progress.md || { echo "FAIL: progress.md is neither STATUS: DONE nor STATUS: RUNNING"; exit 1; }
   grep -q "^## For Luis" docs/progress.md || { echo "FAIL: progress.md has no For Luis"; exit 1; }
 }

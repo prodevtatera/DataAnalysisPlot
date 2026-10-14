@@ -2,6 +2,11 @@
 
 Written in plain language for people who do not read code. Newest entry on top.
 
+## 2026-10-14: The university's name is gone from every page; the footer follows the language
+
+- **What changed for a student:** the footer at the bottom no longer names the university. German: "Unabhängiges Studierendenwerkzeug. Nicht mit der Universität verbunden." English: "Independent student tool. Not affiliated with the university." On the workbench the footer now switches with the "DE / EN" button (before, it was English only). The same sentence is on the draft page and the Phase 0 test page.
+- **Tested:** `tests/phase4-step1-wording.sh` in a real browser: the footer reads exactly these sentences in German and English (also after a reload), and no page file contains "Humboldt".
+
 ## 2026-10-14: Phase 3 finished as far as it can be alone; a rounding bug in the overlap check is fixed
 
 - **What changed for a student:** in "Gewichteter Mittelwert und Überlappung", two results whose intervals only touch (for example 10,3 ± 0,2 and 10,0 ± 0,1, where the intervals meet at exactly 10,1 to 10,2) were wrongly listed as not overlapping, with a gap like 0,0000000000000000667. They now count as overlapping. A real gap, even 0,0001, is still found.

@@ -2,6 +2,7 @@
 // {name} marks a value that the caller fills in. The pure files (parse.js, formula.js, ...) call t() too, so their messages follow the chosen language; with German chosen they are the texts the Node tests compare.
 const TEXTS = {
   // header, note
+  foot: { de: "Unabhängiges Studierendenwerkzeug. Nicht mit der Universität verbunden.", en: "Independent student tool. Not affiliated with the university." },
   // data section
   h_data: { de: "Messdaten", en: "Measurement data" },
   hint_data: { de: "Klicke in eine Zelle und tippe. Dezimalkomma ist in Ordnung. Das Diagramm folgt sofort.", en: "Click into a cell and type. A decimal comma or point both work. The plot follows at once." },

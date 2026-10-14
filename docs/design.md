@@ -31,5 +31,5 @@ HU uses two licensed web fonts (`ff-scala` for text, `hub-ddin-exp` for headings
 ## Do not
 
 - Do not use the HU name as the app's name, the HU logo, the crest, HU photos, or HU's own font files or style sheets.
-- Do not make any page look like an official HU page. The footer says: "Independent student tool. Not affiliated with Humboldt-Universität zu Berlin."
+- Do not make any page look like an official HU page. The footer says, in German: "Unabhängiges Studierendenwerkzeug. Nicht mit der Universität verbunden." and in English: "Independent student tool. Not affiliated with the university." (the app footer follows the language switch). We do not name the university in anything a user sees.
 - Lecturers can ask HU for permission later if they want it co-branded. That is a decision for people, not the loop.
