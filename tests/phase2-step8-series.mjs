@@ -219,6 +219,7 @@ eq("edit during the calculation", await srmsg(), "Die Daten wurden während der 
 
 // Hand-edited project: nothing in names, settings or results runs.
 await p.setInputFiles("#openfile", dir + "/hand.plotlab");
+await p.waitForFunction(() => document.getElementById("openfile").value === ""); // the app clears the field once the file is read
 await p.waitForSelector("#results .res");
 eq("no script ran", await p.evaluate(() => window.pwn), undefined);
 eq("no injected elements", await p.$$eval("#results img, #results script, #sr_rows img, #sr_rows script, #srmsg img, #plot img", e => e.length), 0);
