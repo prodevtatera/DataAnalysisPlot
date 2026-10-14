@@ -43,8 +43,18 @@ function derivedSettings(p) {
   const d = p.settings.derived || {}, t = k => typeof d[k] === "string" ? d[k] : "";
   return { name: t("name"), unit: t("unit"), formula: t("formula"), vars: t("vars"), aUnit: t("aUnit") };
 }
+// Several y series fitted over their own x ranges (P3 loading and unloading): [{y, err, xmin, xmax}], at most 4. A series whose y column is gone is dropped.
+const SERIES_MAX = 4;
+function seriesSettings(p) {
+  const raw = Array.isArray((p.settings || {}).series) ? p.settings.series : [], has = n => p.columns.some(c => c.name === n), num = v => Number.isFinite(v) ? v : null;
+  return raw.filter(s => s && has(s.y)).slice(0, SERIES_MAX).map(s => ({ y: s.y, err: has(s.err) ? s.err : null, xmin: num(s.xmin), xmax: num(s.xmax) }));
+}
+const seriesKey = p => {
+  const x = p.columns.find(c => c.role === "x"), by = n => (p.columns.find(c => c.name === n) || {}).values, st = seriesSettings(p);
+  return fnv(JSON.stringify([st, x && [x.name, x.values], st.map(s => [by(s.y), by(s.err)])]));
+};
 // Results that depend on their own settings and columns instead of the x/y/error fingerprint.
-const KEYS = { stats: statsKey, wmean: wmeanKey, hist: histKey };
+const KEYS = { stats: statsKey, wmean: wmeanKey, hist: histKey, series: seriesKey };
 
 function addResult(p, result) {
   p.results = p.results.filter(r => r.kind !== result.kind);
@@ -70,4 +80,4 @@ function open(text) {
   return ok ? { project: p } : { error: "Das Projekt ist beschädigt: Spalten oder Werte fehlen oder sind keine Zahlen." };
 }
 
-if (typeof module !== "undefined") module.exports = { derivedSettings, statsSettings, wmeanSettings, histSettings, ROLES, newProject, fingerprint, addResult, isStale, save, open };
+if (typeof module !== "undefined") module.exports = { seriesSettings, SERIES_MAX, derivedSettings, statsSettings, wmeanSettings, histSettings, ROLES, newProject, fingerprint, addResult, isStale, save, open };

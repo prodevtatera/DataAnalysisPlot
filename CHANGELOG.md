@@ -2,6 +2,14 @@
 
 Written in plain language for people who do not read code. Newest entry on top.
 
+## 2026-10-14: Several measurement series with their own x range (P3 loading and unloading)
+
+- **What a student can now do:** the new section "Mehrere Messreihen in einem Diagramm" takes any number of y columns (up to 4) against the x column. For each series the student picks the y column, an optional error column and an x range ("x von", "x bis", empty = all points). "Reihen anpassen" fits one straight line per series over its range. All series appear in the main plot, each with its own marker, colour and named fit line; points outside the range are pale and not fitted. A new example "Beispiel Belastung und Entlastung laden" shows P3.
+- **Slope comparison:** the results list a and b of each series as (value ± u) unit, and then compare every pair of slopes: the difference with its uncertainty, how many combined uncertainties that is, and a plain verdict (under 2 = agree within the uncertainties, 2 or more = clearly different). The scaled/unscaled switch above applies.
+- **Good to know:** a series with an error column is weighted (1/s²), one without is fitted unweighted. The series are treated as independent. Changing a value, an error, a range or a column makes the result "veraltet" and the series lines leave the plot; undo brings them back.
+- **Messages:** fewer than three points in the range, a range where "von" is above "bis", text in a range field, an error value of 0 (with the row), a y column that is the x column, and an edit made while the fit is running each give a plain German message.
+- **Tested:** `tests/phase2-step8-series.sh` against exact-fraction hand calculations (`tests/reference/series_fit.py`): loading a = 0,02529 ± 0,00029 mm/N, unloading a = 0,02502 ± 0,00020 mm/N, difference 0,76 combined uncertainties, a ranged case (0,82) and a clearly different case (20,9). Also undo, reload, save and open, and a hand-edited project file.
+
 ## 2026-10-14: Any derived quantity from the fit line (P3, P4, P5, P9)
 
 - **What a student can now do:** the section "Abgeleitete Größe aus den Fit-Parametern" replaces the fixed Young's modulus form. After "Anpassen", type a name, a unit and a formula over a (slope) and b (intercept), for example `4*pi^2/a`, and optionally further quantities with their uncertainty, such as `L = 1 ± 0,002; d = 0,5 ± 0,01`. "Berechnen" gives the result as (value ± u) unit, for example g = (9,89 ± 0,09) m/s² from the slope of T² against l.

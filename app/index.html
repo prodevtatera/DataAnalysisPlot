@@ -74,6 +74,7 @@
   <div class="btns">
     <button class="btn" id="example">Beispiel laden</button>
     <button class="btn alt" id="example2">Beispiel Elastizität laden</button>
+    <button class="btn alt" id="example3">Beispiel Belastung und Entlastung laden</button>
     <label class="btn alt">Projekt öffnen<input id="openfile" type="file" accept=".json,.plotlab" hidden></label>
     <button class="btn alt" id="saveproj" disabled>Projekt speichern</button>
     <button class="btn alt" id="undo" disabled title="Strg/Cmd+Z">Rückgängig</button>
@@ -142,6 +143,14 @@
     <span class="hint" id="fitstate">Rechenmodul (SciPy) wird geladen …</span>
   </div>
   <div id="fitmsg" class="msg" role="alert" hidden></div>
+  <h2>Mehrere Messreihen in einem Diagramm</h2>
+  <p class="hint">Jede Reihe ist eine y-Spalte gegen die x-Spalte, zum Beispiel Belastung und Entlastung (P3). Pro Reihe wird eine Gerade y = a·x + b über den gewählten x-Bereich angepasst (leer = alle Punkte). Mit Fehlerspalte wird gewichtet (1/s²), ohne Fehlerspalte ungewichtet. Alle Reihen erscheinen im Diagramm oben, jede mit ihrer Anpassungslinie; Punkte außerhalb des Bereichs sind blass und werden nicht angepasst. Danach werden die Steigungen verglichen: der Unterschied in kombinierten Unsicherheiten √(u₁² + u₂²) (unabhängige Reihen); unter 2 gelten sie als gleich.</p>
+  <div id="sr_rows"></div>
+  <div class="btns">
+    <button class="btn alt" id="sr_add" disabled>Reihe hinzufügen</button>
+    <button class="btn" id="sr_go" disabled>Reihen anpassen</button>
+  </div>
+  <div id="srmsg" class="msg" role="alert" hidden></div>
   <h2>Abgeleitete Größe aus den Fit-Parametern</h2>
   <p class="hint">Eine Größe aus der Steigung a und dem Achsenabschnitt b der Geraden rechnen, mit Fehlerfortpflanzung u(f)² = Σ (∂f/∂xᵢ)²·u(xᵢ)². Die Fehler von a und b kommen aus der Anpassung (skaliert oder unskaliert, wie oben gewählt) und werden als unabhängig behandelt. Weitere Größen mit Wert und Unsicherheit schreibst du als <code>L = 1 ± 0,002; d = 0,5 ± 0,01</code>. Die Einheiten stimmen nur, wenn die Formel die Umrechnung enthält: die Vorlagen sagen, in welchen Einheiten a und die weiteren Größen stehen müssen.</p>
   <div class="btns">
@@ -169,12 +178,15 @@
 <script src="propagate.js"></script>
 <script src="derived.js"></script>
 <script src="stats.js"></script>
+<script src="series.js"></script>
 <script>
 const $ = id => document.getElementById(id);
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 const fmt = new Intl.NumberFormat("de-DE", { maximumFractionDigits: 10 });
 // Steel wire, load F in N against extension in mm: slope about 0.0255 mm/N, so E is about 200 GPa for L = 1 m, d = 0.5 mm.
 const EXAMPLE2 = [["F / N", "ΔL / mm", "sΔL / mm"], [[10, 0.26, 0.02], [20, 0.50, 0.02], [30, 0.77, 0.02], [40, 1.03, 0.02], [50, 1.28, 0.02], [60, 1.51, 0.02]]];
+// Loading and unloading of the same wire (P3): extension against load, once while loading and once while unloading.
+const EXAMPLE3 = [["F / N", "ΔL auf / mm", "sΔL auf / mm", "ΔL ab / mm", "sΔL ab / mm"], [[10, 0.26, 0.02, 0.30, 0.02], [20, 0.50, 0.02, 0.55, 0.02], [30, 0.77, 0.02, 0.81, 0.02], [40, 1.03, 0.02, 1.05, 0.04], [50, 1.28, 0.02, 1.31, 0.04], [60, 1.51, 0.02, 1.54, 0.04]]];
 const EXAMPLE = [["t / s", "U / V", "sU / V"], [[1, 2.1, 0.2], [2, 4.3, 0.2], [3, 6.2, 0.3], [4, 8.4, 0.3], [5, 9.9, 0.4]]];
 // Templates for the derived quantity. E: L in m, d in mm, a in mm/N gives GPa (1 m, 1 mm, 1 mm/N is 4/π GPa). g: a = T²/l in s²/m gives m/s².
 const DERIVED_TEMPLATES = {
@@ -235,7 +247,7 @@ function restoreAutosave() {
 function setProject(p) {
   proj = p; undo = []; redo = []; editKey = null; updateHist();
   $("msg").hidden = true;
-  $("saveproj").disabled = $("addrow").disabled = $("f_add").disabled = $("s_go").disabled = $("w_go").disabled = $("h_go").disabled = false; if (worker?.ready && !pending) $("fit").disabled = false;
+  $("saveproj").disabled = $("addrow").disabled = $("f_add").disabled = $("s_go").disabled = $("w_go").disabled = $("h_go").disabled = $("sr_add").disabled = false; if (worker?.ready && !pending) busy(false);
   render();
 }
 function showMsg(t) { $("msg").textContent = t; $("msg").hidden = false; }
@@ -252,10 +264,30 @@ function renderTable() {
     `<td><button class="btn alt small" data-del="${i}" aria-label="Zeile ${i + 1} löschen">✕</button></td></tr>`).join("");
   $("table").innerHTML = `<table><thead>${head}</thead><tbody>${body}</tbody></table>`;
 }
+const SERIES_STYLE = [{ c: "#00376C", sym: "circle", dash: "solid" }, { c: "#D55E00", sym: "square", dash: "dash" }, { c: "#009E73", sym: "diamond", dash: "dot" }, { c: "#CC79A7", sym: "triangle-up", dash: "dashdot" }];
+// The series result is drawn only while it is fresh and well-formed (a hand-edited project file may hold anything).
+const seriesOk = (r, n) => Array.isArray(r.fits) && r.fits.length === n && r.fits.every(f => f && f.a && f.b && [f.xlo, f.xhi, f.a.value, f.b.value].every(Number.isFinite));
+const freshSeries = () => { const r = proj.results.find(q => q.kind === "series" && !isStale(proj, q)); return r && seriesOk(r, seriesSettings(proj).length) ? r : null; };
+const axisStyle = t => ({ title: { text: t, standoff: 10 }, showline: true, linecolor: "#000", mirror: true, ticks: "outside", gridcolor: "#e4e4dc", zeroline: false, exponentformat: "none" });
+const plotFont = { family: "Arial, Helvetica, sans-serif", size: 16, color: "#000" };
+// Every series: its points (pale outside the fitted x range, with error bars when it has an error column) and its own fit line over the fitted range.
+function drawSeries(x, r) {
+  const traces = [], by = n => proj.columns.find(c => c.name === n), st = seriesSettings(proj);
+  st.forEach((s, k) => {
+    const yc = by(s.y), ec = s.err === null ? null : by(s.err), f = r.fits[k], sty = SERIES_STYLE[k];
+    const idx = x.values.map((_, i) => i).filter(i => x.values[i] !== null && yc.values[i] !== null);
+    const tr = { x: idx.map(i => x.values[i]), y: idx.map(i => yc.values[i]), mode: "markers", type: "scatter", name: s.y, marker: { color: sty.c, size: 9, symbol: sty.sym, opacity: idx.map(i => inRange(x.values[i], s) ? 1 : 0.3) } };
+    if (ec) tr.error_y = { type: "data", array: idx.map(i => ec.values[i] ?? 0), visible: true, color: sty.c, thickness: 1.6, width: 5 };
+    traces.push(tr, { x: [f.xlo, f.xhi], y: [f.a.value * f.xlo + f.b.value, f.a.value * f.xhi + f.b.value], mode: "lines", type: "scatter", name: "Anpassung " + s.y, line: { color: sty.c, width: 2.5, dash: sty.dash } });
+  });
+  Plotly.react("plot", traces, { font: plotFont, separators: ",.", margin: { l: 70, r: 20, t: 20, b: 60 }, xaxis: axisStyle(x.name), yaxis: axisStyle(seriesAxisTitle(st.map(s => s.y))),
+    paper_bgcolor: "#fff", plot_bgcolor: "#fff", showlegend: true, legend: { x: 0.02, y: 0.98, bgcolor: "#fff", bordercolor: "#999", borderwidth: 1 } }, { displaylogo: false, responsive: true });
+}
 function renderPlot() {
-  const x = col("x"), y = col("y"), e = col("yerr");
-  if (!x || !y) { Plotly.purge("plot"); $("plot").innerHTML = '<div class="empty">Für ein Diagramm braucht es eine x- und eine y-Spalte.</div>'; return; }
+  const x = col("x"), y = col("y"), e = col("yerr"), sr = freshSeries();
+  if (!x || (!y && !sr)) { Plotly.purge("plot"); $("plot").innerHTML = '<div class="empty">Für ein Diagramm braucht es eine x- und eine y-Spalte.</div>'; return; }
   $("plot").querySelector(".empty")?.remove();
+  if (sr) return drawSeries(x, sr);
   const idx = x.values.map((_, i) => i).filter(i => x.values[i] !== null && y.values[i] !== null);
   const trace = { x: idx.map(i => x.values[i]), y: idx.map(i => y.values[i]), mode: "markers", type: "scatter", name: "Messwerte", marker: { color: "#00376C", size: 9 } };
   if (e) trace.error_y = { type: "data", array: idx.map(i => e.values[i] ?? 0), visible: true, color: "#00376C", thickness: 1.6, width: 5 };
@@ -289,6 +321,24 @@ function derivedDetail(r) {
   return `<div class="detail" data-how>Rechnung: ${name} = ${esc(r.formula)}; u(${name})² = Σ (∂${name}/∂xᵢ)²·u(xᵢ)² (unabhängige Eingänge). Eingesetzt: ${used2}. ` +
     `Beiträge zu u(${name})/|${name}|: ${parts || "keine (alle Unsicherheiten 0)"}. Fehler von a und b: ${un ? "unskaliert" : "skaliert bzw. aus der Streuung"}.` +
     (used.some(q => q.name === "a") && used.some(q => q.name === "b") ? " Hinweis: a und b werden als unabhängig behandelt, ihre Korrelation ist nicht berücksichtigt." : "") + "</div>";
+}
+// Series result: one row per series, then every pair of slopes compared. Numbers go through formatters, text through esc().
+function seriesDetail(r) {
+  const fits = (Array.isArray(r.fits) ? r.fits : []).filter(f => f && f.a && f.b).slice(0, 4), g = new Intl.NumberFormat("de-DE", { maximumSignificantDigits: 4 }), un = proj.settings.errMethod === "unscaled";
+  const short = f => esc(String(f.y).split(" / ")[0]), end = v => v === null || v === undefined ? null : g.format(Number(v));
+  const rows = fits.map(f => `<tr><td>${esc(f.y)}</td><td>${end(f.xmin) ?? "Anfang"} bis ${end(f.xmax) ?? "Ende"}</td><td>${g.format(Number(f.n))}</td>` +
+    `<td>${f.weighted ? `gewichtet (Fehlerspalte „${esc(f.err)}“)` : "ungewichtet"}</td><td>${f.weighted ? `χ²/DoF = ${g.format(Number(f.chi2) / Number(f.dof))}` : `Summe der Abweichungsquadrate = ${g.format(Number(f.ssr))}`}</td></tr>`).join("");
+  const cmp = [];
+  for (let i = 0; i < fits.length; i++) for (let j = i + 1; j < fits.length; j++) {
+    const A = fits[i].a, B = fits[j].a, who = `a (${short(fits[i])}) − a (${short(fits[j])})`;
+    if (A.unit !== B.unit) { cmp.push(`${who}: nicht vergleichbar, die Einheiten sind verschieden (${esc(A.unit)} und ${esc(B.unit)}).`); continue; }
+    const c = compareSlopes(Number(A.value), uOf(A), Number(B.value), uOf(B)), h = huRound(c.diff, c.u), unit = A.unit ? " " + esc(A.unit) : "";
+    cmp.push(`${who} = ${h ? `(${h[0]} ± ${h[1]})` : fmt.format(c.diff)}${unit}. ` + (c.z === null ? "Die kombinierte Unsicherheit ist 0 oder keine Zahl, der Vergleich ist nicht möglich."
+      : `Das sind ${g.format(c.z)} kombinierte Unsicherheiten. ` + (c.z < SERIES_K ? `Die Steigungen stimmen im Rahmen ihrer Unsicherheiten überein (unter ${SERIES_K}).` : `Die Steigungen unterscheiden sich deutlich (${SERIES_K} oder mehr).`)));
+  }
+  return `<table data-series><thead><tr><th>Reihe</th><th>x-Bereich</th><th>Punkte</th><th>Methode</th><th>Güte</th></tr></thead><tbody>${rows}</tbody></table>` +
+    `<div class="detail" data-how>Jede Reihe: Gerade y = a·x + b, gewichtete Reihen mit Gewichten 1/s²; die Fehler von a und b sind ${un ? "unskaliert, direkt aus den Fehlerwerten" : "mit √(χ²/DoF) skaliert"} (ungewichtete Reihen: aus der Streuung der Punkte).</div>` +
+    cmp.map(c => `<div class="detail" data-compare>Steigungen: ${c}</div>`).join("");
 }
 const fmtPlain = new Intl.NumberFormat("de-DE", { maximumSignificantDigits: 3 });
 const fmtRead = new Intl.NumberFormat("de-DE", { maximumSignificantDigits: 4 }); // values read off a table: 4 digits, no uncertainty attached
@@ -365,7 +415,7 @@ function renderResults() {
       const u = uOf(q), t = huRound(q.value, u);
       return `<div class="res">${esc(q.name)} = ${t ? `(${t[0]} ± ${t[1]})` : q.plain ? fmtPlain.format(q.value) : fmt.format(q.value)}${q.unit ? " " + esc(q.unit) : ""}</div>`;
     }).join("");
-    return `<div class="result${stale ? " stale" : ""}">${stale ? `<div class="msg stalemsg">Die Daten wurden geändert. Dieses Ergebnis ist veraltet. Bitte neu ${["stats", "wmean", "hist", "derived"].includes(r.kind) ? "berechnen" : "anpassen"}.</div>` : ""}${lines}${r.kind === "fit" && r.dof ? fitDetail(r) : ""}${r.kind === "derived" ? derivedDetail(r) : ""}${r.kind === "stats" ? statsDetail(r) : ""}${r.kind === "wmean" ? wmeanDetail(r) : ""}${r.kind === "hist" ? histDetail(r) : ""}</div>`;
+    return `<div class="result${stale ? " stale" : ""}">${stale ? `<div class="msg stalemsg">Die Daten wurden geändert. Dieses Ergebnis ist veraltet. Bitte neu ${["stats", "wmean", "hist", "derived"].includes(r.kind) ? "berechnen" : "anpassen"}.</div>` : ""}${lines}${r.kind === "fit" && r.dof ? fitDetail(r) : ""}${r.kind === "derived" ? derivedDetail(r) : ""}${r.kind === "stats" ? statsDetail(r) : ""}${r.kind === "wmean" ? wmeanDetail(r) : ""}${r.kind === "hist" ? histDetail(r) : ""}${r.kind === "series" ? seriesDetail(r) : ""}</div>`;
   }).join("");
 }
 // Weighting needs an error column; errors method only matters for a weighted fit.
@@ -375,6 +425,13 @@ function syncControls() {
   $("wlabel").classList.toggle("off", !has);
   $("wlabel").title = has ? "" : "Dafür braucht es eine Spalte mit der Rolle „Fehler von y“.";
   $("errm").value = proj.settings.errMethod || "scaled"; $("errm").disabled = !w;
+  $("srmsg").hidden = true;
+  const ss = seriesSettings(proj), sopts = (v, none) => (none ? `<option value=""${v === null ? " selected" : ""}>(keine)</option>` : "") + proj.columns.map(c => `<option value="${esc(c.name)}"${c.name === v ? " selected" : ""}>${esc(c.name)}</option>`).join("");
+  $("sr_rows").innerHTML = ss.map((s, k) => `<div class="fitbar" data-k="${k}"><strong>Reihe ${k + 1}</strong>` +
+    `<label>y <select data-f="y" aria-label="y-Spalte von Reihe ${k + 1}">${sopts(s.y)}</select></label>` +
+    `<label>Fehler <select data-f="err" aria-label="Fehlerspalte von Reihe ${k + 1}">${sopts(s.err, true)}</select></label>` +
+    ["xmin", "xmax"].map(f => `<label>x ${f === "xmin" ? "von" : "bis"} <input class="num" data-f="${f}" aria-label="x ${f === "xmin" ? "von" : "bis"} von Reihe ${k + 1}, leer für ${f === "xmin" ? "Anfang" : "Ende"}" inputmode="decimal" placeholder="${f === "xmin" ? "Anfang" : "Ende"}" value="${s[f] === null ? "" : fmt.format(s[f])}"></label>`).join("") +
+    `<button class="btn alt small" data-sdel="${k}" aria-label="Reihe ${k + 1} entfernen">Entfernen</button></div>`).join("") || '<div class="hint">Noch keine Reihe.</div>';
   $("fitmsg").hidden = true; $("derivemsg").hidden = true; $("statsmsg").hidden = true; $("wmsg").hidden = true; $("hmsg").hidden = true;
   const st = statsSettings(proj);
   $("s_col").replaceChildren(...proj.columns.map(c => Object.assign(document.createElement("option"), { value: c.name, textContent: c.name })));
@@ -436,6 +493,11 @@ $("table").addEventListener("click", e => {
 });
 $("addrow").onclick = () => { change(() => proj.columns.forEach(c => c.values.push(null))); $("table").querySelector("tr:last-child input")?.focus(); };
 $("example").onclick = () => setProject(newProject(...EXAMPLE));
+$("example3").onclick = () => {
+  const p = newProject(...EXAMPLE3);
+  p.settings.series = [{ y: "ΔL auf / mm", err: "sΔL auf / mm", xmin: null, xmax: null }, { y: "ΔL ab / mm", err: "sΔL ab / mm", xmin: null, xmax: null }];
+  setProject(p);
+};
 $("example2").onclick = () => {
   const p = newProject(...EXAMPLE2);
   p.settings.derived = { ...DERIVED_TEMPLATES.E };
@@ -478,16 +540,18 @@ $("openfile").onchange = async e => {
 };
 // SciPy runs in a Web Worker. A module worker cannot start from a file:// page; table and plot still work then, only the fit is off.
 let worker = null, pending = null;
+const busy = b => { $("fit").disabled = $("sr_go").disabled = b; };
 try { worker = new Worker("../testbuild/fit-worker.js", { type: "module" }); }
 catch { $("fitstate").textContent = "Die Anpassung braucht die Seite von einem Webserver (nicht als Datei geöffnet)."; }
-function fitFailed(why) { $("fit").disabled = false; pending = null; $("fitmsg").textContent = "Die Anpassung ist fehlgeschlagen. " + why; $("fitmsg").hidden = false; }
+function fitFailed(why) { busy(false); pending = null; $("fitmsg").textContent = "Die Anpassung ist fehlgeschlagen. " + why; $("fitmsg").hidden = false; }
 if (worker) {
   worker.onerror = () => { $("fitstate").textContent = "Das Rechenmodul konnte nicht geladen werden. Bitte die Seite neu laden."; };
   worker.onmessage = ev => {
     const m = ev.data;
-    if (m.ready) { worker.ready = true; $("fit").disabled = !proj; $("fitstate").textContent = "Bereit."; return; }
+    if (m.ready) { worker.ready = true; busy(!proj); $("fitstate").textContent = "Bereit."; return; }
     if (m.loadError) { $("fitstate").textContent = "Das Rechenmodul konnte nicht geladen werden. Bitte die Seite neu laden."; return; }
-    const job = pending; pending = null; $("fit").disabled = false;
+    if (pending.series) return seriesStep(pending, m);
+    const job = pending; pending = null; busy(false);
     if (m.error) return fitFailed(m.error);
     // The student may have edited while Python was working: then the result belongs to old data.
     if (fingerprint(proj) !== job.fp || proj.settings.weighted !== job.weightedSetting) return fitFailed("Die Daten wurden während der Berechnung geändert. Bitte erneut anpassen.");
@@ -510,8 +574,64 @@ $("fit").onclick = () => {
   const unit = c => (c.name.split("/")[1] || "").trim(), ux = unit(x), uy = unit(y);
   const per = ux ? (uy ? uy + "/" + ux : "1/" + ux) : uy;
   pending = { fp: fingerprint(proj), weighted, weightedSetting: proj.settings.weighted, n: idx.length, names: [["a", per], ["b", uy]] };
-  $("fit").disabled = true; $("fitmsg").hidden = true;
+  busy(true); $("fitmsg").hidden = true;
   worker.postMessage({ model: "line", x: idx.map(i => x.values[i]), y: idx.map(i => y.values[i]), sy: weighted ? idx.map(i => e.values[i]) : null });
+};
+// Several series: settings (y, error, x range per series) live in the project; the fits run one after the other in the worker.
+function seriesFailed(why) { $("srmsg").textContent = why; $("srmsg").hidden = false; }
+const setSeries = list => setSetting("series", list);
+$("sr_add").onclick = () => {
+  const list = seriesSettings(proj), x = col("x");
+  if (list.length >= SERIES_MAX) return seriesFailed(`Es sind höchstens ${SERIES_MAX} Reihen möglich.`);
+  const free = proj.columns.filter(c => c !== x), taken = c => list.some(s => s.y === c.name || s.err === c.name);
+  const pick = free.find(c => c.role !== "yerr" && !taken(c)) || free.find(c => !taken(c)) || free[0];
+  if (!pick) return seriesFailed("Es gibt keine Spalte, die als Reihe in Frage kommt. Die Tabelle braucht außer x mindestens eine weitere Spalte.");
+  // The error column is guessed from the naming of the examples ("ΔL / mm" and "sΔL / mm") or from the role "Fehler von y".
+  const e = proj.columns.find(c => c.name === "s" + pick.name) || (pick.role === "y" ? col("yerr") : null);
+  setSeries([...list, { y: pick.name, err: e ? e.name : null, xmin: null, xmax: null }]);
+};
+$("sr_rows").addEventListener("change", e => {
+  const f = e.target.dataset.f, k = +e.target.closest("[data-k]")?.dataset.k;
+  if (!["y", "err"].includes(f)) return;
+  const list = seriesSettings(proj); list[k] = { ...list[k], [f]: e.target.value || null }; setSeries(list);
+});
+$("sr_rows").addEventListener("input", e => {
+  const f = e.target.dataset.f, k = +e.target.closest("[data-k]")?.dataset.k;
+  if (!["xmin", "xmax"].includes(f)) return;
+  const v = parseCell(e.target.value);
+  e.target.classList.toggle("bad", v === undefined);
+  if (v === undefined) return;
+  if (editKey !== `series.${k}.${f}`) { pushUndo(); editKey = `series.${k}.${f}`; }
+  const list = seriesSettings(proj); list[k] = { ...list[k], [f]: v }; proj.settings.series = list;
+  renderPlot(); renderResults(); autosave();
+});
+$("sr_rows").addEventListener("focusout", () => { editKey = null; });
+$("sr_rows").addEventListener("click", e => {
+  const k = e.target.dataset.sdel;
+  if (k !== undefined) setSeries(seriesSettings(proj).filter((_, i) => i !== +k));
+});
+const sendSeries = job => { const j = job.jobs[job.done.length]; worker.postMessage({ model: "line", x: j.x, y: j.yv, sy: j.sy }); };
+function seriesStep(job, m) {
+  const j = job.jobs[job.done.length];
+  if (m.error) { pending = null; busy(false); return seriesFailed(`Reihe ${job.done.length + 1} („${j.y}“): ${m.error}`); }
+  job.done.push(m.result);
+  if (job.done.length < job.jobs.length) return sendSeries(job);
+  pending = null; busy(false);
+  if (seriesKey(proj) !== job.fp) return seriesFailed("Die Daten wurden während der Berechnung geändert. Bitte erneut anpassen.");
+  const fits = job.jobs.map((q, i) => {
+    const o = job.done[i], par = (n, unit) => ({ value: o.p[n], uScaled: o.err_scaled[n], ...(q.weighted ? { uUnscaled: o.err_unscaled[n] } : {}), unit });
+    return { y: q.y, err: q.err, xmin: q.xmin, xmax: q.xmax, n: q.idx.length, weighted: q.weighted, dof: o.dof, xlo: q.xlo, xhi: q.xhi, ...(q.weighted ? { chi2: o.chi2 } : { ssr: o.ssr }), a: par(0, q.unit), b: par(1, q.yunit) };
+  });
+  const params = fits.flatMap(f => ["a", "b"].map(n => ({ name: `${n} (${f.y.split(" / ")[0]})`, ...f[n] })));
+  change(() => addResult(proj, { kind: "series", inputs: seriesSettings(proj), fits, params }));
+}
+$("sr_go").onclick = () => {
+  if ($("sr_rows").querySelector(".bad")) return seriesFailed("Ein x-Bereich ist keine Zahl. Bitte eine Zahl eintragen oder das Feld leeren.");
+  const r = prepareSeries(proj, seriesSettings(proj));
+  if (r.error) return seriesFailed(r.error);
+  $("srmsg").hidden = true; busy(true);
+  pending = { series: true, fp: seriesKey(proj), jobs: r.jobs, done: [] };
+  sendSeries(pending);
 };
 // The derived quantity's text fields live in the project settings. Typing in one field is one undo step.
 $("derived").addEventListener("input", e => {
