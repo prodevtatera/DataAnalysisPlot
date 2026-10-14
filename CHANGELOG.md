@@ -2,6 +2,14 @@
 
 Written in plain language for people who do not read code. Newest entry on top.
 
+## 2026-10-14: English, third part (messages, templates, export): the whole page is in English now
+
+- **What a student can now do:** with the "EN" button, nothing on the page stays German any more. The note at the top that said "not everything is translated yet" is gone.
+- **Messages in English:** a wrong file, a picture or Excel file dropped on the page, a damaged project, pasted text with the wrong number of columns or with a letter in a number cell, a formula with an unknown column or a division by 0, wrong uncertainties, the derived quantity, the calibration line, the series, the comparison, the chi-square test (also its verdict sentences and the message when a class has an expected count of 0) and the logarithmic axis. Each message says what is wrong and what to do, for example "Row 2 has 1 instead of 2 columns. Check the separator (; or tab)." Numbers inside messages follow the language (decimal point in English).
+- **Templates in English:** the list of experiments, the title, the description and every step of the 12 templates (P1 to P9). The steps name the buttons and headings exactly as they are called in English. The example numbers in the fields (for example `L = 1 ± 0.002; d = 0.5 ± 0.01`) show the decimal point. The project file keeps the German text, so a file is the same in both languages.
+- **Export and saving:** the buttons "Save plot as PNG / SVG", the failure message, the file names (`plot.png`, `histogram.svg`, `cumulative-frequency.png`, `chi2-test.svg`, `project.plotlab`) and the default column names ("Column 1") follow the language. In German everything is as before (`diagramm.png`, `projekt.plotlab`).
+- **Tested:** `tests/phase3-step3c-messages.sh`: 73 message cases in English (hand-written texts), the same calls in German give the old German texts (the existing German tests did not change), every “quoted” name in an English template step is a real label of the page or a column of that template, and a real browser run shows the messages, the template box, the file names and the failure message in English and in German.
+
 ## 2026-10-14: English, second part (all sections of the page)
 
 - **What a student can now do:** with the "EN" button, every section of the page is in English now: formula column, mean and spread (with the confidence interval), frequency table and histogram, cumulative frequency, chi-square test, weighted mean, several series, derived quantity, calibration line and the comparison of two values. This covers headings, hints, field labels, buttons, example entries in the fields, plot legends and axis titles, result lines, detail lines and the messages of these sections.

@@ -82,7 +82,6 @@
 <body>
 <header><span class="brand">PlotLab</span><span class="lang" role="group" aria-label="Sprache / Language"><button id="lang_de" data-lang="de" aria-pressed="true">DE</button><button id="lang_en" data-lang="en" aria-pressed="false">EN</button></span></header>
 <main>
-  <div id="langnote" class="msg note" role="status" data-i18n="lang_note" hidden></div>
   <h1 data-i18n="h_data">Messdaten</h1>
   <p class="hint" data-i18n="hint_data">Klicke in eine Zelle und tippe. Dezimalkomma ist in Ordnung. Das Diagramm folgt sofort.</p>
   <div class="btns">
@@ -588,15 +587,17 @@ function syncControls() {
   $("g_col").replaceChildren(...proj.columns.map(c => Object.assign(document.createElement("option"), { value: c.name, textContent: c.name }))); $("g_col").value = gs.col;
   for (const [id, v] of [["g_w", gs.width], ["g_s", gs.start]]) { $(id).value = v === null ? "" : fmt.format(v); $(id).classList.remove("bad"); }
   const ds = derivedSettings(proj);
-  for (const [id, k] of Object.entries(DKEYS)) $(id).value = ds[k];
-  $("c_y0").value = calibSettings(proj).y0; $("calibmsg").hidden = true;
+  for (const [id, k] of Object.entries(DKEYS)) $(id).value = localDec(ds[k]); // example numbers are stored as typed; the field shows the decimal sign of the chosen language
+  $("c_y0").value = localDec(calibSettings(proj).y0); $("calibmsg").hidden = true;
   const cs = compareSettings(proj);
-  for (const [id, k] of Object.entries(KKEYS)) $(id).value = cs[k];
+  for (const [id, k] of Object.entries(KKEYS)) $(id).value = localDec(cs[k]);
   $("comparemsg").hidden = true;
 }
 // Template projects: the project only stores the id; title and texts come from TEMPLATES (templates.js), so a project file cannot put text on the page.
 const tplOf = () => TEMPLATES.find(t => t.id === proj.template);
-$("tpl_sel").append(...TEMPLATES.map(t => Object.assign(document.createElement("option"), { value: t.id, textContent: t.title })));
+$("tpl_sel").append(...TEMPLATES.map(q => Object.assign(document.createElement("option"), { value: q.id })));
+// The titles follow the chosen language: called once the language is known and after every switch.
+const relabelTemplates = () => { for (const o of $("tpl_sel").options) { const q = TEMPLATES.find(x => x.id === o.value); if (q) o.textContent = q.title; } };
 $("tpl_load").onclick = () => {
   const tp = TEMPLATES.find(q => q.id === $("tpl_sel").value);
   if (!tp) { $("tplmsg").textContent = t("tpl_pick"); $("tplmsg").hidden = false; return; }
@@ -715,7 +716,7 @@ $("pastego").onclick = () => {
 $("saveproj").onclick = () => {
   const a = document.createElement("a");
   a.href = URL.createObjectURL(new Blob([save(proj)], { type: "application/json" }));
-  a.download = "projekt.plotlab"; a.click();
+  a.download = t("save_name"); a.click();
 };
 // project.js defines open(text) as a global; it replaces window.open on this page.
 $("openfile").onchange = async e => {
@@ -1032,10 +1033,12 @@ $("errm").onchange = e => setSetting("errMethod", e.target.value);
 // DE / EN switch: fixed texts, number formats, plots and result lines are drawn again; the project itself does not change.
 for (const b of document.querySelectorAll("[data-lang]")) b.onclick = () => {
   setLang(b.dataset.lang);
+  relabelTemplates();
   for (const id of ["msg", "fitmsg", "tplmsg"]) $(id).hidden = true; // these hold text in the old language
   if (proj) render();
 };
 initLang();
+relabelTemplates();
 restoreAutosave();
 </script>
 </body>

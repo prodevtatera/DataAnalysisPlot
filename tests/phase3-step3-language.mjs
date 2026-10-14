@@ -20,7 +20,8 @@ for (const [k, e] of Object.entries(TEXTS)) {
   yes(`${k}: English differs from German (or is a name)`, e.en !== e.de || ["th_param", "fit_chi2", "tpl_exp", "sr_chi", "sr_val", "n_calib", "o_ddof0", "o_ddof1h", "n_gchi_poisson", "dist_poisson"].includes(k) || e.en.length < 12);
 }
 const used = new Set();
-for (const f of ["index.html", "gofview.js"]) {
+// part C: the pure files, the templates and the export call t() too
+for (const f of ["index.html", "gofview.js", "parse.js", "drop.js", "project.js", "derived.js", "gof.js", "logaxis.js", "series.js", "compare.js", "formula.js", "propagate.js", "templates.js", "export.js"]) {
   const src = readFileSync(resolve("app", f), "utf8");
   for (const m of src.matchAll(/data-i18n(?:-\w+)?="(\w+)"/g)) used.add(m[1]);
   for (const m of src.matchAll(/\b(?:t|fitState|stored)\("(\w+)"[,)]/g)) used.add(m[1]);
@@ -48,7 +49,7 @@ await ready();
 
 // 1. German first.
 const DE_LINES = ["a = (0,02529 ± 0,00029) mm/N", "b = (0,007 ± 0,011) mm", "E = (201 ± 8) GPa", "a (ΔL auf) = (0,02529 ± 0,00029) mm/N", "b (ΔL auf) = (0,007 ± 0,011) mm", "a (ΔL ab) = (0,02502 ± 0,00020) mm/N", "b (ΔL ab) = (0,052 ± 0,006) mm"];
-eq("default language is German although the browser is English", [await p.evaluate(() => document.documentElement.lang), await text("h1"), await p.isHidden("#langnote")], ["de", "Messdaten", true]);
+eq("default language is German although the browser is English", [await p.evaluate(() => document.documentElement.lang), await text("h1")], ["de", "Messdaten"]);
 eq("German result lines", (await lines()).slice(0, 3), DE_LINES.slice(0, 3));
 const stateDe = await state();
 const linesDe = await lines();
@@ -69,7 +70,7 @@ yes("plot legend is English", (await traces()).some(n => n.startsWith("Fit ΔL a
 eq("plot uses the point as decimal separator", await p.evaluate(() => document.getElementById("plot").layout.separators), ".,");
 eq("table cell shows the English format", await p.inputValue('#table input[data-r="0"][data-c="1"]'), "0.26");
 yes("logarithmic label and fit button", (await text("#loglabel")).includes("Logarithmic y axis") && (await text("#fit")) === "Fit");
-eq("English note about unfinished sections is visible", await p.isVisible("#langnote"), true);
+eq("no note about unfinished sections any more (everything is translated)", await p.$$eval("#langnote", e => e.length), 0);
 eq("project is not changed by the switch", await state(), stateDe);
 eq("undo history is still clean", [await p.isDisabled("#undo"), await p.isDisabled("#redo")], [true, true]);
 await p.screenshot({ path: "evidence/phase3-step3-en.png" });
@@ -100,7 +101,7 @@ eq("after reload with the example: English lines", (await lines()).slice(0, 3), 
 
 // 5. Back to German: everything as before, nothing lost.
 await p.click("#lang_de");
-eq("back to German: lines, heading, note hidden", [await lines(), await text("h1"), await p.isHidden("#langnote")], [linesDe, "Messdaten", true]);
+eq("back to German: lines, heading", [await lines(), await text("h1")], [linesDe, "Messdaten"]);
 eq("back to German: project identical", await state(), stateDe);
 eq("back to German: separators and cell", [await p.evaluate(() => document.getElementById("plot").layout.separators), await p.inputValue('#table input[data-r="0"][data-c="1"]')], [",.", "0,26"]);
 await p.reload(); await ready();

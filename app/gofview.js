@@ -24,7 +24,7 @@ function gofDetail(r) {
     .map(q => `<div class="detail warn" data-warn>${t(q.c.length === 1 ? "gof_warn1" : "gof_warnn", { dist: gofName(q.k), list: q.c.map(fmt.format).join(", "), min: GOF_MIN_EXPECTED })}</div>`).join("");
   return `<table data-gof><thead><tr><th>${t("th_gclass")}</th><th>${t("th_gobs")}</th>${keys.map(k => `<th>${t("th_gexp", { dist: gofName(k) })}</th>`).join("")}</tr></thead><tbody>${rows}</tbody></table>${warn}` +
     `<div class="detail" data-how>${t("gof_how", { col: esc(i.col), n: fmt.format(r.n), k: fmt.format(r.counts.length), w: fmt.format(r.width), wa: i.width == null ? t("auto_par") : "", s0: fmt.format(r.start), sa: i.start == null ? t("auto_par") : "", mean: gofSig.format(r.mean), s: gofSig.format(r.s) })}</div>` +
-    keys.map(k => `<div class="detail" data-verdict="${k}">${esc(gofVerdict(gofDist[k], r.dists[k].p))}</div>`).join("");
+    keys.map(k => `<div class="detail" data-verdict="${k}">${esc(gofVerdict(gofName(k), r.dists[k].p))}</div>`).join("");
 }
 // The plot is drawn from a fresh result only; an out-of-date one is removed like the histogram.
 function renderGofPlot() {
@@ -56,7 +56,7 @@ function gofRun() {
 }
 function gofStep(job, m) {
   pending = null; busy(false);
-  if (m.error) return gofFailed(t("gof_failed", { why: m.error }));
+  if (m.error) return gofFailed(t("gof_failed", { why: m.error === "gof_exp0" ? t("gof_exp0") : m.error }));
   if (gofKey(proj) !== job.fp) return gofFailed(t("gof_changed"));
   const p = job.prep, d = m.result, line = k => ({ ...stored("n_gchi_" + k), unit: "", value: d[k].chi2, text: gofLineText(d[k], "de"), tk: "gof_line", tv: { chi2: d[k].chi2, dof: d[k].dof, p: d[k].p } });
   change(() => addResult(proj, {

@@ -1,8 +1,7 @@
 // Two languages, German first. Every fixed text of a translated page section is one entry here: { de, en }.
-// {name} marks a value that the caller fills in. A text that is not in this table is still German in the page (see "Noch nicht übersetzt" in docs/progress.md).
+// {name} marks a value that the caller fills in. The pure files (parse.js, formula.js, ...) call t() too, so their messages follow the chosen language; with German chosen they are the texts the Node tests compare.
 const TEXTS = {
   // header, note
-  lang_note: { de: "Die deutsche Fassung ist vollständig.", en: "The English version is built section by section. Not translated yet: the texts of the templates and the error messages that come from the calculation files (formulas, comparison, derived quantity, calibration, chi-square verdicts, project files, export). Numbers already follow the English format (decimal point); the result format (value ± u) unit is the same." },
   // data section
   h_data: { de: "Messdaten", en: "Measurement data" },
   hint_data: { de: "Klicke in eine Zelle und tippe. Dezimalkomma ist in Ordnung. Das Diagramm folgt sofort.", en: "Click into a cell and type. A decimal comma or point both work. The plot follows at once." },
@@ -352,6 +351,169 @@ const TEXTS = {
   // template box (the template texts themselves are still German)
   tpl_invented: { de: "Erfundene Beispieldaten, keine echten Messwerte von Studierenden. Ersetze die Zahlen durch deine Messung; Ergebnisse müssen danach neu berechnet werden.", en: "Invented example data, not real measurements by students. Replace the numbers with your own measurement; results must be recalculated afterwards." },
   tpl_show: { de: "Zeigen", en: "Show" },
+  // ---- part C: messages of the pure files (parse, drop, project, derived, gof, logaxis, series, compare, formula, propagate), exports, templates
+  // table paste and files
+  col_default: { de: "Spalte {n}", en: "Column {n}" },
+  pt_none: { de: "Keine Daten eingefügt. Füge Zahlen ein oder lade das Beispiel.", en: "No data pasted. Paste numbers or load the example." },
+  pt_head: { de: "Nur eine Kopfzeile gefunden, aber keine Messwerte.", en: "Found only a header line and no measurements." },
+  pt_cols: { de: "Zeile {r} hat {a} statt {n} Spalten. Prüfe das Trennzeichen (; oder Tab).", en: "Row {r} has {a} instead of {n} columns. Check the separator (; or tab)." },
+  pb_none: { de: "Keine Daten eingefügt.", en: "No data pasted." },
+  pb_cols: { de: "Eingefügter Block, Zeile {r}: {a} statt {w} Spalten. Trenne Spalten mit Tab oder Semikolon. Es wurde nichts geändert.", en: "Pasted block, row {r}: {a} instead of {w} columns. Separate columns with a tab or a semicolon. Nothing was changed." },
+  pb_num: { de: "Eingefügter Block, Zeile {r}, Spalte {c}: „{v}“ ist keine Zahl. Es wurde nichts geändert.", en: "Pasted block, row {r}, column {c}: “{v}” is not a number. Nothing was changed." },
+  u_col: { de: "{n} Spalte", en: "{n} column" },
+  u_cols: { de: "{n} Spalten", en: "{n} columns" },
+  pi_cols: { de: "Der eingefügte Block hat {a} Spalten, ab dieser Zelle gibt es aber nur {have} ohne Formel. Es wurde nichts geändert.", en: "The pasted block has {a} columns, but from this cell there are only {have} without a formula. Nothing was changed." },
+  pi_rows: { de: "Die Tabelle würde {n} Zeilen bekommen. Mehr als {max} Zeilen sind nicht möglich. Es wurde nichts geändert.", en: "The table would get {n} rows. More than {max} rows are not possible. Nothing was changed." },
+  dr_excel: { de: "„{name}“ ist eine Excel-Datei, die PlotLab nicht lesen kann. Speichere die Tabelle in Excel als „CSV (Trennzeichen-getrennt)“ oder kopiere die Zellen und füge sie in die Tabelle ein.", en: "“{name}” is an Excel file that PlotLab cannot read. In Excel, save the sheet as “CSV (comma delimited)” or copy the cells and paste them into the table." },
+  dr_notable: { de: "„{name}“ ist keine Tabelle. Bitte eine CSV- oder Textdatei mit Zahlen oder ein PlotLab-Projekt (.plotlab) auf die Seite ziehen.", en: "“{name}” is not a table. Please drag a CSV or text file with numbers, or a PlotLab project (.plotlab), onto the page." },
+  dr_nonum: { de: "In „{name}“ stehen keine Zahlen. Bitte eine CSV- oder Textdatei mit Messwerten auf die Seite ziehen.", en: "“{name}” contains no numbers. Please drag a CSV or text file with measurements onto the page." },
+  pr_json: { de: "Die Datei ist kein gültiges Projekt (kein lesbares JSON).", en: "The file is not a valid project (not readable JSON)." },
+  pr_format: { de: "Die Datei ist kein Projekt dieser Anwendung.", en: "The file is not a project of this application." },
+  pr_version: { de: "Projektversion {v} wird nicht unterstützt.", en: "Project version {v} is not supported." },
+  pr_bad: { de: "Das Projekt ist beschädigt: Spalten oder Werte fehlen oder sind keine Zahlen.", en: "The project is damaged: columns or values are missing or are not numbers." },
+  save_name: { de: "projekt.plotlab", en: "project.plotlab" },
+  // formula columns and error propagation
+  f_sqrt: { de: "Wurzel aus einer negativen Zahl", en: "Square root of a negative number" },
+  f_log: { de: "Logarithmus von 0 oder einer negativen Zahl", en: "Logarithm of 0 or of a negative number" },
+  f_div0: { de: "Division durch 0", en: "Division by 0" },
+  f_nonfinite: { de: "Das Ergebnis ist keine endliche Zahl", en: "The result is not a finite number" },
+  f_enter: { de: "Bitte eine Formel eingeben, zum Beispiel (D/2)^2.", en: "Please enter a formula, for example (D/2)^2." },
+  f_long: { de: "Die Formel ist zu lang (höchstens {max} Zeichen).", en: "The formula is too long (at most {max} characters)." },
+  f_end: { de: "das Ende der Formel", en: "the end of the formula" },
+  f_tok: { de: "„{v}“", en: "“{v}”" },
+  f_ambig: { de: "Der Spaltenname „{name}“ ist nicht eindeutig. Schreibe den vollen Namen in eckigen Klammern, zum Beispiel [{full}].", en: "The column name “{name}” is ambiguous. Write the full name in square brackets, for example [{full}]." },
+  f_avail: { de: " Verfügbar: {list}.", en: " Available: {list}." },
+  f_unknown: { de: "Unbekannte Spalte „{name}“ in der Formel.{avail} Die Formel darf nur Spalten links von der neuen Spalte benutzen.", en: "Unknown column “{name}” in the formula.{avail} The formula may only use columns to the left of the new column." },
+  f_unknownq: { de: "Unbekannte Größe „{name}“ in der Formel.{avail} Erlaubt sind a, b und die weiteren Größen.", en: "Unknown quantity “{name}” in the formula.{avail} Allowed are a, b and the further quantities." },
+  f_unkfun: { de: "Unbekannte Funktion „{name}“. Erlaubt: {list}.", en: "Unknown function “{name}”. Allowed: {list}." },
+  f_paren: { de: "Eine Klammer wurde nicht geschlossen.", en: "A bracket was not closed." },
+  f_unexp1: { de: "Unerwartet: {tok}. Hier fehlt eine Zahl, ein Spaltenname oder eine Klammer.", en: "Unexpected: {tok}. A number, a column name or a bracket is missing here." },
+  f_unexp2: { de: "Unerwartet: {tok}. Fehlt ein Operator (+ − * / ^)?", en: "Unexpected: {tok}. Is an operator (+ − * / ^) missing?" },
+  f_col: { de: "Spalte „{name}“: {why}", en: "Column “{name}”: {why}" },
+  f_row: { de: "Spalte „{name}“, Zeile {row}: {why}. Der Wert bleibt leer.{more}", en: "Column “{name}”, row {row}: {why}. The value stays empty.{more}" },
+  f_more: { de: " Weitere betroffene Zeilen: {list}.", en: " Other affected rows: {list}." },
+  u_enter: { de: "Bitte die Unsicherheiten angeben, zum Beispiel D = sD; c = 0,01.", en: "Please give the uncertainties, for example D = sD; c = 0.01." },
+  u_noeq: { de: "„{e}“: Es fehlt ein „=“. Schreibe zum Beispiel D = sD (Unsicherheit von D steht in Spalte sD) oder D = 0,05.", en: "“{e}”: An “=” is missing. Write, for example, D = sD (the uncertainty of D is in column sD) or D = 0.05." },
+  u_unknown: { de: "Unsicherheiten: Unbekannte Spalte „{key}“.", en: "Uncertainties: Unknown column “{key}”." },
+  u_ambig: { de: "Unsicherheiten: Der Spaltenname „{key}“ ist nicht eindeutig. Schreibe den vollen Namen in eckigen Klammern.", en: "Uncertainties: The column name “{key}” is ambiguous. Write the full name in square brackets." },
+  u_notin: { de: "Unsicherheiten: „{key}“ kommt in der Formel nicht vor.", en: "Uncertainties: “{key}” does not occur in the formula." },
+  u_dupe: { de: "Unsicherheiten: „{key}“ ist doppelt angegeben.", en: "Uncertainties: “{key}” is given twice." },
+  u_of: { de: "Unsicherheit von „{key}“: {why}", en: "Uncertainty of “{key}”: {why}" },
+  u_neg: { de: "Die Unsicherheit ist negativ oder keine Zahl", en: "The uncertainty is negative or not a number" },
+  u_noderiv: { de: "Ableitung nicht berechenbar", en: "Derivative cannot be calculated" },
+  // derived quantity, calibration read-off
+  dv_max20: { de: "Es sind höchstens 20 weitere Größen möglich.", en: "At most 20 further quantities are possible." },
+  dv_noeq: { de: "„{e}“: Es fehlt ein „=“. Schreibe zum Beispiel L = 1 ± 0,002.", en: "“{e}”: An “=” is missing. Write, for example, L = 1 ± 0.002." },
+  dv_badname: { de: "„{name}“ ist kein gültiger Name. Erlaubt sind Buchstaben, Ziffern und _, der Name beginnt mit einem Buchstaben.", en: "“{name}” is not a valid name. Letters, digits and _ are allowed, and the name starts with a letter." },
+  dv_taken: { de: "Der Name „{name}“ ist schon vergeben (a und b sind die Fit-Parameter, pi die Kreiszahl). Bitte einen anderen Namen wählen.", en: "The name “{name}” is already taken (a and b are the fit parameters, pi is the circle constant). Please choose another name." },
+  dv_dup: { de: "Die Größe „{name}“ ist doppelt angegeben.", en: "The quantity “{name}” is given twice." },
+  v_twopm: { de: "„{e}“: Es darf nur ein ± vorkommen.", en: "“{e}”: Only one ± is allowed." },
+  v_notnum: { de: "„{e}“: „{v}“ ist keine Zahl.", en: "“{e}”: “{v}” is not a number." },
+  v_badu: { de: "„{e}“: Die Unsicherheit „{v}“ ist keine Zahl größer oder gleich 0.", en: "“{e}”: The uncertainty “{v}” is not a number greater than or equal to 0." },
+  dv_noab: { de: "Die Formel muss a oder b (die Fit-Parameter) enthalten.", en: "The formula must contain a or b (the fit parameters)." },
+  dv_calcfail: { de: "Die Formel lässt sich nicht berechnen: {why}.", en: "The formula cannot be calculated: {why}." },
+  cv_none: { de: "Bitte mindestens einen gemessenen Wert y₀ eintragen, zum Beispiel 0,45 ± 0,01. Mehrere Werte mit „;“ trennen.", en: "Please enter at least one measured value y₀, for example 0.45 ± 0.01. Separate several values with “;”." },
+  cv_max10: { de: "Es sind höchstens 10 gemessene Werte möglich.", en: "At most 10 measured values are possible." },
+  ro_slope: { de: "Die Steigung a = {a} (u(a) = {ua}) ist nicht deutlich von 0 verschieden. Daraus lässt sich kein x₀ ablesen.", en: "The slope a = {a} (u(a) = {ua}) is not clearly different from 0. No x₀ can be read off from it." },
+  ro_unc: { de: "Die Unsicherheit von x₀ lässt sich nicht berechnen.", en: "The uncertainty of x₀ cannot be calculated." },
+  // chi-square test
+  u_value: { de: "Wert", en: "value" },
+  u_values: { de: "Werte", en: "values" },
+  u_class: { de: "Klasse", en: "class" },
+  u_classes: { de: "Klassen", en: "classes" },
+  g_few: { de: "Die Spalte „{name}“ hat {n} {word}. Für den χ²-Test braucht es viele Zählwerte.", en: "The column “{name}” has {n} {word}. The χ² test needs many counts." },
+  g_whole: { de: "Zählwerte sind ganze Zahlen ab 0. In Zeile {row} der Spalte „{name}“ steht {v}.", en: "Counts are whole numbers from 0. Row {row} of column “{name}” contains {v}." },
+  g_equal: { de: "Alle Werte der Spalte „{name}“ sind gleich ({v}). Mit Standardabweichung 0 gibt es keine Gauß-Verteilung und keine Klassen.", en: "All values of column “{name}” are equal ({v}). With a standard deviation of 0 there is no Gaussian distribution and there are no classes." },
+  g_start: { de: "Der Beginn {start} liegt über dem kleinsten Wert {lo}. Bitte einen Beginn kleiner oder gleich dem kleinsten Wert wählen.", en: "The start {start} is above the smallest value {lo}. Please choose a start less than or equal to the smallest value." },
+  g_many: { de: "Mit Klassenbreite {w} gäbe es {k} Klassen. Das sind zu viele (höchstens 100). Bitte eine größere Klassenbreite wählen.", en: "With a class width of {w} there would be {k} classes. That is too many (at most 100). Please choose a larger class width." },
+  g_fewcls: { de: "Mit Klassenbreite {w} ab {start} gibt es nur {k} {word}. Für die Gauß-Verteilung (2 geschätzte Parameter) braucht es mindestens 4, sonst bleibt kein Freiheitsgrad. Bitte eine kleinere Klassenbreite wählen.", en: "With a class width of {w} from {start} there are only {k} {word}. The Gaussian distribution (2 estimated parameters) needs at least 4, otherwise no degree of freedom is left. Please choose a smaller class width." },
+  g_verdict_ok: { de: "{name}: Die Zählwerte widersprechen der {name}-Verteilung nicht (p ≥ 0,05).", en: "{name}: The counts do not contradict the {name} distribution (p ≥ 0.05)." },
+  g_verdict_no: { de: "{name}: Die {name}-Verteilung passt nicht zu den Zählwerten (p < 0,05), sie wird bei 5 % Signifikanzniveau verworfen.", en: "{name}: The {name} distribution does not fit the counts (p < 0.05); it is rejected at the 5 % significance level." },
+  gof_exp0: { de: "Für eine Klasse ist die erwartete Anzahl 0. Bitte weniger oder breitere Klassen wählen.", en: "For one class the expected count is 0. Please choose fewer or wider classes." },
+  // log axis, series, comparison
+  ly_row: { de: "Zeile {i} (y = {v})", en: "row {i} (y = {v})" },
+  ly_more: { de: " und {n} weitere", en: " and {n} more" },
+  ly_one: { de: "steht ein Wert", en: "there is one value" },
+  ly_many: { de: "stehen {n} Werte", en: "there are {n} values" },
+  ly_msg: { de: "Die logarithmische y-Achse braucht Werte größer als 0. In Spalte „{name}“ {which} von 0 oder darunter: {shown}. Korrigiere die Werte oder schalte die logarithmische Achse aus.", en: "The logarithmic y axis needs values above 0. In column “{name}” {which} of 0 or below: {shown}. Correct the values or switch the logarithmic axis off." },
+  se_nox: { de: "Für die Anpassung braucht es eine x-Spalte. Wähle die Rolle „x-Werte“ in der Tabelle.", en: "The fit needs an x column. Choose the role “x values” in the table." },
+  se_none: { de: "Es gibt noch keine Reihe. Bitte mit „Reihe hinzufügen“ eine y-Spalte wählen.", en: "There is no series yet. Please choose a y column with “Add series”." },
+  se_who: { de: "Reihe {k} („{y}“)", en: "Series {k} (“{y}”)" },
+  se_ysx: { de: "{who}: Die y-Spalte ist die x-Spalte. Bitte eine andere Spalte wählen.", en: "{who}: The y column is the x column. Please choose another column." },
+  se_errcol: { de: "{who}: Die Fehlerspalte muss eine andere Spalte sein als x und y.", en: "{who}: The error column must be a different column than x and y." },
+  se_range: { de: "{who}: Der x-Bereich ist leer, denn „x von“ ({a}) ist größer als „x bis“ ({b}).", en: "{who}: The x range is empty because “x from” ({a}) is larger than “x to” ({b})." },
+  u_point: { de: "Messpunkt", en: "data point" },
+  u_points: { de: "Messpunkte", en: "data points" },
+  se_pts: { de: "{who}: Im gewählten x-Bereich liegen {n} {word}. Für eine Gerade braucht es mindestens drei.", en: "{who}: The chosen x range contains {n} {word}. A straight line needs at least three." },
+  se_err0: { de: "{who}: Alle Fehlerwerte müssen größer als 0 sein (Zeile {row}).", en: "{who}: All error values must be above 0 (row {row})." },
+  se_samex: { de: "{who}: Alle x-Werte im Bereich sind gleich. Eine Gerade ist so nicht bestimmt.", en: "{who}: All x values in the range are equal. A straight line is not determined this way." },
+  cp_meas_l: { de: "Messwert", en: "measured value" },
+  cp_ref_l: { de: "Vergleichswert", en: "reference value" },
+  cp_enter: { de: "Bitte den {what} eintragen, zum Beispiel 100,2 ± 0,3.", en: "Please enter the {what}, for example 100.2 ± 0.3." },
+  cp_twopm: { de: "{what}: Es darf nur ein ± vorkommen.", en: "{what}: Only one ± is allowed." },
+  cp_notnum: { de: "{what}: „{v}“ ist keine Zahl.", en: "{what}: “{v}” is not a number." },
+  cp_badu: { de: "{what}: Die Unsicherheit „{v}“ ist keine Zahl größer oder gleich 0.", en: "{what}: The uncertainty “{v}” is not a number greater than or equal to 0." },
+  cp_u0: { de: "Beide Unsicherheiten sind 0. Ohne Unsicherheit lässt sich der Unterschied nicht in Unsicherheiten messen.", en: "Both uncertainties are 0. Without an uncertainty the difference cannot be measured in units of uncertainty." },
+  // figure export
+  exp_png: { de: "Diagramm als PNG speichern", en: "Save plot as PNG" },
+  exp_svg: { de: "Diagramm als SVG speichern", en: "Save plot as SVG" },
+  exp_fail: { de: "Das Diagramm konnte nicht gespeichert werden.", en: "The plot could not be saved." },
+  exp_n_plot: { de: "diagramm", en: "plot" },
+  exp_n_hist: { de: "histogramm", en: "histogram" },
+  exp_n_cum: { de: "summenhaeufigkeit", en: "cumulative-frequency" },
+  exp_n_gof: { de: "chi2-test", en: "chi2-test" },
+  // template texts (title, note, steps); the data, column names and formulas of a template stay as they are
+  tpl_p1_title: { de: "P1 Fehlerverteilung", en: "P1 Error distribution" },
+  tpl_p1_note: { de: "30 Ablesungen einer Länge l. Gesucht: Mittelwert, Streuung, Häufigkeitstabelle, Histogramm mit Normalverteilung und die Ablesung bei 16 % und 84 %.", en: "30 readings of a length l. Wanted: mean, spread, frequency table, histogram with normal distribution and the reading at 16 % and 84 %." },
+  tpl_p1_s1: { de: "Unter „Mittelwert und Streuung einer Spalte“ ist die Spalte „l / mm“ mit dem Teiler n−1 gewählt. Auf „Berechnen“ drücken: x̄ ± s/√n und s.", en: "Under “Mean and spread of a column” the column “l / mm” is chosen with the divisor n−1. Press “Calculate”: x̄ ± s/√n and s." },
+  tpl_p1_s2: { de: "Unter „Häufigkeitstabelle und Histogramm“ sind Klassenbreite 0,2 mm und Beginn 9,5 mm eingetragen. Auf „Berechnen“ drücken: Tabelle, Histogramm mit Normalverteilung und Summenhäufigkeit mit der Ablesung bei 16 % und 84 %.", en: "Under “Frequency table and histogram” the class width 0.2 mm and the start 9.5 mm are entered. Press “Calculate”: table, histogram with normal distribution and cumulative frequency with the reading at 16 % and 84 %." },
+  tpl_p2_title: { de: "P2 Volumenmessung", en: "P2 Volume measurement" },
+  tpl_p2_note: { de: "Zuerst fünf Ablesungen des Durchmessers d mit der Schieblehre (Gerätefehler 0,05 mm), daraus die Querschnittsfläche A mit Fehlerfortpflanzung. Dann drei Ergebnisse für das Volumen V aus drei Verfahren.", en: "First five readings of the diameter d with the vernier caliper (instrument error 0.05 mm), from them the cross-section area A with error propagation. Then three results for the volume V from three methods." },
+  tpl_p2_s1: { de: "Unter „Mittelwert und Streuung einer Spalte“ sind die Spalte „d / mm“ und der Gerätefehler 0,05 eingetragen. Auf „Berechnen“ drücken: Mittelwert mit Standardfehler und mit Gerätefehler (quadratisch addiert).", en: "Under “Mean and spread of a column” the column “d / mm” and the instrument error 0.05 are entered. Press “Calculate”: mean with standard error and with instrument error (added in quadrature)." },
+  tpl_p2_s2: { de: "Die Spalten „A / mm²“ und „u(A) / mm²“ sind schon berechnet: A = π·(d/2)², u(A) aus der Gaußschen Fehlerfortpflanzung mit u(d) = 0,05 mm (siehe Kopf der Spalten).", en: "The columns “A / mm²” and “u(A) / mm²” are already calculated: A = π·(d/2)², u(A) from Gaussian error propagation with u(d) = 0.05 mm (see the column heads)." },
+  tpl_p2_s3: { de: "Unter „Gewichteter Mittelwert und Überlappung“ sind V und u mit k = 1 gewählt. Auf „Berechnen“ drücken: gewichteter Mittelwert mit Unsicherheit und die Überlappungsprüfung.", en: "Under “Weighted mean and overlap of several results” V and u are chosen with k = 1. Press “Calculate”: weighted mean with uncertainty and the overlap check." },
+  tpl_p3_title: { de: "P3 Elastizität", en: "P3 Elasticity" },
+  tpl_p3_note: { de: "Ein Stahldraht wird belastet und entlastet (Verlängerung ΔL gegen Kraft F). Gesucht: die Steigung beider Reihen, ihr Vergleich und der Elastizitätsmodul E aus der Belastung.", en: "A steel wire is loaded and unloaded (extension ΔL against force F). Wanted: the slope of both series, their comparison and Young's modulus E from the loading." },
+  tpl_p3_s1: { de: "Unter „Mehrere Messreihen in einem Diagramm“ sind Belastung und Entlastung eingetragen. Auf „Reihen anpassen“ drücken: zwei Geraden und der Vergleich der Steigungen.", en: "Under “Several series in one plot” loading and unloading are entered. Press “Fit series”: two straight lines and the comparison of the slopes." },
+  tpl_p3_s2: { de: "Unter „Anpassung“ auf „Anpassen“ drücken: Gerade durch die Belastungsreihe, gewichtet mit 1/s².", en: "Under “Fit” press “Fit”: straight line through the loading series, weighted with 1/s²." },
+  tpl_p3_s3: { de: "Unter „Abgeleitete Größe“ sind E = 4·L/(π·d²·a), L = 1 ± 0,002 m und d = 0,5 ± 0,01 mm eingetragen. Auf „Berechnen“ drücken.", en: "Under “Derived quantity from the fit parameters” E = 4·L/(π·d²·a), L = 1 ± 0.002 m and d = 0.5 ± 0.01 mm are entered. Press “Calculate”." },
+  tpl_p4_title: { de: "P4 Oberflächenspannung", en: "P4 Surface tension" },
+  tpl_p4_note: { de: "Kapillarmethode mit Wasser: Steighöhe h gegen den Kehrwert des Röhrenradius r. Aus h = (2σ/(ρ·g))·(1/r) folgt die Oberflächenspannung σ aus der Steigung.", en: "Capillary method with water: rise height h against the reciprocal of the tube radius r. From h = (2σ/(ρ·g))·(1/r) the surface tension σ follows from the slope." },
+  tpl_p4_s1: { de: "Die Spalte „r⁻¹ / mm⁻¹“ (= 1/r) ist eine Formelspalte und die x-Achse. Unter „Anpassung“ auf „Anpassen“ drücken: Gerade h = a·(1/r) + b.", en: "The column “r⁻¹ / mm⁻¹” (= 1/r) is a formula column and the x axis. Under “Fit” press “Fit”: straight line h = a·(1/r) + b." },
+  tpl_p4_s2: { de: "Unter „Abgeleitete Größe“ sind σ = a·ρ·g/2000 (a in mm², σ in mN/m), ρ = 998 ± 1 kg/m³ und g = 9,81 m/s² eingetragen. Auf „Berechnen“ drücken.", en: "Under “Derived quantity from the fit parameters” σ = a·ρ·g/2000 (a in mm², σ in mN/m), ρ = 998 ± 1 kg/m³ and g = 9.81 m/s² are entered. Press “Calculate”." },
+  tpl_p5a_title: { de: "P5 Polarimetrie (Saccharose)", en: "P5 Polarimetry (sucrose)" },
+  tpl_p5a_note: { de: "Drehwinkel α gegen das Produkt aus Schichtdicke d und Konzentration c. Die Steigung ist die spezifische Drehung [α].", en: "Rotation angle α against the product of path length d and concentration c. The slope is the specific rotation [α]." },
+  tpl_p5a_s1: { de: "Die Spalte „d·c / dm·g·mL⁻¹“ (= d·c) ist eine Formelspalte und die x-Achse. Unter „Anpassung“ auf „Anpassen“ drücken: a ist die spezifische Drehung in °/(dm·g·mL⁻¹), gewichtet mit 1/s².", en: "The column “d·c / dm·g·mL⁻¹” (= d·c) is a formula column and the x axis. Under “Fit” press “Fit”: a is the specific rotation in °/(dm·g·mL⁻¹), weighted with 1/s²." },
+  tpl_p5b_title: { de: "P5 Newtonsche Ringe", en: "P5 Newton's rings" },
+  tpl_p5b_note: { de: "Durchmesser D der dunklen Ringe k = 1 bis 8 (Natriumlicht). Aus r² = k·λ·R folgt der Krümmungsradius R der Linse aus der Steigung von r² gegen k.", en: "Diameter D of the dark rings k = 1 to 8 (sodium light). From r² = k·λ·R the radius of curvature R of the lens follows from the slope of r² against k." },
+  tpl_p5b_s1: { de: "Die Spalten „r² / mm²“ = (D/2)² und „u(r²) / mm²“ (Fehlerfortpflanzung aus u(D)) sind schon berechnet. Unter „Anpassung“ auf „Anpassen“ drücken: a = λ·R.", en: "The columns “r² / mm²” = (D/2)² and “u(r²) / mm²” (error propagation from u(D)) are already calculated. Under “Fit” press “Fit”: a = λ·R." },
+  tpl_p5b_s2: { de: "Unter „Abgeleitete Größe“ sind R = a·1000/λ (a in mm², λ in nm, R in m) und λ = 589,3 ± 0,1 nm eingetragen. Auf „Berechnen“ drücken.", en: "Under “Derived quantity from the fit parameters” R = a·1000/λ (a in mm², λ in nm, R in m) and λ = 589.3 ± 0.1 nm are entered. Press “Calculate”." },
+  tpl_p6a_title: { de: "P6 Wheatstone-Brücke", en: "P6 Wheatstone bridge" },
+  tpl_p6a_note: { de: "Drei Abgleiche der Brücke mit verschiedenen Widerständen R1, R2, R3 (alle in Ω, mit Unsicherheit). Gesucht: der unbekannte Widerstand Rx = R1·R2/R3 mit Fehlerfortpflanzung, der gewichtete Mittelwert und der Vergleich mit dem Aufdruck (Nennwert 220 Ω, Toleranz 1 %).", en: "Three balances of the bridge with different resistors R1, R2, R3 (all in Ω, with uncertainty). Wanted: the unknown resistance Rx = R1·R2/R3 with error propagation, the weighted mean and the comparison with the printed value (nominal value 220 Ω, tolerance 1 %)." },
+  tpl_p6a_s1: { de: "Die Spalten „Rx / Ω“ und „u(Rx) / Ω“ sind schon berechnet: Rx = R1·R2/R3, u(Rx) aus der Gaußschen Fehlerfortpflanzung mit u(R1), u(R2), u(R3) (siehe Kopf der Spalten).", en: "The columns “Rx / Ω” and “u(Rx) / Ω” are already calculated: Rx = R1·R2/R3, u(Rx) from Gaussian error propagation with u(R1), u(R2), u(R3) (see the column heads)." },
+  tpl_p6a_s2: { de: "Unter „Gewichteter Mittelwert und Überlappung“ sind Rx und u(Rx) mit k = 1 gewählt. Auf „Berechnen“ drücken: gewichteter Mittelwert und Überlappungsprüfung der drei Abgleiche.", en: "Under “Weighted mean and overlap of several results” Rx and u(Rx) are chosen with k = 1. Press “Calculate”: weighted mean and overlap check of the three balances." },
+  tpl_p6a_s3: { de: "Unter „Messwert und Vergleichswert vergleichen“ sind der gewichtete Mittelwert (219,4 ± 1,0) Ω und der Nennwert (220 ± 2,2) Ω eingetragen. Auf „Vergleichen“ drücken: Differenz in kombinierten Unsicherheiten und Urteil.", en: "Under “Compare a measured value with a reference value” the weighted mean (219.4 ± 1.0) Ω and the nominal value (220 ± 2.2) Ω are entered. Press “Compare”: difference in combined uncertainties and verdict." },
+  tpl_p6b_title: { de: "P6 Gitter", en: "P6 Grating" },
+  tpl_p6b_note: { de: "Ein Laser wird an einem Gitter mit 300 Linien/mm gebeugt. Gemessen: der Abstand x des k-ten Maximums von der Mitte bei Schirmabstand L. Aus d·sin θ = k·λ mit sin θ = x/√(x² + L²) folgt die Wellenlänge λ; verglichen wird mit dem Literaturwert 632,8 nm (He-Ne-Laser).", en: "A laser is diffracted at a grating with 300 lines/mm. Measured: the distance x of the k-th maximum from the centre at screen distance L. From d·sin θ = k·λ with sin θ = x/√(x² + L²) the wavelength λ follows; it is compared with the literature value 632.8 nm (He-Ne laser)." },
+  tpl_p6b_s1: { de: "Die Spalten „λ / nm“ und „u(λ) / nm“ sind schon berechnet: λ = d·x/(k·√(x² + L²)) mit d = 10⁶/300 nm, u(λ) aus der Fehlerfortpflanzung mit u(x) und u(L) (siehe Kopf der Spalten).", en: "The columns “λ / nm” and “u(λ) / nm” are already calculated: λ = d·x/(k·√(x² + L²)) with d = 10⁶/300 nm, u(λ) from the error propagation with u(x) and u(L) (see the column heads)." },
+  tpl_p6b_s2: { de: "Unter „Gewichteter Mittelwert und Überlappung“ sind λ und u(λ) mit k = 1 gewählt. Auf „Berechnen“ drücken: gewichteter Mittelwert aus den drei Ordnungen.", en: "Under “Weighted mean and overlap of several results” λ and u(λ) are chosen with k = 1. Press “Calculate”: weighted mean from the three orders." },
+  tpl_p6b_s3: { de: "Unter „Messwert und Vergleichswert vergleichen“ sind der Mittelwert (632,1 ± 0,9) nm und der Literaturwert 632,8 nm (ohne Unsicherheit) eingetragen. Auf „Vergleichen“ drücken.", en: "Under “Compare a measured value with a reference value” the mean (632.1 ± 0.9) nm and the literature value 632.8 nm (without uncertainty) are entered. Press “Compare”." },
+  tpl_p7_title: { de: "P7 Refraktometer", en: "P7 Refractometer" },
+  tpl_p7_note: { de: "Eichgerade eines Refraktometers: Brechungsindex n von Zuckerlösungen bekannter Konzentration w. Gesucht: die Konzentration von drei unbekannten Proben aus ihrem gemessenen n, mit Unsicherheit.", en: "Calibration line of a refractometer: refractive index n of sugar solutions of known concentration w. Wanted: the concentration of three unknown samples from their measured n, with uncertainty." },
+  tpl_p7_s1: { de: "Unter „Anpassung“ auf „Anpassen“ drücken: Eichgerade n = a·w + b, gewichtet mit 1/s². Die Kovarianz von a und b wird für den nächsten Schritt mitgeführt.", en: "Under “Fit” press “Fit”: calibration line n = a·w + b, weighted with 1/s². The covariance of a and b is carried along for the next step." },
+  tpl_p7_s2: { de: "Unter „Kalibriergerade: Unbekanntes ablesen“ sind drei gemessene Werte n₀ eingetragen. Auf „x₀ ablesen“ drücken: Konzentration w₀ = (n₀ − b)/a mit Unsicherheit. Die dritte Probe liegt außerhalb der Eichreihe und bekommt eine Warnung.", en: "Under “Calibration line: read off an unknown” three measured values n₀ are entered. Press “Read off x₀”: concentration w₀ = (n₀ − b)/a with uncertainty. The third sample lies outside the calibration series and gets a warning." },
+  tpl_p8a_title: { de: "P8 Radioaktivität: Zählraten", en: "P8 Radioactivity: count rates" },
+  tpl_p8a_note: { de: "40 Zählungen der Impulse in gleich langen Intervallen (Hintergrund und Quelle). Gesucht: ist die Verteilung der Zählwerte mit Poisson oder Gauß verträglich (χ²-Test, 5 %)?", en: "40 counts of the pulses in intervals of equal length (background and source). Wanted: is the distribution of the counts compatible with Poisson or Gaussian (χ² test, 5 %)?" },
+  tpl_p8a_s1: { de: "Unter „χ²-Test: Poisson- und Gauß-Verteilung“ sind die Spalte „N / 1“, Klassenbreite 3 und Beginn 3 eingetragen. Auf „Berechnen“ drücken: beobachtete und erwartete Anzahlen, χ², Freiheitsgrade, p und Urteil für beide Verteilungen. Klassen mit erwarteter Anzahl unter 5 werden mit * markiert.", en: "Under “χ² test: Poisson and Gaussian distribution (count rates)” the column “N / 1”, class width 3 and start 3 are entered. Press “Calculate”: observed and expected numbers, χ², degrees of freedom, p and verdict for both distributions. Classes with an expected number below 5 are marked with *." },
+  tpl_p8b_title: { de: "P8 Radioaktivität: Zerfallskurve", en: "P8 Radioactivity: decay curve" },
+  tpl_p8b_note: { de: "Zählrate N einer zerfallenden Probe gegen die Zeit t, Unsicherheit sN = √N. Auf der halblogarithmischen Achse wird der Zerfall zur Geraden; die Fehlerbalken bleiben sichtbar.", en: "Count rate N of a decaying sample against time t, uncertainty sN = √N. On the semi-log axis the decay becomes a straight line; the error bars stay visible." },
+  tpl_p8b_s1: { de: "Die Option „Logarithmische y-Achse“ ist eingeschaltet: die y-Achse ist logarithmisch, die Fehlerbalken sN haben ihre echte Größe. Zum Vergleich ausschalten und wieder einschalten.", en: "The option “Logarithmic y axis” is switched on: the y axis is logarithmic, the error bars sN have their true size. Switch it off and on again to compare." },
+  tpl_p8b_s2: { de: "Das Diagramm lässt sich mit „Diagramm als PNG speichern“ oder „… als SVG speichern“ für den Bericht ablegen.", en: "The plot can be saved for the report with “Save plot as PNG” or “Save plot as SVG”." },
+  tpl_p9_title: { de: "P9 Pendel", en: "P9 Pendulum" },
+  tpl_p9_note: { de: "Fadenpendel: Schwingungsdauer T bei fünf Fadenlängen l. Gesucht: g aus jeder Zeile mit Mittelwert, Streuung und 95 %-Vertrauensintervall, und g aus der Steigung von T² gegen l (T² = 4π²/g · l).", en: "String pendulum: period T at five string lengths l. Wanted: g from each row with mean, spread and 95 % confidence interval, and g from the slope of T² against l (T² = 4π²/g · l)." },
+  tpl_p9_s1: { de: "Die Spalte „gi / m/s²“ = 4π²·l/T² ist schon berechnet. Unter „Mittelwert und Streuung einer Spalte“ sind „gi / m/s²“, der Teiler n−1 und das Vertrauensintervall 95 % gewählt. Auf „Berechnen“ drücken.", en: "The column “gi / m/s²” = 4π²·l/T² is already calculated. Under “Mean and spread of a column” “gi / m/s²”, the divisor n−1 and the confidence interval 95 % are chosen. Press “Calculate”." },
+  tpl_p9_s2: { de: "Die Spalte „T² / s²“ mit „u(T²) / s²“ (Fehlerfortpflanzung aus u(T)) ist die y-Achse. Unter „Anpassung“ auf „Anpassen“ drücken: a = 4π²/g in s²/m, gewichtet mit 1/s².", en: "The column “T² / s²” with “u(T²) / s²” (error propagation from u(T)) is the y axis. Under “Fit” press “Fit”: a = 4π²/g in s²/m, weighted with 1/s²." },
+  tpl_p9_s3: { de: "Unter „Abgeleitete Größe“ ist g = 4π²/a eingetragen. Auf „Berechnen“ drücken.", en: "Under “Derived quantity from the fit parameters” g = 4π²/a is entered. Press “Calculate”." },
 };
 
 let LANG = "de";
@@ -371,6 +533,8 @@ const showVars = (v, lang) => Object.fromEntries(Object.entries(v && typeof v ==
 const stored = (key, vars) => ({ name: t(key, showVars(vars, "de"), "de"), nk: key, nv: vars });
 const storedName = q => q.nk && Object.hasOwn(TEXTS, q.nk) ? t(q.nk, showVars(q.nv, LANG)) : q.name;
 const decSep = () => LANG === "en" ? "." : ",";
+// Example numbers that a template writes into a text field: "0,002" becomes "0.002" in English (both are accepted when typed).
+const localDec = s => LANG === "en" ? String(s).replace(/(\d),(\d)/g, "$1.$2") : String(s);
 const plotSeparators = () => LANG === "en" ? ".," : ",.";
 function setLang(l) {
   LANG = l === "en" ? "en" : "de";
@@ -391,8 +555,7 @@ function applyStatic() {
     ["i18n-html", (el, s) => { el.innerHTML = s; }], ["i18n-ph", (el, s) => { el.placeholder = s; }], ["i18n-aria", (el, s) => { el.setAttribute("aria-label", s); }]]) {
     document.querySelectorAll(`[data-${attr}]`).forEach(el => set(el, t(el.getAttribute(`data-${attr}`))));
   }
-  const n = document.getElementById("langnote");
-  if (n) n.hidden = LANG === "de";
   document.querySelectorAll("[data-lang]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.lang === LANG)));
 }
-if (typeof module !== "undefined") module.exports = { TEXTS };
+// Node: the pure files (parse.js, formula.js, ...) call t(), nf() and decSep() like the page does, so they find them as globals.
+if (typeof module !== "undefined") { module.exports = { TEXTS, t, nf, decSep, localDec, setLang }; Object.assign(globalThis, { t, nf, decSep, localDec }); }

@@ -1,3 +1,4 @@
+if (typeof module !== "undefined") require("./i18n.js"); // t() and nf() are globals on the page; in Node this makes them globals
 // Project model: raw data, column roles, analysis settings and results in one JSON object.
 // Each result stores a fingerprint of the data it was computed from, so edits make it show as out of date.
 const ROLES = ["x", "y", "yerr", "unused"];
@@ -46,8 +47,8 @@ function gofSettings(p) {
 const gofKey = p => { const st = gofSettings(p); return fnv(JSON.stringify([st, p.columns.find(c => c.name === st.col).values])); };
 // Derived quantity from the fit parameters (P3, P4, P5, P9): name, unit, formula over a and b, further quantities "L = 1 ± 0,002", expected unit of a (optional). All text.
 function derivedSettings(p) {
-  const d = p.settings.derived || {}, t = k => typeof d[k] === "string" ? d[k] : "";
-  return { name: t("name"), unit: t("unit"), formula: t("formula"), vars: t("vars"), aUnit: t("aUnit") };
+  const d = p.settings.derived || {}, str = k => typeof d[k] === "string" ? d[k] : "";
+  return { name: str("name"), unit: str("unit"), formula: str("formula"), vars: str("vars"), aUnit: str("aUnit") };
 }
 // Calibration read-off (P4, P7): the measured y0 values as text "0,45 ± 0,01; 0,62 ± 0,01".
 const calibSettings = p => ({ y0: typeof ((p.settings || {}).calib || {}).y0 === "string" ? p.settings.calib.y0 : "" });
@@ -63,8 +64,8 @@ const seriesKey = p => {
 };
 // Comparison of a measured and a calculated value (P6): the two values as text "100,2 ± 0,3" and the unit.
 function compareSettings(p) {
-  const c = (p.settings || {}).compare || {}, t = k => typeof c[k] === "string" ? c[k] : "";
-  return { meas: t("meas"), ref: t("ref"), unit: t("unit") };
+  const c = (p.settings || {}).compare || {}, str = k => typeof c[k] === "string" ? c[k] : "";
+  return { meas: str("meas"), ref: str("ref"), unit: str("unit") };
 }
 const compareKey = p => fnv(JSON.stringify(compareSettings(p)));
 // Results that depend on their own settings and columns instead of the x/y/error fingerprint.
@@ -82,17 +83,17 @@ const isStale = (p, r) => KEYS[r.kind] ? r.computedFrom !== KEYS[r.kind](p) : r.
 
 const save = p => JSON.stringify(p, null, 1);
 
-// Returns {project} or {error} (German message).
+// Returns {project} or {error} (message in the chosen language).
 function open(text) {
   let p;
-  try { p = JSON.parse(text); } catch { return { error: "Die Datei ist kein gültiges Projekt (kein lesbares JSON)." }; }
-  if (!p || p.format !== "datenplot-projekt") return { error: "Die Datei ist kein Projekt dieser Anwendung." };
-  if (p.version !== 1) return { error: `Projektversion ${p.version} wird nicht unterstützt.` };
+  try { p = JSON.parse(text); } catch { return { error: t("pr_json") }; }
+  if (!p || p.format !== "datenplot-projekt") return { error: t("pr_format") };
+  if (p.version !== 1) return { error: t("pr_version", { v: p.version }) };
   const ok = Array.isArray(p.columns) && p.columns.length && Array.isArray(p.results) && p.settings &&
     p.columns.every(c => typeof c.name === "string" && (c.formula === undefined || typeof c.formula === "string") &&
       (c.uncert === undefined || (c.uncert !== null && typeof c.uncert.formula === "string" && typeof c.uncert.map === "string")) && ROLES.includes(c.role) && Array.isArray(c.values) &&
       c.values.length === p.columns[0].values.length && c.values.every(v => v === null || Number.isFinite(v)));
-  return ok ? { project: p } : { error: "Das Projekt ist beschädigt: Spalten oder Werte fehlen oder sind keine Zahlen." };
+  return ok ? { project: p } : { error: t("pr_bad") };
 }
 
 // Unit of a column header "name / unit": everything after the first "/", so "gi / m/s²" has the unit "m/s²" (split("/")[1] would cut it to "m").

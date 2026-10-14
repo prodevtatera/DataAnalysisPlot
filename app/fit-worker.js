@@ -41,7 +41,7 @@ def gof(d):
         cum = np.array([0.0] + [float(F(e)) for e in edges[1:-1]] + [1.0])
         exp = n * np.diff(cum)
         if not np.all(exp > 0):
-            raise ValueError("Für eine Klasse ist die erwartete Anzahl 0. Bitte weniger oder breitere Klassen wählen.")
+            raise ValueError("gof_exp0")   # a key of TEXTS: the page shows it in the chosen language
         chi2 = float(np.sum((obs - exp) ** 2 / exp)); dof = len(obs) - 1 - npar
         out[name] = {"expected": exp.tolist(), "chi2": chi2, "dof": dof, "p": float(stats.chi2.sf(chi2, dof))}
     return json.dumps(out)
