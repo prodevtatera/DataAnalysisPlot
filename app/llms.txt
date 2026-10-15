@@ -1,0 +1,39 @@
+# PlotLab
+
+> PlotLab is a free tool for evaluating and plotting lab data in your browser. Free, no signup, no install. German and English.
+
+For students in lab courses, for example in biology and physics in the first and second year. Everything is calculated in your browser. Your measurements are not uploaded.
+
+## Facts
+- Price: free. No account, no install. Works in a current web browser.
+- Languages: German (default) and English, as separate pages.
+- Fits: Straight line (weighted and unweighted), exponential, polynomial up to degree 6, sine, Gaussian and free formula.
+- Results: The result reads (value ± u) unit: u is rounded to one significant digit, or two if that digit is 1 or 2, and the value to match.
+- Checks: The fits are checked against NIST StRD reference values: parameters agree to 6.5 to 9 digits.
+- Examples: the numbers in the experiment templates are invented.
+- Not affiliated with any university.
+
+## Pages
+- [Home, German](https://plot.productledlab.dev/): Kostenloses Werkzeug für Praktikumsdaten: Messwerte einfügen, Ausgleichsgerade mit Fehlerbalken fitten, Ergebnis als (Wert ± u) Einheit runden. Im Browser.
+- [Home, English](https://plot.productledlab.dev/en/): Free tool for lab data: paste measurements, fit a line with error bars and get the result as (value ± u) unit, correctly rounded. In your browser.
+- [Experiment templates, German](https://plot.productledlab.dev/versuche/): 12 Vorlagen für Praktikumsversuche: Tabelle, Diagramm und Auswertung mit Fehlerbalken und Unsicherheit. Kostenlos im Browser, ohne Anmeldung.
+- [Experiment templates, English](https://plot.productledlab.dev/en/experiments/): 12 templates for lab experiments: table, plot and evaluation with error bars and uncertainty. Free in your browser, no signup.
+- [Methods and checks, German](https://plot.productledlab.dev/methode/): Wie PlotLab rechnet: Fehlerangabe, Rundung nach Praktikumsregel und Prüfung der Anpassungen gegen NIST-Referenzwerte. Kostenlos im Browser.
+- [Methods and checks, English](https://plot.productledlab.dev/en/method/): How PlotLab calculates: uncertainty options, rounding by the lab rule and checks of the fits against NIST reference values. Free in your browser.
+
+## Experiment templates (English pages)
+- [Mean, Spread and Histogram of a Measurement Series](https://plot.productledlab.dev/en/experiments/error-distribution/): Evaluate 30 readings: mean, spread, frequency table and histogram with normal curve. Free template in your browser, no signup.
+- [Volume Measurement with Error Propagation](https://plot.productledlab.dev/en/experiments/volume-measurement/): Caliper diameter, cross-section with error propagation and three volume results combined by weighted mean. Free template in your browser.
+- [Young's Modulus from Loading and Unloading a Wire](https://plot.productledlab.dev/en/experiments/elasticity/): Load and unload a steel wire: compare the slopes and find Young's modulus E with uncertainty. Free template in your browser, no signup.
+- [Evaluate Surface Tension by the Capillary Method](https://plot.productledlab.dev/en/experiments/surface-tension/): Plot rise height against 1/r and find the surface tension σ from the slope. Free template with error bars, right in your browser.
+- [Polarimetry: Specific Rotation from the Slope](https://plot.productledlab.dev/en/experiments/polarimetry/): Plot the rotation angle against path length times concentration; the slope is the specific rotation. Free template in your browser.
+- [Newton's Rings: Radius of Curvature of a Lens](https://plot.productledlab.dev/en/experiments/newtons-rings/): Evaluate ring diameters: r² against k gives the radius of curvature R of the lens with uncertainty. Free template in your browser.
+- [Wheatstone Bridge: Resistance with Uncertainty](https://plot.productledlab.dev/en/experiments/wheatstone-bridge/): Calculate an unknown resistance from three bridge balances, take the weighted mean and compare it with the rating. Free template.
+- [Diffraction Grating: Wavelength of a Laser](https://plot.productledlab.dev/en/experiments/diffraction-grating/): Evaluate diffraction at a grating: calculate the laser wavelength from the maxima and compare it with the literature value. Free template.
+- [Refractometer: Calibration Line, Unknown Samples](https://plot.productledlab.dev/en/experiments/refractometer/): Build a calibration line from refractive index and concentration and read off unknown samples with uncertainty. Free template in your browser.
+- [Count Rates: Poisson or Gaussian with χ² Test](https://plot.productledlab.dev/en/experiments/radioactivity-count-rates/): Check count rates: does the distribution fit Poisson or Gaussian? χ² test at the 5 % level. Free template in your browser, no signup.
+- [Radioactive Decay Curve on a Semi-Log Axis](https://plot.productledlab.dev/en/experiments/radioactivity-decay-curve/): Plot a decay curve with error bars on a semi-log axis so the decay becomes a straight line. Free template in your browser.
+- [String Pendulum: Determine the Acceleration g](https://plot.productledlab.dev/en/experiments/pendulum/): Evaluate a string pendulum: g from each row with a confidence interval and from the slope of T² against l. Free template in your browser.
+
+## Auf Deutsch
+PlotLab ist ein kostenloses Werkzeug zum Auswerten und Plotten von Praktikumsdaten im Browser. Kostenlos, ohne Anmeldung, ohne Installation. Für Studierende im Praktikum, zum Beispiel in Biologie und Physik im ersten und zweiten Studienjahr. Alles wird in deinem Browser gerechnet. Deine Messwerte werden nicht hochgeladen.

@@ -10,6 +10,8 @@ Status on 2026-10-14: the app exists in `app/` (the one-day test build in `testb
 
 Live at https://plot.productledlab.dev (Vercel project `data-analysis-plot`, Cloudflare CNAME, DNS only). Redeploy: `bash app/setup.sh && cd app && vercel deploy --prod --yes`. `setup.sh` is needed first because the 31 MB Pyodide bundle is not in git.
 
+Findability (2026-10-15, `docs/seo-report.md`): the home page, an experiment hub, 12 experiment pages and a method page exist in German (`/`, `/versuche/`, `/methode/`) and English (`/en/...`) as static pages, with titles, descriptions, language links, structured data, `sitemap.xml`, `robots.txt` and `llms.txt`. They are generated: after changing `app/index.html`, a text in `app/i18n.js` or a template, run `node scripts/build-pages.mjs` (the check `tests/seo-site.sh` fails when the generated files are out of date). The workbench `app/app.html` is `noindex`. Text budget per page: `tests/seo-text.sh`. After a deploy: `node scripts/live-check.mjs`, `bash scripts/lighthouse.sh https://plot.productledlab.dev`, `bash scripts/indexnow.sh`.
+
 ## Who it is for
 
 - The first users are Biology Bachelor students in years 1 and 2 at Humboldt-Universität zu Berlin (HU Berlin).
@@ -80,6 +82,7 @@ Done as far as it can be alone: the HU material research, the one-day test build
 - `docs/loop-prompt.md`, `docs/progress.md`, `scripts/loop.sh`, `scripts/check.sh`: the unattended build loop. One fresh Claude session per step; progress.md holds the state; check.sh runs all tests in `tests/`.
 - `docs/roadmap.md`: what is still open (instructor demos, real data, a timed student, the R cross-check, hosting). First target is Physics 2 (the HU physics lab for Biology students).
 - `docs/roadmap_done.md`: phases 0 to 5 as built, with their gates and evidence.
+- `docs/seo-report.md`, `docs/seo-progress.md`, `docs/loop-prompt-seo.md`: the less-text and SEO/GEO/AEO round (before and after numbers, what is live, what is not verified, steps for Luis).
 - `docs/phase5-report.md`: the general curve fitting (exponential, polynomial, sine, Gauss, free formula) and how it was checked against NIST and an independent solver.
 
 ## Working with Luis

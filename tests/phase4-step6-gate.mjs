@@ -103,7 +103,7 @@ await p.close();
 
 // 5. English, end to end: home, example, workbench; no German word left anywhere.
 p = await fresh(); await home(p);
-await p.click("#lang_en");
+await p.click('[data-home-lang="en"]'); await p.waitForURL(/\/en\/$/); await p.waitForFunction(() => /^D = \(/.test(document.getElementById("res").textContent)); // the language is the address now: /en/
 eq("English home", await p.textContent("h1"), "From measurements to a finished lab-report plot");
 await Promise.all([p.waitForURL(/app\.html/), p.click("#go_example")]);
 await example(p);

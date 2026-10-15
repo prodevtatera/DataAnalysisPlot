@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  <url>
+    <loc>https://plot.productledlab.dev/</loc>
+    <lastmod>2026-10-15</lastmod>
+    <xhtml:link rel="alternate" hreflang="de" href="https://plot.productledlab.dev/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://plot.productledlab.dev/en/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://plot.productledlab.dev/"/>
+  </url>
+  <url>
+    <loc>https://plot.productledlab.dev/en/</loc>
+    <lastmod>2026-10-15</lastmod>
+    <xhtml:link rel="alternate" hreflang="de" href="https://plot.productledlab.dev/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://plot.productledlab.dev/en/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://plot.productledlab.dev/"/>
+  </url>
+  <url>
+    <loc>https://plot.productledlab.dev/versuche/</loc>
+    <lastmod>2026-10-15</lastmod>
+    <xhtml:link rel="alternate" hreflang="de" href="https://plot.productledlab.dev/versuche/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://plot.productledlab.dev/en/experiments/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://plot.productledlab.dev/versuche/"/>
+  </url>
+  <url>
+    <loc>https://plot.productledlab.dev/versuche/fehlerverteilung/</loc>
+    <lastmod>2026-10-15</lastmod>
+    <xhtml:link rel="alternate" hreflang="de" href="https://plot.productledlab.dev/versuche/fehlerverteilung/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://plot.productledlab.dev/en/experiments/error-distribution/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://plot.productledlab.dev/versuche/fehlerverteilung/"/>
+  </url>
+  <url>
+    <loc>https://plot.productledlab.dev/versuche/volumenmessung/</loc>
+    <lastmod>2026-10-15</lastmod>
+    <xhtml:link rel="alternate" hreflang="de" href="https://plot.productledlab.dev/versuche/volumenmessung/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://plot.productledlab.dev/en/experiments/volume-measurement/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://plot.productledlab.dev/versuche/volumenmessung/"/>
+  </url>
+  <url>
+    <loc>https://plot.productledlab.dev/versuche/elastizitaet/</loc>
+    <lastmod>2026-10-15</lastmod>
+    <xhtml:link rel="alternate" hreflang="de" href="https://plot.productledlab.dev/versuche/elastizitaet/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://plot.productledlab.dev/en/experiments/elasticity/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://plot.productledlab.dev/versuche/elastizitaet/"/>
+  </url>
+  <url>
+    <loc>https://plot.productledlab.dev/versuche/oberflaechenspannung/</loc>
+    <lastmod>2026-10-15</lastmod>
+    <xhtml:link rel="alternate" hreflang="de" href="https://plot.productledlab.dev/versuche/oberflaechenspannung/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://plot.productledlab.dev/en/experiments/surface-tension/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://plot.productledlab.dev/versuche/oberflaechenspannung/"/>
+  </url>
+  <url>
+    <loc>https://plot.productledlab.dev/versuche/polarimetrie/</loc>
+    <lastmod>2026-10-15</lastmod>
+    <xhtml:link rel="alternate" hreflang="de" href="https://plot.productledlab.dev/versuche/polarimetrie/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://plot.productledlab.dev/en/experiments/polarimetry/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://plot.productledlab.dev/versuche/polarimetrie/"/>
+  </url>
+  <url>
+    <loc>https://plot.productledlab.dev/versuche/newtonsche-ringe/</loc>
+    <lastmod>2026-10-15</lastmod>
+    <xhtml:link rel="alternate" hreflang="de" href="https://plot.productledlab.dev/versuche/newtonsche-ringe/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://plot.productledlab.dev/en/experiments/newtons-rings/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://plot.productledlab.dev/versuche/newtonsche-ringe/"/>
+  </url>
+  <url>
+    <loc>https://plot.productledlab.dev/versuche/wheatstone-bruecke/</loc>
+    <lastmod>2026-10-15</lastmod>
+    <xhtml:link rel="alternate" hreflang="de" href="https://plot.productledlab.dev/versuche/wheatstone-bruecke/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://plot.productledlab.dev/en/experiments/wheatstone-bridge/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://plot.productledlab.dev/versuche/wheatstone-bruecke/"/>
+  </url>
+  <url>
+    <loc>https://plot.productledlab.dev/versuche/gitter/</loc>
+    <lastmod>2026-10-15</lastmod>
+    <xhtml:link rel="alternate" hreflang="de" href="https://plot.productledlab.dev/versuche/gitter/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://plot.productledlab.dev/en/experiments/diffraction-grating/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://plot.productledlab.dev/versuche/gitter/"/>
+  </url>
+  <url>
+    <loc>https://plot.productledlab.dev/versuche/refraktometer/</loc>
+    <lastmod>2026-10-15</lastmod>
+    <xhtml:link rel="alternate" hreflang="de" href="https://plot.productledlab.dev/versuche/refraktometer/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://plot.productledlab.dev/en/experiments/refractometer/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://plot.productledlab.dev/versuche/refraktometer/"/>
+  </url>
+  <url>
+    <loc>https://plot.productledlab.dev/versuche/radioaktivitaet-zaehlraten/</loc>
+    <lastmod>2026-10-15</lastmod>
+    <xhtml:link rel="alternate" hreflang="de" href="https://plot.productledlab.dev/versuche/radioaktivitaet-zaehlraten/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://plot.productledlab.dev/en/experiments/radioactivity-count-rates/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://plot.productledlab.dev/versuche/radioaktivitaet-zaehlraten/"/>
+  </url>
+  <url>
+    <loc>https://plot.productledlab.dev/versuche/radioaktivitaet-zerfallskurve/</loc>
+    <lastmod>2026-10-15</lastmod>
+    <xhtml:link rel="alternate" hreflang="de" href="https://plot.productledlab.dev/versuche/radioaktivitaet-zerfallskurve/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://plot.productledlab.dev/en/experiments/radioactivity-decay-curve/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://plot.productledlab.dev/versuche/radioaktivitaet-zerfallskurve/"/>
+  </url>
+  <url>
+    <loc>https://plot.productledlab.dev/versuche/pendel/</loc>
+    <lastmod>2026-10-15</lastmod>
+    <xhtml:link rel="alternate" hreflang="de" href="https://plot.productledlab.dev/versuche/pendel/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://plot.productledlab.dev/en/experiments/pendulum/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://plot.productledlab.dev/versuche/pendel/"/>
+  </url>
+  <url>
+    <loc>https://plot.productledlab.dev/methode/</loc>
+    <lastmod>2026-10-15</lastmod>
+    <xhtml:link rel="alternate" hreflang="de" href="https://plot.productledlab.dev/methode/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://plot.productledlab.dev/en/method/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://plot.productledlab.dev/methode/"/>
+  </url>
+  <url>
+    <loc>https://plot.productledlab.dev/en/experiments/</loc>
+    <lastmod>2026-10-15</lastmod>
+    <xhtml:link rel="alternate" hreflang="de" href="https://plot.productledlab.dev/versuche/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://plot.productledlab.dev/en/experiments/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://plot.productledlab.dev/versuche/"/>
+  </url>
+  <url>
+    <loc>https://plot.productledlab.dev/en/experiments/error-distribution/</loc>
+    <lastmod>2026-10-15</lastmod>
+    <xhtml:link rel="alternate" hreflang="de" href="https://plot.productledlab.dev/versuche/fehlerverteilung/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://plot.productledlab.dev/en/experiments/error-distribution/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://plot.productledlab.dev/versuche/fehlerverteilung/"/>
+  </url>
+  <url>
+    <loc>https://plot.productledlab.dev/en/experiments/volume-measurement/</loc>
+    <lastmod>2026-10-15</lastmod>
+    <xhtml:link rel="alternate" hreflang="de" href="https://plot.productledlab.dev/versuche/volumenmessung/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://plot.productledlab.dev/en/experiments/volume-measurement/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://plot.productledlab.dev/versuche/volumenmessung/"/>
+  </url>
+  <url>
+    <loc>https://plot.productledlab.dev/en/experiments/elasticity/</loc>
+    <lastmod>2026-10-15</lastmod>
+    <xhtml:link rel="alternate" hreflang="de" href="https://plot.productledlab.dev/versuche/elastizitaet/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://plot.productledlab.dev/en/experiments/elasticity/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://plot.productledlab.dev/versuche/elastizitaet/"/>
+  </url>
+  <url>
+    <loc>https://plot.productledlab.dev/en/experiments/surface-tension/</loc>
+    <lastmod>2026-10-15</lastmod>
+    <xhtml:link rel="alternate" hreflang="de" href="https://plot.productledlab.dev/versuche/oberflaechenspannung/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://plot.productledlab.dev/en/experiments/surface-tension/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://plot.productledlab.dev/versuche/oberflaechenspannung/"/>
+  </url>
+  <url>
+    <loc>https://plot.productledlab.dev/en/experiments/polarimetry/</loc>
+    <lastmod>2026-10-15</lastmod>
+    <xhtml:link rel="alternate" hreflang="de" href="https://plot.productledlab.dev/versuche/polarimetrie/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://plot.productledlab.dev/en/experiments/polarimetry/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://plot.productledlab.dev/versuche/polarimetrie/"/>
+  </url>
+  <url>
+    <loc>https://plot.productledlab.dev/en/experiments/newtons-rings/</loc>
+    <lastmod>2026-10-15</lastmod>
+    <xhtml:link rel="alternate" hreflang="de" href="https://plot.productledlab.dev/versuche/newtonsche-ringe/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://plot.productledlab.dev/en/experiments/newtons-rings/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://plot.productledlab.dev/versuche/newtonsche-ringe/"/>
+  </url>
+  <url>
+    <loc>https://plot.productledlab.dev/en/experiments/wheatstone-bridge/</loc>
+    <lastmod>2026-10-15</lastmod>
+    <xhtml:link rel="alternate" hreflang="de" href="https://plot.productledlab.dev/versuche/wheatstone-bruecke/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://plot.productledlab.dev/en/experiments/wheatstone-bridge/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://plot.productledlab.dev/versuche/wheatstone-bruecke/"/>
+  </url>
+  <url>
+    <loc>https://plot.productledlab.dev/en/experiments/diffraction-grating/</loc>
+    <lastmod>2026-10-15</lastmod>
+    <xhtml:link rel="alternate" hreflang="de" href="https://plot.productledlab.dev/versuche/gitter/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://plot.productledlab.dev/en/experiments/diffraction-grating/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://plot.productledlab.dev/versuche/gitter/"/>
+  </url>
+  <url>
+    <loc>https://plot.productledlab.dev/en/experiments/refractometer/</loc>
+    <lastmod>2026-10-15</lastmod>
+    <xhtml:link rel="alternate" hreflang="de" href="https://plot.productledlab.dev/versuche/refraktometer/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://plot.productledlab.dev/en/experiments/refractometer/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://plot.productledlab.dev/versuche/refraktometer/"/>
+  </url>
+  <url>
+    <loc>https://plot.productledlab.dev/en/experiments/radioactivity-count-rates/</loc>
+    <lastmod>2026-10-15</lastmod>
+    <xhtml:link rel="alternate" hreflang="de" href="https://plot.productledlab.dev/versuche/radioaktivitaet-zaehlraten/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://plot.productledlab.dev/en/experiments/radioactivity-count-rates/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://plot.productledlab.dev/versuche/radioaktivitaet-zaehlraten/"/>
+  </url>
+  <url>
+    <loc>https://plot.productledlab.dev/en/experiments/radioactivity-decay-curve/</loc>
+    <lastmod>2026-10-15</lastmod>
+    <xhtml:link rel="alternate" hreflang="de" href="https://plot.productledlab.dev/versuche/radioaktivitaet-zerfallskurve/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://plot.productledlab.dev/en/experiments/radioactivity-decay-curve/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://plot.productledlab.dev/versuche/radioaktivitaet-zerfallskurve/"/>
+  </url>
+  <url>
+    <loc>https://plot.productledlab.dev/en/experiments/pendulum/</loc>
+    <lastmod>2026-10-15</lastmod>
+    <xhtml:link rel="alternate" hreflang="de" href="https://plot.productledlab.dev/versuche/pendel/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://plot.productledlab.dev/en/experiments/pendulum/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://plot.productledlab.dev/versuche/pendel/"/>
+  </url>
+  <url>
+    <loc>https://plot.productledlab.dev/en/method/</loc>
+    <lastmod>2026-10-15</lastmod>
+    <xhtml:link rel="alternate" hreflang="de" href="https://plot.productledlab.dev/methode/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://plot.productledlab.dev/en/method/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://plot.productledlab.dev/methode/"/>
+  </url>
+</urlset>

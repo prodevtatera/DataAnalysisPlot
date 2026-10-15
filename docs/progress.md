@@ -14,6 +14,8 @@ Read by every round of the loop (see docs/loop-prompt.md). Keep the first line e
 
 - Phase 5: general curve fitting (asked by Luis after the SciDAVis comparison): exponential, polynomial (degree 1 to 6), sine, Gauss and a free formula in the new tool "Kurvenanpassung", with weighted and unweighted errors. Checked against NIST (Misra1a, Misra1d, BoxBOD, Eckerle4, Lanczos3, Gauss1, ENSO, Pontius, Wampler 1/4/5; 6.5 to 9 digits, BoxBOD start 1 refused with a message) and, for exponential and sine, against an independent solver. `docs/phase5-report.md`, `docs/nist-curve-results.md`
 
+- SEO round (2026-10-15): less text on the home page and 30 static pages for search engines and AI assistants (German and English). `docs/seo-report.md`.
+
 **Waits for people (nothing more can be built or checked alone):**
 - The Phase 3 gate: at least one lab instructor says they would try it, or we learn what blocks that. No instructor has seen the app, and no real student has used the calmer pages.
 - Real data and the real Physics 2 experiment list from Luis's daughter (the nine experiments are an assumption, all numbers are invented).

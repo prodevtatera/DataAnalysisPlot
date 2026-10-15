@@ -40,7 +40,6 @@ if (typeof document !== "undefined") {
     $("plot").innerHTML = s;
   }
   document.querySelectorAll("input[name=m]").forEach(r => r.onchange = () => { method = r.value; renderExample(); });
-  for (const b of document.querySelectorAll("[data-lang]")) b.onclick = () => { setLang(b.dataset.lang); renderExample(); $("homemsg").hidden = true; };
 
   // ---- a file for the workbench: checked here with the workbench's own rules (classifyDrop), so a picture or an Excel file is refused here and nothing changes
   const msg = text => { $("homemsg").textContent = text; $("homemsg").hidden = false; };
@@ -49,7 +48,7 @@ if (typeof document !== "undefined") {
     const d = classifyDrop(name, type, text);
     if (d.error) return msg(d.error);
     try { sessionStorage.setItem("plotlab-handoff", JSON.stringify({ name, type, text })); } catch { return msg(t("too_big", { name })); }
-    location.href = "app.html?start=file";
+    location.href = "/app.html?start=file";
   }
   const dragFiles = e => e.dataTransfer?.types?.includes("Files");
   addEventListener("dragover", e => { if (dragFiles(e)) { e.preventDefault(); $("drop").classList.add("over"); } });
@@ -72,6 +71,6 @@ if (typeof document !== "undefined") {
   });
   // A saved project in this browser: offer to go on with it.
   try { $("cont").hidden = localStorage.getItem("plotlab-autosave") === null; } catch {}
-  initLang();
+  setLang(document.documentElement.lang); // the page language is the address (/ German, /en/ English); remembering it makes the workbench follow
   renderExample();
 }

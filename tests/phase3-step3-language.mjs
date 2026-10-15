@@ -30,6 +30,8 @@ for (const f of ["app.html", "index.html", "home.js", "consent.js", "gofview.js"
 for (const k of ["role_x", "role_y", "role_yerr", "role_unused", "verb_calc", "verb_fit", "how_ols", "how_wun", "how_wsc",
   "hist_stale", "cum_stale", "gof_stale", "dist_poisson", "dist_gauss", "n_gchi_poisson", "n_gchi_gauss", "sr_from", "sr_to", "aria_srfrom", "aria_srto", "cal_how_wsc", "cmp_ok", "cmp_bad", "wm_ok", "wm_bad",
   "cf_how_wsc", "cf_syntax", "cf_nox", "cf_nopar", "cf_func", "cf_manypar", "cf_dof", "cf_p0", "cf_noconv", "cf_singular", "cf_sinefew"]) used.add(k);   // the cf_ keys after wm_bad come from the worker as error codes (cfMessage in curvefit.js) or from a second branch of a choice;   // built from a variable
+// SEO round: the experiment hub page (scripts/build-pages.mjs) reads the one-line texts home_p1 ... home_p9 by a built-up key
+for (const id of ["p1", "p2", "p3", "p4", "p5a", "p5b", "p6a", "p6b", "p7", "p8a", "p8b", "p9"]) used.add("home_" + id);
 for (const k of used) yes(`used key exists: ${k}`, k in TEXTS);
 for (const k of Object.keys(TEXTS)) yes(`key is used: ${k}`, used.has(k));
 

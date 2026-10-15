@@ -4,7 +4,9 @@
 <meta charset="utf-8">
 <link rel="icon" type="image/jpeg" href="favicon.jpg">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>PlotLab</title>
+<title>PlotLab – Werkbank</title>
+<meta name="robots" content="noindex, follow">
+<meta name="description" content="PlotLab-Werkbank: Tabelle, Diagramm und Ergebnis für Praktikumsdaten.">
 <style>
   @font-face { font-family:"Barlow"; font-weight:400; src:url(fonts/barlow-latin-400-normal.woff2) format("woff2"); }
   @font-face { font-family:"Barlow"; font-weight:700; src:url(fonts/barlow-latin-700-normal.woff2) format("woff2"); }
@@ -112,7 +114,7 @@
 </style>
 </head>
 <body>
-<header><a class="brand" href="./" data-i18n-title="home_back" title="Zur Startseite"><img class="logo" src="logo.jpg" alt="" width="40" height="40">PlotLab</a><span class="lang" role="group" aria-label="Sprache / Language"><button id="lang_de" data-lang="de" aria-pressed="true">DE</button><button id="lang_en" data-lang="en" aria-pressed="false">EN</button></span></header>
+<header><a class="brand" href="/" data-home data-i18n-title="home_back" title="Zur Startseite"><img class="logo" src="logo.jpg" alt="" width="40" height="40">PlotLab</a><span class="lang" role="group" aria-label="Sprache / Language"><button id="lang_de" data-lang="de" aria-pressed="true">DE</button><button id="lang_en" data-lang="en" aria-pressed="false">EN</button></span></header>
 <main>
   <h1 data-i18n="h_data">Messdaten</h1>
   <div class="toolbar" id="filebar">
@@ -172,7 +174,7 @@
   </section>
   <section id="s_tools">
   <h2 data-i18n="h_tools">Werkzeuge</h2>
-  <p class="hint" data-i18n="hint_tools">Weitere Rechnungen und Diagramme. Wähle ein Werkzeug, es öffnet sich darunter. Ein Punkt neben dem Namen heißt: Dazu gibt es schon ein Ergebnis.</p>
+  <p class="hint" data-i18n="hint_tools">Wähle ein Werkzeug, es öffnet sich darunter. Ein Punkt heißt: Ergebnis vorhanden.</p>
   <details id="toolmenu"><summary class="btn alt"><span data-i18n="tool_menu">Werkzeug wählen</span> <span id="toolcount"></span></summary>
     <div class="toolbtns">
       <button class="btn alt small" data-tool="paste"><span data-i18n="tool_paste">Daten einfügen</span><span class="mark" data-i18n-title="tool_used" title="Ergebnis vorhanden" hidden> ●</span></button>

@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Wheatstone Bridge: Resistance with Uncertainty | PlotLab</title>
+  <meta name="description" content="Calculate an unknown resistance from three bridge balances, take the weighted mean and compare it with the rating. Free template.">
+  <meta name="robots" content="index, follow, max-image-preview:large">
+  <link rel="canonical" href="https://plot.productledlab.dev/en/experiments/wheatstone-bridge/">
+  <link rel="alternate" hreflang="de" href="https://plot.productledlab.dev/versuche/wheatstone-bruecke/">
+  <link rel="alternate" hreflang="en" href="https://plot.productledlab.dev/en/experiments/wheatstone-bridge/">
+  <link rel="alternate" hreflang="x-default" href="https://plot.productledlab.dev/versuche/wheatstone-bruecke/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="PlotLab">
+  <meta property="og:title" content="Wheatstone Bridge: Resistance with Uncertainty | PlotLab">
+  <meta property="og:description" content="Calculate an unknown resistance from three bridge balances, take the weighted mean and compare it with the rating. Free template.">
+  <meta property="og:url" content="https://plot.productledlab.dev/en/experiments/wheatstone-bridge/">
+  <meta property="og:locale" content="en_US">
+  <meta property="og:locale:alternate" content="de_DE">
+  <meta property="og:image" content="https://plot.productledlab.dev/og.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="PlotLab: fit line with error bars and result">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Wheatstone Bridge: Resistance with Uncertainty | PlotLab">
+  <meta name="twitter:description" content="Calculate an unknown resistance from three bridge balances, take the weighted mean and compare it with the rating. Free template.">
+  <meta name="twitter:image" content="https://plot.productledlab.dev/og.png">
+  <meta name="theme-color" content="#4F46E5">
+  <link rel="icon" type="image/jpeg" href="/favicon.jpg">
+  <link rel="preload" href="/fonts/source-sans-3-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/fonts/barlow-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/home.css">
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebPage","name":"Wheatstone Bridge: Resistance with Uncertainty","description":"Calculate an unknown resistance from three bridge balances, take the weighted mean and compare it with the rating. Free template.","url":"https://plot.productledlab.dev/en/experiments/wheatstone-bridge/","inLanguage":"en","isPartOf":{"@id":"https://plot.productledlab.dev/#website"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"PlotLab","item":"https://plot.productledlab.dev/en/"},{"@type":"ListItem","position":2,"name":"Experiments","item":"https://plot.productledlab.dev/en/experiments/"},{"@type":"ListItem","position":3,"name":"Wheatstone Bridge: Resistance with Uncertainty","item":"https://plot.productledlab.dev/en/experiments/wheatstone-bridge/"}]}]}</script>
+</head>
+<body>
+<header><a class="brand" href="/en/"><img src="/logo.jpg" alt="" width="40" height="40">PlotLab</a><span class="lang" role="navigation" aria-label="Sprache / Language"><a href="/versuche/wheatstone-bruecke/" hreflang="de" lang="de" data-home-lang="de">DE</a><a href="/en/experiments/wheatstone-bridge/" hreflang="en" lang="en" data-home-lang="en" aria-current="true">EN</a></span></header>
+<main class="page">
+<nav class="crumbs" aria-label="Breadcrumb"><a href="/en/">PlotLab</a> › <a href="/en/experiments/">Experiments</a></nav>
+<h1>Wheatstone Bridge: Resistance with Uncertainty</h1>
+<p class="answer">Three balances of the bridge with different resistors R1, R2, R3 (all in Ω, with uncertainty). Wanted: the unknown resistance Rx = R1·R2/R3 with error propagation, the weighted mean and the comparison with the printed value (nominal value 220 Ω, tolerance 1 %).</p>
+<h2>How it works in PlotLab</h2>
+<ol>
+  <li>The columns “Rx / Ω” and “u(Rx) / Ω” are already calculated: Rx = R1·R2/R3, u(Rx) from Gaussian error propagation with u(R1), u(R2), u(R3) (see the column heads).</li>
+  <li>In the tool “Weighted mean” Rx and u(Rx) are chosen with k = 1. Press “Calculate”: weighted mean and overlap check of the three balances.</li>
+  <li>In the tool “Comparison” the weighted mean (219.4 ± 1.0) Ω and the nominal value (220 ± 2.2) Ω are entered. Press “Compare”: difference in combined uncertainties and verdict.</li>
+</ol>
+<p class="sub">The numbers in the template are invented. You replace them with your own measurements.</p>
+<p><a class="btn" href="/app.html?start=p6a">Open the template in PlotLab</a> <a class="btn alt" href="/en/experiments/">All experiments</a></p>
+</main>
+<footer>Independent student tool. Not affiliated with the university.</footer>
+</body>
+</html>

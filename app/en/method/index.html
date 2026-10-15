@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Methods and Checks Against NIST Reference Values | PlotLab</title>
+  <meta name="description" content="How PlotLab calculates: uncertainty options, rounding by the lab rule and checks of the fits against NIST reference values. Free in your browser.">
+  <meta name="robots" content="index, follow, max-image-preview:large">
+  <link rel="canonical" href="https://plot.productledlab.dev/en/method/">
+  <link rel="alternate" hreflang="de" href="https://plot.productledlab.dev/methode/">
+  <link rel="alternate" hreflang="en" href="https://plot.productledlab.dev/en/method/">
+  <link rel="alternate" hreflang="x-default" href="https://plot.productledlab.dev/methode/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="PlotLab">
+  <meta property="og:title" content="Methods and Checks Against NIST Reference Values | PlotLab">
+  <meta property="og:description" content="How PlotLab calculates: uncertainty options, rounding by the lab rule and checks of the fits against NIST reference values. Free in your browser.">
+  <meta property="og:url" content="https://plot.productledlab.dev/en/method/">
+  <meta property="og:locale" content="en_US">
+  <meta property="og:locale:alternate" content="de_DE">
+  <meta property="og:image" content="https://plot.productledlab.dev/og.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="PlotLab: fit line with error bars and result">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Methods and Checks Against NIST Reference Values | PlotLab">
+  <meta name="twitter:description" content="How PlotLab calculates: uncertainty options, rounding by the lab rule and checks of the fits against NIST reference values. Free in your browser.">
+  <meta name="twitter:image" content="https://plot.productledlab.dev/og.png">
+  <meta name="theme-color" content="#4F46E5">
+  <link rel="icon" type="image/jpeg" href="/favicon.jpg">
+  <link rel="preload" href="/fonts/source-sans-3-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/fonts/barlow-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/home.css">
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebPage","name":"Methods and Checks Against NIST Reference Values","description":"How PlotLab calculates: uncertainty options, rounding by the lab rule and checks of the fits against NIST reference values. Free in your browser.","url":"https://plot.productledlab.dev/en/method/","inLanguage":"en","isPartOf":{"@id":"https://plot.productledlab.dev/#website"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"PlotLab","item":"https://plot.productledlab.dev/en/"},{"@type":"ListItem","position":2,"name":"Methods and checks","item":"https://plot.productledlab.dev/en/method/"}]}]}</script>
+</head>
+<body>
+<header><a class="brand" href="/en/"><img src="/logo.jpg" alt="" width="40" height="40">PlotLab</a><span class="lang" role="navigation" aria-label="Sprache / Language"><a href="/methode/" hreflang="de" lang="de" data-home-lang="de">DE</a><a href="/en/method/" hreflang="en" lang="en" data-home-lang="en" aria-current="true">EN</a></span></header>
+<main class="page">
+<nav class="crumbs" aria-label="Breadcrumb"><a href="/en/">PlotLab</a> › Methods and checks</nav>
+<h1>Methods and checks</h1>
+<p class="answer">PlotLab calculates in your browser with Python (SciPy). Every calculation is checked against independent reference values, not against the library itself.</p>
+<ul>
+  <li>Uncertainty: for weighted fits PlotLab gives both options, scaled by √(χ²/DoF) or unscaled (from the individual uncertainties). The result says which method applies.</li>
+  <li>Straight-line fit: against the NIST data set Norris (36 points) slope, intercept, their errors and the residual sum of squares agree to 9 or more digits.</li>
+  <li>Other fits: against NIST data sets (Misra1a, Misra1d, BoxBOD, Eckerle4, Lanczos3, Gauss1, ENSO, Pontius, Wampler 1, 4 and 5) the parameters agree to 6.5 to 9 digits. A start where the fit gets stuck shows a message instead of a wrong number.</li>
+  <li>Rounding: The result reads (value ± u) unit: u is rounded to one significant digit, or two if that digit is 1 or 2, and the value to match.</li>
+  <li>Examples: the numbers in the experiment templates are invented.</li>
+</ul>
+<p class="sub">Not yet checked: the comparison with R is still open.</p>
+<p><a class="btn" href="/en/">PlotLab</a></p>
+</main>
+<footer>Independent student tool. Not affiliated with the university.</footer>
+</body>
+</html>

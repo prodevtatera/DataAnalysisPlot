@@ -40,7 +40,7 @@ const noSideways = async (name, p) => { const s = await sticksOut(p); yes(`${nam
 // 1. Root address = home page, German first, nothing from outside, no Python engine.
 let p = await fresh();
 await home(p);
-eq("root address shows the home page", [await p.title(), await p.textContent("h1")], ["PlotLab – vom Messwert zum Protokoll-Diagramm", "Vom Messwert zum fertigen Protokoll-Diagramm"]);
+eq("root address shows the home page", [await p.title(), await p.textContent("h1")], ["Messdaten auswerten und plotten: Ausgleichsgerade | PlotLab", "Vom Messwert zum fertigen Protokoll-Diagramm"]);
 eq("language is German by default", await p.evaluate(() => document.documentElement.lang), "de");
 eq("the footer sentence", await p.textContent("footer"), "Unabhängiges Studierendenwerkzeug. Nicht mit der Universität verbunden.");
 eq("example result line", await p.textContent("#res"), "D = (2,32 ± 0,03) N/cm");
@@ -49,8 +49,8 @@ eq("unscaled result line", await p.textContent("#res"), "D = (2,32 ± 0,05) N/cm
 await p.click("input[value=scaled]");
 eq("the first screen offers the three buttons", await p.$$eval(".hero .btn", e => e.map(x => x.textContent.trim())), ["Beispiel öffnen", "Leeres Projekt", "Datei wählen"]);
 eq("twelve template cards with their titles", await p.$$eval(".card strong", e => e.map(x => x.textContent)), ["P1 Fehlerverteilung", "P2 Volumenmessung", "P3 Elastizität", "P4 Oberflächenspannung", "P5 Polarimetrie (Saccharose)", "P5 Newtonsche Ringe", "P6 Wheatstone-Brücke", "P6 Gitter", "P7 Refraktometer", "P8 Radioaktivität: Zählraten", "P8 Radioaktivität: Zerfallskurve", "P9 Pendel"]);
-yes("every card has a short description", (await p.$$eval(".card span", e => e.every(x => x.textContent.length > 15))));
-eq("three value points", await p.$$eval(".points h3", e => e.length), 3);
+// (SEO round: the cards show only the title; the one-line descriptions moved to the experiment hub page /versuche/, checked in tests/seo-site.sh)
+eq("five common questions, collapsed", await p.$$eval(".faq details", e => [e.length, e.filter(x => x.open).length]), [5, 0]); // SEO round: the three value points were cut (less text); the questions say the same
 yes("no placeholder or empty text anywhere", await p.evaluate(() => [...document.querySelectorAll("[data-i18n]")].every(e => e.textContent.trim() && !e.textContent.startsWith("["))));
 eq("no continue link without a saved project", await p.$eval("#cont", e => e.hidden), true);
 yes("no request left the machine", outside.length === 0);
@@ -63,12 +63,12 @@ await p.screenshot({ path: "evidence/phase4-step5-home-1200.png" });
 await p.screenshot({ path: "evidence/phase4-step5-home-1200-full.png", fullPage: true });
 
 // 2. English: everything switches, the choice is kept, and the workbench opens in English too.
-await p.click("#lang_en");
+await p.click('[data-home-lang="en"]'); await p.waitForURL(/\/en\/$/); await p.waitForFunction(() => /^D = \(/.test(document.getElementById("res").textContent)); // the language is the address now: /en/
 eq("English headline", await p.textContent("h1"), "From measurements to a finished lab-report plot");
 eq("English footer", await p.textContent("footer"), "Independent student tool. Not affiliated with the university.");
 eq("English buttons", await p.$$eval(".hero .btn", e => e.map(x => x.textContent.trim())), ["Open example", "Empty project", "Choose file"]);
 eq("English result line (decimal point)", await p.textContent("#res"), "D = (2.32 ± 0.03) N/cm");
-yes("English cards", (await p.$$eval(".card span", e => e.map(x => x.textContent))).every(x => !/[äöüÄÖÜ]/.test(x)) && (await p.textContent(".card strong")) === "P1 Error distribution");
+yes("English cards", (await p.$$eval(".card strong", e => e.map(x => x.textContent))).every(x => !/[äöüÄÖÜ]/.test(x)) && (await p.textContent(".card strong")) === "P1 Error distribution");
 yes("English page: no placeholder or empty text", await p.evaluate(() => [...document.querySelectorAll("[data-i18n]")].every(e => e.textContent.trim() && !e.textContent.startsWith("["))));
 await p.screenshot({ path: "evidence/phase4-step5-home-en-1200.png" });
 await p.reload(); await p.waitForFunction(() => /^D = \(/.test(document.getElementById("res").textContent));
@@ -80,7 +80,7 @@ eq("the address is cleaned after the start", new URL(p.url()).search, "");
 // the workbench brand leads back to the home page
 await p.click("header .brand");
 await p.waitForFunction(() => /^D = \(/.test(document.getElementById("res").textContent));
-eq("brand link in the workbench goes home", new URL(p.url()).pathname, "/");
+eq("brand link in the workbench goes to the home page of the chosen language (English: /en/)", new URL(p.url()).pathname, "/en/");
 // a saved project exists now: the home page offers to continue and says a new one replaces it
 eq("continue link shows with a saved project", await p.$eval("#cont", e => e.hidden), false);
 await p.click("#cont a");
@@ -105,7 +105,7 @@ await p.close();
 // 4. Each template card lands in the workbench with exactly that template and its tools.
 const TOOLS = { p1: ["stats", "hist", "cum"], p2: ["stats", "wmean"], p3: ["series", "derived"], p4: ["derived"], p5a: [], p5b: ["derived"], p6a: ["wmean", "compare"], p6b: ["wmean", "compare"], p7: ["calib"], p8a: ["gof"], p8b: ["logy", "export"], p9: ["stats", "derived"] };
 const hrefs = await (async () => { p = await fresh(); await home(p); const h = await p.$$eval(".card", e => e.map(x => x.getAttribute("href"))); await p.close(); return h; })();
-eq("card links", hrefs, Object.keys(TOOLS).map(id => `app.html?start=${id}`));
+eq("card links", hrefs, Object.keys(TOOLS).map(id => `/app.html?start=${id}`));
 for (const id of Object.keys(TOOLS)) {
   p = await fresh(); await home(p);
   await Promise.all([p.waitForURL(/app\.html/), p.click(`.card[href$="=${id}"]`)]);
@@ -160,7 +160,7 @@ yes("an Excel file says to save as CSV", (await msg()).includes("CSV"));
 await drop(p, "notizen.txt", "text/plain", "Hallo Welt");
 await p.waitForFunction(() => document.getElementById("homemsg").textContent.includes("notizen.txt"));
 yes("a text without numbers is refused", (await msg()).includes("keine Zahlen"));
-await p.click("#lang_en");
+await p.click('[data-home-lang="en"]'); await p.waitForURL(/\/en\/$/); await p.waitForFunction(() => /^D = \(/.test(document.getElementById("res").textContent)); // the language is the address now: /en/
 eq("the message goes away with the language switch", await msg(), "");
 await p.close();
 // a file that looks fine but has a letter in a number cell: the workbench says so and keeps what it had
@@ -189,7 +189,8 @@ await noSideways("375", p);
 await p.screenshot({ path: "evidence/phase4-step5-home-375.png" });
 await p.screenshot({ path: "evidence/phase4-step5-home-375-full.png", fullPage: true });
 yes("375 px: the three buttons are fully on screen", await p.$$eval(".hero .btn", e => e.every(x => x.getBoundingClientRect().right <= innerWidth && x.getBoundingClientRect().left >= 0)));
-await p.click("#lang_en"); await noSideways("375 English", p);
+await p.click('[data-home-lang="en"]'); await p.waitForURL(/\/en\/$/); await p.waitForFunction(() => /^D = \(/.test(document.getElementById("res").textContent)); // the language is the address now: /en/
+await noSideways("375 English", p);
 await p.close();
 
 // 7. The whole run: no request left the machine, no script error.

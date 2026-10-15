@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Diffraction Grating: Wavelength of a Laser | PlotLab</title>
+  <meta name="description" content="Evaluate diffraction at a grating: calculate the laser wavelength from the maxima and compare it with the literature value. Free template.">
+  <meta name="robots" content="index, follow, max-image-preview:large">
+  <link rel="canonical" href="https://plot.productledlab.dev/en/experiments/diffraction-grating/">
+  <link rel="alternate" hreflang="de" href="https://plot.productledlab.dev/versuche/gitter/">
+  <link rel="alternate" hreflang="en" href="https://plot.productledlab.dev/en/experiments/diffraction-grating/">
+  <link rel="alternate" hreflang="x-default" href="https://plot.productledlab.dev/versuche/gitter/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="PlotLab">
+  <meta property="og:title" content="Diffraction Grating: Wavelength of a Laser | PlotLab">
+  <meta property="og:description" content="Evaluate diffraction at a grating: calculate the laser wavelength from the maxima and compare it with the literature value. Free template.">
+  <meta property="og:url" content="https://plot.productledlab.dev/en/experiments/diffraction-grating/">
+  <meta property="og:locale" content="en_US">
+  <meta property="og:locale:alternate" content="de_DE">
+  <meta property="og:image" content="https://plot.productledlab.dev/og.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="PlotLab: fit line with error bars and result">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Diffraction Grating: Wavelength of a Laser | PlotLab">
+  <meta name="twitter:description" content="Evaluate diffraction at a grating: calculate the laser wavelength from the maxima and compare it with the literature value. Free template.">
+  <meta name="twitter:image" content="https://plot.productledlab.dev/og.png">
+  <meta name="theme-color" content="#4F46E5">
+  <link rel="icon" type="image/jpeg" href="/favicon.jpg">
+  <link rel="preload" href="/fonts/source-sans-3-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/fonts/barlow-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/home.css">
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebPage","name":"Diffraction Grating: Wavelength of a Laser","description":"Evaluate diffraction at a grating: calculate the laser wavelength from the maxima and compare it with the literature value. Free template.","url":"https://plot.productledlab.dev/en/experiments/diffraction-grating/","inLanguage":"en","isPartOf":{"@id":"https://plot.productledlab.dev/#website"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"PlotLab","item":"https://plot.productledlab.dev/en/"},{"@type":"ListItem","position":2,"name":"Experiments","item":"https://plot.productledlab.dev/en/experiments/"},{"@type":"ListItem","position":3,"name":"Diffraction Grating: Wavelength of a Laser","item":"https://plot.productledlab.dev/en/experiments/diffraction-grating/"}]}]}</script>
+</head>
+<body>
+<header><a class="brand" href="/en/"><img src="/logo.jpg" alt="" width="40" height="40">PlotLab</a><span class="lang" role="navigation" aria-label="Sprache / Language"><a href="/versuche/gitter/" hreflang="de" lang="de" data-home-lang="de">DE</a><a href="/en/experiments/diffraction-grating/" hreflang="en" lang="en" data-home-lang="en" aria-current="true">EN</a></span></header>
+<main class="page">
+<nav class="crumbs" aria-label="Breadcrumb"><a href="/en/">PlotLab</a> › <a href="/en/experiments/">Experiments</a></nav>
+<h1>Diffraction Grating: Wavelength of a Laser</h1>
+<p class="answer">A laser is diffracted at a grating with 300 lines/mm. Measured: the distance x of the k-th maximum from the centre at screen distance L. From d·sin θ = k·λ with sin θ = x/√(x² + L²) the wavelength λ follows; it is compared with the literature value 632.8 nm (He-Ne laser).</p>
+<h2>How it works in PlotLab</h2>
+<ol>
+  <li>The columns “λ / nm” and “u(λ) / nm” are already calculated: λ = d·x/(k·√(x² + L²)) with d = 10⁶/300 nm, u(λ) from the error propagation with u(x) and u(L) (see the column heads).</li>
+  <li>In the tool “Weighted mean” λ and u(λ) are chosen with k = 1. Press “Calculate”: weighted mean from the three orders.</li>
+  <li>In the tool “Comparison” the mean (632.1 ± 0.9) nm and the literature value 632.8 nm (without uncertainty) are entered. Press “Compare”.</li>
+</ol>
+<p class="sub">The numbers in the template are invented. You replace them with your own measurements.</p>
+<p><a class="btn" href="/app.html?start=p6b">Open the template in PlotLab</a> <a class="btn alt" href="/en/experiments/">All experiments</a></p>
+</main>
+<footer>Independent student tool. Not affiliated with the university.</footer>
+</body>
+</html>

@@ -6,11 +6,10 @@ const TEXTS = {
   // home page (index.html, home.js)
   home_back: { de: "Zur Startseite", en: "To the home page" },
   file_lost: { de: "Die Datei ist nicht angekommen. Zieh sie bitte noch einmal auf die Seite.", en: "The file did not arrive. Please drag it onto the page again." },
-  home_title: { de: "PlotLab – vom Messwert zum Protokoll-Diagramm", en: "PlotLab – from measurements to a lab-report plot" },
   home_h1: { de: "Vom Messwert zum fertigen Protokoll-Diagramm", en: "From measurements to a finished lab-report plot" },
-  home_lead: { de: "Messwerte einfügen, Ausgleichsgerade berechnen, Ergebnis richtig gerundet ablesen. Kostenlos, direkt im Browser, ohne Anmeldung und ohne Installation.", en: "Paste your measurements, compute the fit line, read the result correctly rounded. Free, right in your browser, no signup, no install." },
+  home_lead: { de: "Messwerte rein, Ausgleichsgerade und Ergebnis raus. Kostenlos, im Browser, ohne Anmeldung.", en: "Paste measurements, get the fit line and result. Free, in your browser, no signup." },
   home_drop: { de: "Datei hierher ziehen", en: "Drag a file here" },
-  home_drop2: { de: "Eine CSV-Datei (Dezimalkomma oder Punkt, Semikolon oder Komma) oder ein gespeichertes Projekt. Eine Tabelle aus Excel kannst du mit Strg/Cmd+V einfügen.", en: "A CSV file (decimal comma or point, semicolon or comma) or a saved project. You can paste a table from Excel with Ctrl/Cmd+V." },
+  home_drop2: { de: "CSV-Datei oder Projekt. Eine Excel-Tabelle fügst du mit Strg/Cmd+V ein.", en: "CSV file or project. Paste an Excel table with Ctrl/Cmd+V." },
   home_b_example: { de: "Beispiel öffnen", en: "Open example" },
   home_b_blank: { de: "Leeres Projekt", en: "Empty project" },
   home_b_file: { de: "Datei wählen", en: "Choose file" },
@@ -21,14 +20,8 @@ const TEXTS = {
   home_privacy: { de: "Deine Daten bleiben auf deinem Rechner.", en: "Your data stays on your computer." },
   home_cont: { de: "Mit meinem letzten Projekt weitermachen", en: "Continue with my last project" },
   home_cont_note: { de: "Ein neues Projekt ersetzt das zuletzt gespeicherte.", en: "A new project replaces the one saved last." },
-  home_v1h: { de: "Gleich ein fertiges Beispiel", en: "A finished example at once" },
-  home_v1: { de: "Beim ersten Öffnen siehst du ein geplottetes und angepasstes Beispiel. Du musst dich nicht anmelden.", en: "The first time you open it you see a plotted and fitted example. No signup needed." },
-  home_v2h: { de: "Richtig gerundet", en: "Correctly rounded" },
-  home_v2: { de: "Gewichtete Fits mit Fehlerbalken und beiden Fehlerangaben. Das Ergebnis steht als (Wert ± u) Einheit da, nach der Praktikumsregel gerundet.", en: "Weighted fits with error bars and both uncertainty options. The result reads (value ± u) unit, rounded by the lab rule." },
-  home_v3h: { de: "Deine Daten bleiben bei dir", en: "Your data stays with you" },
-  home_v3: { de: "Alles wird in deinem Browser gerechnet. Nichts wird hochgeladen.", en: "Everything is calculated in your browser. Nothing is uploaded." },
   home_ex_h: { de: "So sieht ein Ergebnis aus", en: "What a result looks like" },
-  home_ex_note: { de: "Beispiel: Federkonstante, erfundene Daten. Die Seite hat es geplottet und gefittet.", en: "Example: spring constant, invented data. The page has plotted and fitted it." },
+  home_ex_note: { de: "Beispiel mit erfundenen Daten: Federkonstante.", en: "Example with invented data: spring constant." },
   home_tbl: { de: "Messwerte", en: "Measurements" },
   home_res: { de: "Ergebnis", en: "Result" },
   home_meth: { de: "Unsicherheit der Parameter", en: "Parameter uncertainty" },
@@ -42,8 +35,11 @@ const TEXTS = {
   home_pts: { de: "Messwerte mit Fehlerbalken", en: "Measurements with error bars" },
   home_fit: { de: "Gewichtete Ausgleichsgerade", en: "Weighted fit line" },
   home_plot_aria: { de: "Kraft gegen Auslenkung mit Fehlerbalken und Ausgleichsgerade", en: "Force against extension with error bars and fit line" },
+  home_hub: { de: "Alle Versuche mit Anleitung", en: "All experiments with instructions" },
+  home_faq_h: { de: "Häufige Fragen", en: "Common questions" },
+  home_method_link: { de: "Methode und Prüfung", en: "Methods and checks" },
   home_tpl_h: { de: "Versuchsvorlagen", en: "Experiment templates" },
-  home_tpl_lead: { de: "Wähle deinen Versuch. Die Vorlage legt Tabelle, Diagramm und die nötigen Werkzeuge an und führt dich Schritt für Schritt zum Ergebnis. Die Zahlen darin sind erfunden, du ersetzt sie durch deine.", en: "Choose your experiment. The template sets up the table, the plot and the tools you need, and leads you to the result step by step. The numbers in it are invented; you replace them with yours." },
+  home_tpl_lead: { de: "Wähle deinen Versuch. Die Zahlen sind erfunden; du ersetzt sie durch deine.", en: "Choose your experiment. The numbers are invented; replace them with yours." },
   home_p1: { de: "30 Ablesungen: Mittelwert, Streuung, Histogramm", en: "30 readings: mean, spread, histogram" },
   home_p2: { de: "Durchmesser und Volumen mit Fehlerfortpflanzung", en: "Diameter and volume with error propagation" },
   home_p3: { de: "Stahldraht belasten und entlasten: Elastizitätsmodul E", en: "Loading and unloading a steel wire: Young's modulus E" },
@@ -77,7 +73,7 @@ const TEXTS = {
            en: "This is a finished example (P3 elasticity, invented data), already fitted and evaluated. Drag your own file (CSV or .plotlab) onto the page or start with “Empty table”." },
   // tools menu ("Werkzeuge")
   h_tools: { de: "Werkzeuge", en: "Tools" },
-  hint_tools: { de: "Weitere Rechnungen und Diagramme. Wähle ein Werkzeug, es öffnet sich darunter. Ein Punkt neben dem Namen heißt: Dazu gibt es schon ein Ergebnis.", en: "More calculations and plots. Choose a tool and it opens below. A dot next to a name means there is already a result for it." },
+  hint_tools: { de: "Wähle ein Werkzeug, es öffnet sich darunter. Ein Punkt heißt: Ergebnis vorhanden.", en: "Choose a tool, it opens below. A dot means a result exists." },
   tool_menu: { de: "Werkzeug wählen", en: "Choose a tool" },
   tool_nres: { de: "{n} mit Ergebnis", en: "{n} with a result" },
   tool_used: { de: "Ergebnis vorhanden", en: "Has a result" },
@@ -466,7 +462,7 @@ const TEXTS = {
   aria_cell: { de: "{name}, Zeile {i}", en: "{name}, row {i}" },
   aria_rowdel: { de: "Zeile {i} löschen", en: "Delete row {i}" },
   // template box (the template texts themselves are still German)
-  tpl_invented: { de: "Erfundene Beispieldaten, keine echten Messwerte von Studierenden. Ersetze die Zahlen durch deine Messung; Ergebnisse müssen danach neu berechnet werden.", en: "Invented example data, not real measurements by students. Replace the numbers with your own measurement; results must be recalculated afterwards." },
+  tpl_invented: { de: "Erfundene Beispieldaten, keine echten Messwerte von Studierenden. Ersetze die Zahlen durch deine Messung und rechne neu.", en: "Invented example data, not real measurements by students. Replace the numbers with your own measurement and recalculate." },
   tpl_show: { de: "Zeigen", en: "Show" },
   // ---- part C: messages of the pure files (parse, drop, project, derived, gof, logaxis, series, compare, formula, propagate), exports, templates
   // table paste and files
@@ -675,6 +671,7 @@ function applyStatic() {
     document.querySelectorAll(`[data-${attr}]`).forEach(el => set(el, t(el.getAttribute(`data-${attr}`))));
   }
   document.querySelectorAll("[data-lang]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.lang === LANG)));
+  document.querySelectorAll("[data-home]").forEach(a => { a.href = LANG === "en" ? "/en/" : "/"; }); // the home page of the chosen language
 }
 // Node: the pure files (parse.js, formula.js, ...) call t(), nf() and decSep() like the page does, so they find them as globals.
 if (typeof module !== "undefined") { module.exports = { TEXTS, t, nf, decSep, localDec, setLang }; Object.assign(globalThis, { t, nf, decSep, localDec }); }
