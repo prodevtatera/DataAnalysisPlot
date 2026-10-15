@@ -1,13 +1,14 @@
 // Cookie strip on both pages: shows once, "Allow" keeps saving, "No thanks" stops it and clears what was saved.
-import { pathToFileURL } from "node:url";
-import { resolve } from "node:path";
+import { serve } from "./serve.mjs";
 import { chromium } from "./tools.mjs";
 let bad = 0;
 const eq = (name, got, want) => {
   got = JSON.stringify(got); want = JSON.stringify(want);
   if (got !== want) { console.log(`FAIL ${name}: got ${got}, want ${want}`); bad++; }
 };
-const home = pathToFileURL(resolve("app/index.html")).href, app = pathToFileURL(resolve("app/app.html")).href;
+// served like the real site (the pages use root-absolute addresses such as /i18n.js, which a file:// page cannot load)
+const { base, close } = await serve(["app/"], "app");
+const home = base, app = base + "app.html";
 const b = await chromium.launch();
 const bar = p => p.locator(".consent").count();
 
@@ -37,6 +38,6 @@ eq("saved project and language removed", await p.evaluate(() => [localStorage.ge
 await p.click("#example"); await p.waitForTimeout(500);
 eq("nothing saved after No thanks", await p.evaluate(() => localStorage.getItem("plotlab-autosave")), null);
 await ctx.close();
-await b.close();
+await b.close(); close();
 if (bad) { console.log(`${bad} failed`); process.exit(1); }
 console.log("cookie banner: all checks passed");
