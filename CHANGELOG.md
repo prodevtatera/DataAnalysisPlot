@@ -2,6 +2,12 @@
 
 Written in plain language for people who do not read code. Newest entry on top.
 
+## 2026-10-15: Table column headers line up
+
+- **What a student can now do:** in the data table, the role choice (X, Y, error, unused) now sits directly under the column name, so the headers line up when some columns have a formula and others do not. The delete button for a calculated column stays at the bottom of the header.
+- **Tested:** the whole check (`scripts/check.sh`) passes. Not looked at with every table layout by eye.
+- **Not covered yet:** the home page wording from the session "Frontpage clarity and scope messaging" was left out: it clashes with the shorter wording of the search-engine round, so one of the two has to win.
+
 ## 2026-10-15: Proof that the calculations are correct
 
 - **What a student can now do:** open the page "Geprüft" (https://plot.productledlab.dev/pruefung.html), reached from a green "✓ NIST-geprüft" badge at the top of every page. It lists 12 official test data sets from the US standards institute NIST with their correct answers. One button recalculates all of them in the student's own browser, with the same code as their own evaluations, and shows how many digits agree. The banner turns green ("Alle 12 Prüfungen bestanden") only if every data set passes. Each row opens to a table of NIST value against PlotLab value. German and English.

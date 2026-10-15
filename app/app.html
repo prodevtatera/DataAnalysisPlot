@@ -40,7 +40,7 @@
   .scroll { overflow:auto; max-height:380px; background:#fff; border:1px solid var(--line); }
   table { border-collapse:collapse; width:100%; font-size:15px; line-height:22px; font-variant-numeric:tabular-nums; }
   th,td { padding:0; border-bottom:1px solid var(--soft); }
-  th { background:var(--soft); position:sticky; top:0; font-weight:600; padding:3px 10px; text-align:right; }
+  th { background:var(--soft); position:sticky; top:0; font-weight:600; padding:3px 10px; text-align:right; vertical-align:top; }
   select { font:14px "Source Sans 3", system-ui, sans-serif; padding:2px 4px; border:1px solid var(--blue); border-radius:10px; background:#fff; max-width:100%; }
   th select { display:block; margin:2px 0 0 auto; font-weight:400; }
   .fitbar { display:flex; gap:18px; flex-wrap:wrap; align-items:center; margin-bottom:10px; }
@@ -53,6 +53,7 @@
   #results td { padding:3px 12px; text-align:right; }
   input.num { width:90px; padding:6px 8px; font:16px "Source Sans 3", system-ui, sans-serif; text-align:right; border:1px solid var(--blue); border-radius:10px; background:#fff; }
   input.txt { padding:6px 8px; font:16px "Source Sans 3", system-ui, sans-serif; border:1px solid var(--blue); border-radius:10px; background:#fff; width:230px; max-width:100%; }
+  th .btn { margin-top:4px; }
   .fx { font-weight:400; font-size:13px; line-height:18px; color:#444; }
   td.calc { padding:3px 10px; text-align:right; background:#f6f6ef; }
   #fmsg { white-space:pre-line; }
@@ -471,7 +472,7 @@ const calcText = (c, i) => c.values[i] === null ? "" : fmtCalc.format(c.values[i
 function renderTable() {
   const roleSel = (c, j) => `<select class="role" data-role="${j}" aria-label="${t("aria_role", { name: esc(c.name) })}">` +
     ROLES.map(r => `<option value="${r}"${c.role === r ? " selected" : ""}>${t("role_" + r)}</option>`).join("") + "</select>";
-  const head = "<tr><th></th>" + proj.columns.map((c, j) => `<th>${esc(c.name)}${c.formula !== undefined ? `<div class="fx">= ${esc(c.formula)}</div>` : ""}${c.uncert ? `<div class="fx">${esc(t("fx_prop", { f: c.uncert.formula, m: c.uncert.map }))}</div>` : ""}${roleSel(c, j)}${isCalc(c) ? `<button class="btn alt small" data-delcol="${j}" aria-label="${t("aria_delcol", { name: esc(c.name) })}">${t("delcol")}</button>` : ""}</th>`).join("") + "<th></th></tr>";
+  const head = "<tr><th></th>" + proj.columns.map((c, j) => `<th>${esc(c.name)}${roleSel(c, j)}${c.formula !== undefined ? `<div class="fx">= ${esc(c.formula)}</div>` : ""}${c.uncert ? `<div class="fx">${esc(t("fx_prop", { f: c.uncert.formula, m: c.uncert.map }))}</div>` : ""}${isCalc(c) ? `<button class="btn alt small" data-delcol="${j}" aria-label="${t("aria_delcol", { name: esc(c.name) })}">${t("delcol")}</button>` : ""}</th>`).join("") + "<th></th></tr>";
   const body = Array.from({ length: nrows() }, (_, i) => `<tr><td class="n">${i + 1}</td>` +
     proj.columns.map((c, j) => isCalc(c) ? `<td class="calc" data-calc="${j}">${calcText(c, i)}</td>` : `<td><input data-r="${i}" data-c="${j}" aria-label="${t("aria_cell", { name: esc(c.name), i: i + 1 })}" value="${c.values[i] === null ? "" : fmt.format(c.values[i])}" inputmode="decimal"></td>`).join("") +
     `<td><button class="btn alt small" data-del="${i}" aria-label="${t("aria_rowdel", { i: i + 1 })}">✕</button></td></tr>`).join("");
