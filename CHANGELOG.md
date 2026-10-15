@@ -2,6 +2,13 @@
 
 Written in plain language for people who do not read code. Newest entry on top.
 
+## 2026-10-15: Proof that the calculations are correct
+
+- **What a student can now do:** open the page "Geprüft" (https://plot.productledlab.dev/pruefung.html), reached from a green "✓ NIST-geprüft" badge at the top of every page. It lists 12 official test data sets from the US standards institute NIST with their correct answers. One button recalculates all of them in the student's own browser, with the same code as their own evaluations, and shows how many digits agree. The banner turns green ("Alle 12 Prüfungen bestanden") only if every data set passes. Each row opens to a table of NIST value against PlotLab value. German and English.
+- **Why:** students cannot trust a tool that does not show its numbers are right. The earlier checks existed only in the project's files.
+- **Tested:** all 12 data sets pass in a real browser (straight line, polynomials up to degree 5, and nonlinear formulas): values agree to 6.5 to 9 digits and errors to 7 or more. A test also proves the page can turn red: numbers off by one part in ten thousand, a wrong error or a wrong degrees-of-freedom count are rejected. The whole check (`scripts/check.sh`) passes.
+- **Not covered yet:** weighted fits (with error bars) have no NIST data and are only compared with a self-written solver; no comparison with R yet; the statistics tests are not on this page; the page is not in the sitemap, so search engines are not told about it yet.
+
 ## 2026-10-15: Less text, and findable by search engines and AI assistants
 
 - **What changed for a student:** the home page has 42 % fewer words in German (168 instead of 289) and 46 % fewer in English (181 instead of 333): the three value points and the small texts under the 12 experiment cards are gone, and a few common questions (free? data stays here? Excel? which fits? rounding?) sit in closed boxes at the bottom. The cookie bar is shorter too. English now has its own address (`/en/`) instead of only a switch. There is a new page with all 12 experiments (`/versuche/`) and one short page for each experiment, in both languages, with a button that opens the template in the workbench in the right language. A new page "Methode und Prüfung" says how PlotLab calculates and what it was checked against.

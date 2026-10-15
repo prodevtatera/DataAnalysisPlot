@@ -38,7 +38,7 @@ export const FACTS = {
 
 // ---- fixed words of the generated pages
 const W = {
-  de: { how: "So geht es in PlotLab", invented: "Die Zahlen in der Vorlage sind erfunden. Du ersetzt sie durch deine Messwerte.", open: "Vorlage in PlotLab öffnen", all: "Alle Versuche", crumbHub: "Versuche", crumbs: "Brotkrumen", sw: "Sprache / Language", home: "PlotLab",
+  de: { proof: "✓ NIST-geprüft", how: "So geht es in PlotLab", invented: "Die Zahlen in der Vorlage sind erfunden. Du ersetzt sie durch deine Messwerte.", open: "Vorlage in PlotLab öffnen", all: "Alle Versuche", crumbHub: "Versuche", crumbs: "Brotkrumen", sw: "Sprache / Language", home: "PlotLab",
     hubTitle: "Praktikumsversuche auswerten: 12 Vorlagen", hubDesc: "12 Vorlagen für Praktikumsversuche: Tabelle, Diagramm und Auswertung mit Fehlerbalken und Unsicherheit. Kostenlos im Browser, ohne Anmeldung.",
     hubH1: "Versuchsvorlagen für Praktikum und Protokoll", hubLead: "Wähle deinen Versuch. Die Vorlage legt Tabelle, Diagramm und Werkzeuge an. Die Zahlen darin sind erfunden.",
     mTitle: "Rechenmethoden und Prüfung gegen NIST-Werte", mDesc: "Wie PlotLab rechnet: Fehlerangabe, Rundung nach Praktikumsregel und Prüfung der Anpassungen gegen NIST-Referenzwerte. Kostenlos im Browser.",
@@ -49,7 +49,7 @@ const W = {
       "Rundung: " + FACTS.de.round,
       "Beispiele: Die Zahlen in den Versuchsvorlagen sind erfunden."],
     mNot: "Noch nicht geprüft: Der Vergleich mit R steht aus." },
-  en: { how: "How it works in PlotLab", invented: "The numbers in the template are invented. You replace them with your own measurements.", open: "Open the template in PlotLab", all: "All experiments", crumbHub: "Experiments", crumbs: "Breadcrumb", sw: "Sprache / Language", home: "PlotLab",
+  en: { proof: "✓ NIST-verified", how: "How it works in PlotLab", invented: "The numbers in the template are invented. You replace them with your own measurements.", open: "Open the template in PlotLab", all: "All experiments", crumbHub: "Experiments", crumbs: "Breadcrumb", sw: "Sprache / Language", home: "PlotLab",
     hubTitle: "Evaluate Lab Experiments: 12 Free Templates", hubDesc: "12 templates for lab experiments: table, plot and evaluation with error bars and uncertainty. Free in your browser, no signup.",
     hubH1: "Experiment templates for lab courses and reports", hubLead: "Choose your experiment. The template sets up table, plot and tools. The numbers in it are invented.",
     mTitle: "Methods and Checks Against NIST Reference Values", mDesc: "How PlotLab calculates: uncertainty options, rounding by the lab rule and checks of the fits against NIST reference values. Free in your browser.",
@@ -162,7 +162,7 @@ function seoHead(p) {
 }
 function langSwitch(p) {
   const a = (l, label) => `<a href="${p.alt[l]}" hreflang="${l}" lang="${l}" data-home-lang="${l}"${p.lang === l ? ' aria-current="true"' : ""}>${label}</a>`;
-  return `<span class="lang" role="navigation" aria-label="${escA(W[p.lang].sw)}">${a("de", "DE")}${a("en", "EN")}</span>`;
+  return `<a class="proof" href="/pruefung.html">${W[p.lang].proof}</a><span class="lang" role="navigation" aria-label="${escA(W[p.lang].sw)}">${a("de", "DE")}${a("en", "EN")}</span>`;
 }
 const crumbsJson = (lang, items) => ({ "@type": "BreadcrumbList", itemListElement: items.map(([name, path], i) => ({ "@type": "ListItem", position: i + 1, name, item: SITE + path })) });
 const faqHtml = lang => FAQ[lang].map(([q, a]) => `    <details><summary>${esc(q)}</summary><p>${esc(a)}</p></details>`).join("\n");
@@ -210,7 +210,7 @@ function homeJson(lang, path) {
     const p = page({ lang, path, alt, title: HOME[lang].title, desc: HOME[lang].desc, jsonld: homeJson(lang, path) });
     let h = applyI18n(src, lang).replace(/<html lang="\w+">/, `<html lang="${lang}">`);
     h = h.replace(/<!--seo:start-->[\s\S]*?<!--seo:end-->/, `<!--seo:start-->\n  ${seoHead(p)}\n<!--seo:end-->`);
-    h = h.replace(/<span class="lang"[\s\S]*?<\/span>/, langSwitch(p));
+    h = h.replace(/(?:<a class="proof"[^>]*>[^<]*<\/a>)?<span class="lang"[\s\S]*?<\/span>/, langSwitch(p));
     h = h.replace(/<!--faq:start-->[\s\S]*?<!--faq:end-->/, `<!--faq:start-->\n${faqHtml(lang)}\n<!--faq:end-->`);
     out.set(lang === "de" ? "index.html" : "en/index.html", h);
     pages.push({ path, lang, alt, title: HOME[lang].title, desc: HOME[lang].desc });

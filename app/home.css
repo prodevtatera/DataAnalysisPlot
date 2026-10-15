@@ -10,6 +10,10 @@
   header { background:#fff; border-bottom:1px solid var(--line); height:68px; display:flex; align-items:center; padding:0 24px; position:sticky; top:0; z-index:10; }
   .brand { text-decoration:none; display:flex; align-items:center; gap:10px; font-weight:700; font-size:22px; color:var(--ink); }
   .brand img { width:40px; height:40px; border-radius:50%; object-fit:cover; border:2px solid var(--brand-soft); }
+  .proof { margin-left:auto; margin-right:14px; background:#E7F6EC; color:#127A3E; border:2px solid #127A3E; border-radius:999px; padding:3px 12px; font:700 14px/20px "Barlow", system-ui, sans-serif; text-decoration:none; white-space:nowrap; }
+  .proof + .lang { margin-left:0; }
+  .proof:hover { background:#d3efdc; }
+  @media (max-width:520px) { .proof { margin-right:6px; padding:3px 8px; font-size:13px; } }
   .lang { margin-left:auto; display:flex; gap:4px; background:var(--soft); padding:3px; border-radius:999px; }
   .lang a, .lang button { font:700 14px/20px "Barlow", system-ui, sans-serif; background:transparent; color:var(--muted); border:0; border-radius:999px; padding:4px 14px; cursor:pointer; text-decoration:none; }
   .lang a[aria-current=true], .lang button[aria-pressed=true] { background:#fff; color:var(--brand); box-shadow:0 1px 3px rgba(30,33,64,.15); }
