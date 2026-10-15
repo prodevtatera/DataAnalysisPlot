@@ -15,7 +15,7 @@ const eq = (name, got, want) => { got = JSON.stringify(got); want = JSON.stringi
 const yes = (name, v) => eq(name, !!v, true);
 
 // ---- Pure part: the list of tools in a project.
-eq("the 13 tools", TOOLS, ["paste", "formula", "stats", "hist", "cum", "gof", "wmean", "series", "derived", "calib", "compare", "logy", "export"]);
+eq("the 14 tools", TOOLS, ["paste", "formula", "stats", "hist", "cum", "gof", "wmean", "series", "curvefit", "derived", "calib", "compare", "logy", "export"]);
 eq("the page tests know the same list", ALL_TOOLS, TOOLS);
 const pr = newProject(["x", "y"], [[1, 2], [2, 3]]);
 eq("a new project has no stored list", toolsOpen(pr), null);
@@ -81,7 +81,7 @@ await p.mouse.move(5, 5);
 yes("menu text counts the tools with a result", (await p.textContent("#toolcount")).includes("2"));
 await p.click("#toolmenu > summary");
 eq("menu marks: derived and series used, the others not", await p.$$eval("[data-tool] .mark", e => e.filter(m => !m.hidden).map(m => m.parentElement.dataset.tool)), ["series", "derived"]);
-yes("all 13 tool buttons are in the menu", (await p.$$("[data-tool]")).length === 13 && (await p.$$eval("[data-tool]", e => e.every(x => x.checkVisibility())) === true));
+yes("all 14 tool buttons are in the menu", (await p.$$("[data-tool]")).length === 14 && (await p.$$eval("[data-tool]", e => e.every(x => x.checkVisibility())) === true));
 await p.screenshot({ path: "evidence/phase4-step2-menu.png" });
 await p.click("#toolmenu > summary");
 for (const id of ALL_TOOLS) {
@@ -169,7 +169,7 @@ await p.click("#lang_en");
 eq("English menu button", await p.textContent("#toolmenu > summary span"), "Choose a tool");
 await p.click("#toolmenu > summary");
 eq("English tool names", await p.$$eval("[data-tool] > span:first-child", e => e.map(x => x.textContent)),
-  ["Paste data", "Formula column", "Mean and spread", "Histogram", "Cumulative plot", "χ² test", "Weighted mean", "Several series", "Derived quantity", "Calibration line", "Comparison", "Logarithmic axis", "Save plot"]);
+  ["Paste data", "Formula column", "Mean and spread", "Histogram", "Cumulative plot", "χ² test", "Weighted mean", "Several series", "Curve fit", "Derived quantity", "Calibration line", "Comparison", "Logarithmic axis", "Save plot"]);
 await p.click("#lang_de");
 eq("German menu button again", await p.textContent("#toolmenu > summary span"), "Werkzeug wählen");
 

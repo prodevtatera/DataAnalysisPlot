@@ -183,6 +183,7 @@
       <button class="btn alt small" data-tool="gof"><span data-i18n="tool_gof">χ²-Test</span><span class="mark" data-i18n-title="tool_used" title="Ergebnis vorhanden" hidden> ●</span></button>
       <button class="btn alt small" data-tool="wmean"><span data-i18n="tool_wmean">Gewichteter Mittelwert</span><span class="mark" data-i18n-title="tool_used" title="Ergebnis vorhanden" hidden> ●</span></button>
       <button class="btn alt small" data-tool="series"><span data-i18n="tool_series">Mehrere Messreihen</span><span class="mark" data-i18n-title="tool_used" title="Ergebnis vorhanden" hidden> ●</span></button>
+      <button class="btn alt small" data-tool="curvefit"><span data-i18n="tool_curvefit">Kurvenanpassung</span><span class="mark" data-i18n-title="tool_used" title="Ergebnis vorhanden" hidden> ●</span></button>
       <button class="btn alt small" data-tool="derived"><span data-i18n="tool_derived">Abgeleitete Größe</span><span class="mark" data-i18n-title="tool_used" title="Ergebnis vorhanden" hidden> ●</span></button>
       <button class="btn alt small" data-tool="calib"><span data-i18n="tool_calib">Kalibriergerade</span><span class="mark" data-i18n-title="tool_used" title="Ergebnis vorhanden" hidden> ●</span></button>
       <button class="btn alt small" data-tool="compare"><span data-i18n="tool_compare">Vergleich</span><span class="mark" data-i18n-title="tool_used" title="Ergebnis vorhanden" hidden> ●</span></button>
@@ -271,6 +272,22 @@
   </div>
   <div id="srmsg" class="msg" role="alert" hidden></div>
 </section>
+<section class="tool" data-tool-panel="curvefit" hidden>
+  <div class="thead"><h2 data-i18n="h_cf">Kurvenanpassung</h2><button class="btn alt small tclose" data-close="curvefit" data-i18n="tool_close">Schließen</button></div>
+  <p class="hint" data-i18n="hint_cf">Eine Kurve statt der Geraden an die Messpunkte anpassen: Exponentialfunktion, Polynom, Sinus, Gauß-Kurve oder eine eigene Formel. Gewichtung und Fehlermethode gelten wie bei den Ergebnissen oben. Die Kurve erscheint im Diagramm.</p>
+  <div class="fitbar" id="cf">
+    <label><span data-i18n="l_cfmodel">Modell</span> <select id="cf_model" aria-label="Modell der Kurvenanpassung" data-i18n-aria="aria_cfmodel">
+      <option value="exp" data-i18n="cf_m_exp">Exponentialfunktion</option><option value="poly" data-i18n="cf_m_poly">Polynom</option><option value="sine" data-i18n="cf_m_sine">Sinus</option>
+      <option value="gauss" data-i18n="cf_m_gauss">Gauß-Kurve</option><option value="free" data-i18n="cf_m_free">Eigene Formel</option></select></label>
+    <label id="cf_degl"><span data-i18n="l_cfdeg">Grad</span> <select id="cf_deg" aria-label="Grad des Polynoms" data-i18n-aria="aria_cfdeg"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option></select></label>
+    <label id="cf_offl"><input type="checkbox" id="cf_off"> <span data-i18n="l_cfoff">mit Offset c</span></label>
+    <label id="cf_exprl"><span data-i18n="l_cfexpr">Formel</span> <input class="txt" id="cf_expr" aria-label="Formel mit x und Parametern" data-i18n-aria="aria_cfexpr" placeholder="a*exp(-x/tau)+c" autocomplete="off" spellcheck="false"></label>
+    <label id="cf_p0l"><span data-i18n="l_cfp0">Startwerte</span> <input class="txt" id="cf_p0" aria-label="Startwerte der Parameter" data-i18n-aria="aria_cfp0" placeholder="a = 1; tau = 10; c = 0" autocomplete="off" spellcheck="false"></label>
+    <button class="btn" id="cf_go" data-i18n="b_fit" disabled>Anpassen</button>
+  </div>
+  <div class="hint" id="cf_eq" aria-live="polite"></div>
+  <div id="cfmsg" class="msg" role="alert" hidden></div>
+</section>
 <section class="tool" data-tool-panel="derived" hidden>
   <div class="thead"><h2 data-i18n="h_derived">Abgeleitete Größe aus den Fit-Parametern</h2><button class="btn alt small tclose" data-close="derived" data-i18n="tool_close">Schließen</button></div>
   <p class="hint" data-i18n-html="hint_derived">Eine Größe aus der Steigung a und dem Achsenabschnitt b der Geraden rechnen, mit Fehlerfortpflanzung u(f)² = Σ (∂f/∂xᵢ)²·u(xᵢ)². Die Fehler von a und b kommen aus der Anpassung (skaliert oder unskaliert, wie oben gewählt) und werden als unabhängig behandelt. Weitere Größen mit Wert und Unsicherheit schreibst du als <code>L = 1 ± 0,002; d = 0,5 ± 0,01</code>. Die Einheiten stimmen nur, wenn die Formel die Umrechnung enthält: die Vorlagen sagen, in welchen Einheiten a und die weiteren Größen stehen müssen.</p>
@@ -332,6 +349,7 @@
 <script src="stats.js"></script>
 <script src="gof.js"></script>
 <script src="gofview.js"></script>
+<script src="curvefit.js"></script>
 <script src="series.js"></script>
 <script src="compare.js"></script>
 <script src="logaxis.js"></script>
@@ -507,15 +525,17 @@ function renderPlot() {
         error_x: { type: "data", array: reads.map(q => uOf(q) ?? 0), visible: true, color: "#009E73", thickness: 1.6, width: 5 } });
     }
   }
+  const cf = freshCf();
+  if (cf) traces.push({ x: cf.curve.x, y: cf.curve.y, mode: "lines", type: "scatter", name: t("tr_cf", { label: cfLabel(cf.model) }), line: { color: "#CC79A7", width: 2.5 }, connectgaps: false });
   Plotly.react("plot", traces, { font: { family: "Arial, Helvetica, sans-serif", size: 16, color: "#000" }, separators: plotSeparators(),
     margin: plotMargin(), xaxis: ax(x.name), yaxis: { ...ax(y.name), type: logY() ? "log" : "linear", ...(yRange && !logY() ? { range: yRange } : {}) }, paper_bgcolor: "#fff", plot_bgcolor: "#fff",
     showlegend: true, legend: legendFor() }, { displaylogo: false, responsive: true });
 }
 const freshFit = () => proj.results.find(r => r.kind === "fit" && !isStale(proj, r));
 const uOf = q => (proj.settings.errMethod === "unscaled" && q.uUnscaled !== undefined) ? q.uUnscaled : (q.uScaled ?? q.u);
-function fitDetail(r) {
+function fitDetail(r, howText) {
   const f = nf({ maximumSignificantDigits: 6 }), un = proj.settings.errMethod === "unscaled" && r.weighted;
-  const how = t(!r.weighted ? "how_ols" : un ? "how_wun" : "how_wsc");
+  const how = howText ?? t(!r.weighted ? "how_ols" : un ? "how_wun" : "how_wsc");
   const rows = r.params.map(q => `<tr><td>${esc(q.name)}</td><td>${f.format(q.value)}</td><td>${f.format(q.uScaled)}</td>${r.weighted ? `<td>${f.format(q.uUnscaled)}</td>` : ""}</tr>`).join("");
   return `<table><thead><tr><th>${t("th_param")}</th><th>${t("th_value")}</th><th>${t("th_uscaled")}</th>${r.weighted ? `<th>${t("th_uunscaled")}</th>` : ""}</tr></thead><tbody>${rows}</tbody></table>` +
     `<div class="detail" data-how>${t("fit_method", { how, dof: f.format(r.dof) })}` + (r.weighted ? t("fit_chi2", { chi2: f.format(r.chi2), red: f.format(r.chi2 / r.dof) }) : t("fit_ssr", { ssr: f.format(r.ssr) })) + "</div>";
@@ -669,7 +689,7 @@ function renderResults() {
   $("results").innerHTML = proj.results.map(r => {
     const stale = isStale(proj, r);
     const lines = (r.params || []).map(resLine).join("");
-    return `<div class="result${stale ? " stale" : ""}">${stale ? `<div class="msg stalemsg">${t("stale", { verb: t(["stats", "wmean", "hist", "gof", "derived", "calib", "compare"].includes(r.kind) ? "verb_calc" : "verb_fit") })}</div>` : ""}${lines}${r.kind === "fit" && r.dof ? fitDetail(r) : ""}${r.kind === "derived" ? derivedDetail(r) : ""}${r.kind === "stats" ? statsDetail(r) : ""}${r.kind === "wmean" ? wmeanDetail(r) : ""}${r.kind === "hist" ? histDetail(r) : ""}${r.kind === "gof" ? gofDetail(r) : ""}${r.kind === "series" ? seriesDetail(r) : ""}${r.kind === "calib" ? calibDetail(r) : ""}${r.kind === "compare" ? compareDetail(r) : ""}</div>`;
+    return `<div class="result${stale ? " stale" : ""}">${stale ? `<div class="msg stalemsg">${t("stale", { verb: t(["stats", "wmean", "hist", "gof", "derived", "calib", "compare"].includes(r.kind) ? "verb_calc" : "verb_fit") })}</div>` : ""}${lines}${r.kind === "fit" && r.dof ? fitDetail(r) : ""}${r.kind === "curvefit" ? cfDetail(r) : ""}${r.kind === "derived" ? derivedDetail(r) : ""}${r.kind === "stats" ? statsDetail(r) : ""}${r.kind === "wmean" ? wmeanDetail(r) : ""}${r.kind === "hist" ? histDetail(r) : ""}${r.kind === "gof" ? gofDetail(r) : ""}${r.kind === "series" ? seriesDetail(r) : ""}${r.kind === "calib" ? calibDetail(r) : ""}${r.kind === "compare" ? compareDetail(r) : ""}</div>`;
   }).join("");
 }
 // Weighting needs an error column; errors method only matters for a weighted fit.
@@ -687,6 +707,7 @@ function syncControls() {
     `<label>${t("sr_err")} <select data-f="err" aria-label="${t("aria_srerr", { k: k + 1 })}">${sopts(s.err, true)}</select></label>` +
     ["xmin", "xmax"].map(f => `<label>${t(f === "xmin" ? "sr_from" : "sr_to")} <input class="num" data-f="${f}" aria-label="${t(f === "xmin" ? "aria_srfrom" : "aria_srto", { k: k + 1 })}" inputmode="decimal" placeholder="${t(f === "xmin" ? "sr_begin" : "sr_end")}" value="${s[f] === null ? "" : fmt.format(s[f])}"></label>`).join("") +
     `<button class="btn alt small" data-sdel="${k}" aria-label="${t("aria_srdel", { k: k + 1 })}">${t("sr_del")}</button></div>`).join("") || `<div class="hint">${t("sr_none")}</div>`;
+  cfSync(); $("cfmsg").hidden = true;
   $("fitmsg").hidden = true; $("derivemsg").hidden = true; $("statsmsg").hidden = true; $("wmsg").hidden = true; $("hmsg").hidden = true; $("gofmsg").hidden = true;
   const st = statsSettings(proj);
   $("s_col").replaceChildren(...proj.columns.map(c => Object.assign(document.createElement("option"), { value: c.name, textContent: c.name })));
@@ -870,7 +891,7 @@ addEventListener("drop", async e => {
 let worker = null, pending = null;
 // The status text next to the fit button keeps its key, so a language switch can translate it.
 const fitState = k => { $("fitstate").dataset.i18n = k; $("fitstate").textContent = t(k); };
-const busy = b => { $("fit").disabled = $("sr_go").disabled = $("g_go").disabled = b; };
+const busy = b => { $("fit").disabled = $("sr_go").disabled = $("g_go").disabled = $("cf_go").disabled = b; };
 try { worker = new Worker("fit-worker.js", { type: "module" }); }
 catch { fitState("fs_nofile"); }
 function fitFailed(why) { busy(false); pending = null; auto = null; $("fitmsg").textContent = t("fit_failed", { why }); $("fitmsg").hidden = false; }
@@ -882,6 +903,7 @@ if (worker) {
     if (m.loadError) { fitState("fs_err"); return; }
     if (pending.series) return seriesStep(pending, m);
     if (pending.gof) return gofStep(pending, m);
+    if (pending.curvefit) return cfStep(pending, m);
     const job = pending; pending = null; busy(false);
     if (m.error) return fitFailed(m.error);
     // The student may have edited while Python was working: then the result belongs to old data.
@@ -1152,6 +1174,20 @@ for (const [id, key, min] of [["g_w", "width", 1], ["g_s", "start", 0]]) {
   $(id).addEventListener("focusout", () => { editKey = null; });
 }
 $("g_go").onclick = gofRun;
+// Curve fit: model, degree and offset are one undo step each; typing the formula or the start values is one step per field.
+const setCf = patch => setSetting("curvefit", { ...curvefitSettings(proj), ...patch });
+$("cf_model").onchange = e => setCf({ model: e.target.value });
+$("cf_deg").onchange = e => setCf({ degree: +e.target.value });
+$("cf_off").onchange = e => setCf({ offset: e.target.checked });
+for (const [id, key] of [["cf_expr", "expr"], ["cf_p0", "p0"]]) {
+  $(id).addEventListener("input", e => {
+    if (editKey !== "curvefit." + key) { pushUndo(); editKey = "curvefit." + key; }
+    proj.settings.curvefit = { ...curvefitSettings(proj), [key]: e.target.value };
+    cfSync(); renderPlot(); renderResults(); autosave();
+  });
+  $(id).addEventListener("focusout", () => { editKey = null; });
+}
+$("cf_go").onclick = cfRun;
 $("weighted").onchange = e => setSetting("weighted", e.target.checked);
 $("errm").onchange = e => setSetting("errMethod", e.target.value);
 

@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 A free, browser-based data analysis and plotting app for university students. It is inspired by QtiPlot (https://www.qtiplot.com), but it is not a clone.
 
-Status on 2026-10-14: the app exists in `app/` (the one-day test build in `testbuild/` is finished). Roadmap phases 0 to 4 are done as far as they can be alone, and `bash scripts/check.sh` passes. What is left needs people: instructor demos (the Phase 3 gate), real data from Luis's daughter, a timed student run and the R cross-check. See `docs/phase3-report.md`, `docs/phase4-report.md` and `docs/progress.md`. The home page is `app/index.html`, the workbench `app/app.html`; local server entry `app` on port 4175.
+Status on 2026-10-14: the app exists in `app/` (the one-day test build in `testbuild/` is finished). Roadmap phases 0 to 5 are done as far as they can be alone (phase 5 added curve fitting beyond the straight line after the SciDAVis comparison), and `bash scripts/check.sh` passes. What is left needs people: instructor demos (the Phase 3 gate), real data from Luis's daughter, a timed student run and the R cross-check. See `docs/phase3-report.md`, `docs/phase4-report.md` and `docs/progress.md`. The home page is `app/index.html`, the workbench `app/app.html`; local server entry `app` on port 4175.
 
 Live at https://plot.productledlab.dev (Vercel project `data-analysis-plot`, Cloudflare CNAME, DNS only). Redeploy: `bash app/setup.sh && cd app && vercel deploy --prod --yes`. `setup.sh` is needed first because the 31 MB Pyodide bundle is not in git.
 
@@ -62,7 +62,7 @@ These choices still need to pass the one-day test build (see Next steps):
 
 ## Next steps
 
-Done as far as it can be alone: the HU material research, the one-day test build (checked against NIST and hand calculations), the roadmap phases 0 to 4 in code (`app/`).
+Done as far as it can be alone: the HU material research, the one-day test build (checked against NIST and hand calculations), the roadmap phases 0 to 5 in code (`app/`).
 
 1. Get real HU biology and Physics 2 material from Luis's daughter. The checklist lists exactly what to ask for, including BioB 6 statistics sheets and the BioB 8, 11, 13 and 15–18 lab instructions. Also ask which software she uses (QtiPlot, Excel, R?) and what annoys her most. Add her assignments to the checklist, and run one of her real datasets through the app.
 2. Show the app to 3–5 lab instructors (script and questions are under "For Luis" in `docs/progress.md`). This is the Phase 3 gate; it cannot pass without them.
@@ -79,7 +79,8 @@ Done as far as it can be alone: the HU material research, the one-day test build
 - `docs/design.md`: colours, type and spacing taken from the look of hu-berlin.de, and what we must not copy.
 - `docs/loop-prompt.md`, `docs/progress.md`, `scripts/loop.sh`, `scripts/check.sh`: the unattended build loop. One fresh Claude session per step; progress.md holds the state; check.sh runs all tests in `tests/`.
 - `docs/roadmap.md`: what is still open (instructor demos, real data, a timed student, the R cross-check, hosting). First target is Physics 2 (the HU physics lab for Biology students).
-- `docs/roadmap_done.md`: phases 0 to 4 as built, with their gates and evidence.
+- `docs/roadmap_done.md`: phases 0 to 5 as built, with their gates and evidence.
+- `docs/phase5-report.md`: the general curve fitting (exponential, polynomial, sine, Gauss, free formula) and how it was checked against NIST and an independent solver.
 
 ## Working with Luis
 

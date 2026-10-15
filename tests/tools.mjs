@@ -14,7 +14,7 @@ export async function openTool(p, id) {
   await p.__raw.click(`[data-tool="${id}"]`);
 }
 export const openTools = async (p, ...ids) => { for (const id of ids) await openTool(p, id); };
-export const ALL_TOOLS = ["paste", "formula", "stats", "hist", "cum", "gof", "wmean", "series", "derived", "calib", "compare", "logy", "export"];
+export const ALL_TOOLS = ["paste", "formula", "stats", "hist", "cum", "gof", "wmean", "series", "curvefit", "derived", "calib", "compare", "logy", "export"];
 
 async function prepare(p, sel) {
   if (typeof sel !== "string") return;

@@ -34,7 +34,7 @@ console.log("section 0");
 // 0. Headings, labels and placeholders of the translated sections are English.
 // Phase 4 step 2: the page order changed (table beside the plot, fit bar inside "Results", the tools in a "Tools" menu, "Paste data" is a tool, the log axis and the figure export are tools of their own); every heading is still English.
 eq("section headings", await p.$$eval("h2", e => e.map(x => x.textContent)), ["Plot", "Table", "Results", "Tools", "Paste data", "Formula column", "Mean and spread of a column", "Frequency table and histogram",
-  "Cumulative frequency with read-off at 16 % and 84 %", "χ² test: Poisson and Gaussian distribution (count rates)", "Weighted mean and overlap of several results", "Several series in one plot",
+  "Cumulative frequency with read-off at 16 % and 84 %", "χ² test: Poisson and Gaussian distribution (count rates)", "Weighted mean and overlap of several results", "Several series in one plot", "Curve fit",
   "Derived quantity from the fit parameters", "Calibration line: read off an unknown", "Compare a measured value with a reference value", "Logarithmic y axis", "Save plot"]);
 eq("placeholders and button texts", await p.evaluate(() => [$("f_unc").placeholder, $("h_w").placeholder, $("d_vars").placeholder, $("c_y0").placeholder, $("k_meas").placeholder, $("f_add").textContent, $("s_go").textContent, $("c_go").textContent, $("k_go").textContent, $("sr_go").textContent]),
   ["D = sD; c = 0.01", "automatic", "L = 1 ± 0.002; d = 0.5 ± 0.01", "1.3405 ± 0.0003; 1.3372 ± 0.0002", "100.2 ± 0.3", "Calculate column", "Calculate", "Read off x₀", "Compare", "Fit series"]);

@@ -2,6 +2,13 @@
 
 Written in plain language for people who do not read code. Newest entry on top.
 
+## 2026-10-15: Fit curves, not only straight lines
+
+- **What a student can now do:** a new tool "Kurvenanpassung" (in the "Werkzeug wählen" menu) fits a curve to the measurements: an exponential decay or growth, a polynomial (degree 1 to 6), a sine, a Gauss bell curve, or a formula of your own, for example `a*exp(-x/tau)+c`. The exponential, Gauss and sine can have a constant offset. It uses the error values like the straight-line fit (weighted when there is an error column) and gives the same two kinds of parameter errors, rounded as (value ± u) unit. The curve appears in the plot. The result goes out of date when the data change, and undo, save and reload work. German and English. A formula that cannot be read, a missing x, too few points or a fit that finds nothing trustworthy gives a message that says what to do.
+- **Why:** the teacher of Luis's daughter suggested SciDAVis for Physics 2, which fits curves other than straight lines. This was the biggest gap to it.
+- **Tested:** the numbers match the official NIST test data sets to 6.5 to 9 digits (7 curve fits of different difficulty, a bell curve, and polynomials up to degree 5). One hard NIST case (BoxBOD, first start value) is refused with a message instead of showing a wrong number. For exponential and sine there is no NIST data set, so they were compared with a separate calculation written without SciPy: 9 digits. All 9 comparison cases were also run through the page. A fit takes 3 to 29 ms (sine on 500 points: 290 ms). Report: `docs/phase5-report.md`.
+- **Not covered yet:** the result of a curve fit can depend on the start value (the page says so). Not compared with R, no real student has used it, and the real Physics 2 experiments are not known, so which curves matter most is a guess. Still missing compared with SciDAVis: FFT, smoothing, interpolation, 3D plots, scripting.
+
 ## 2026-10-14: A friendlier look and a logo
 
 - **What changed for a student:** the home page and the workbench have a round logo next to the name "PlotLab" and the same picture as the browser tab icon. Buttons are round, cards and boxes have rounded corners, and the colours are a soft indigo on a light background instead of the dark blue. The home page has a coloured welcome box, the three points as cards, and cards that lift a little when you point at them.

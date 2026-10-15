@@ -21,14 +21,15 @@ for (const [k, e] of Object.entries(TEXTS)) {
 }
 const used = new Set();
 // part C: the pure files, the templates and the export call t() too
-for (const f of ["app.html", "index.html", "home.js", "gofview.js", "parse.js", "drop.js", "project.js", "derived.js", "gof.js", "logaxis.js", "series.js", "compare.js", "formula.js", "propagate.js", "templates.js", "export.js", "toolui.js"]) {
+for (const f of ["app.html", "index.html", "home.js", "gofview.js", "curvefit.js", "parse.js", "drop.js", "project.js", "derived.js", "gof.js", "logaxis.js", "series.js", "compare.js", "formula.js", "propagate.js", "templates.js", "export.js", "toolui.js"]) {
   const src = readFileSync(resolve("app", f), "utf8");
   for (const m of src.matchAll(/data-i18n(?:-\w+)?="(\w+)"/g)) used.add(m[1]);
   for (const m of src.matchAll(/\b(?:t|fitState|stored)\("(\w+)"[,)]/g)) used.add(m[1]);
   for (const m of src.matchAll(/\b(?:t|stored)\(\s*[^()"]*\?\s*"(\w+)"\s*:\s*[^()"]*?"(\w+)"/g)) { used.add(m[1]); used.add(m[2]); }
 }
 for (const k of ["role_x", "role_y", "role_yerr", "role_unused", "verb_calc", "verb_fit", "how_ols", "how_wun", "how_wsc",
-  "hist_stale", "cum_stale", "gof_stale", "dist_poisson", "dist_gauss", "n_gchi_poisson", "n_gchi_gauss", "sr_from", "sr_to", "aria_srfrom", "aria_srto", "cal_how_wsc", "cmp_ok", "cmp_bad", "wm_ok", "wm_bad"]) used.add(k);   // built from a variable
+  "hist_stale", "cum_stale", "gof_stale", "dist_poisson", "dist_gauss", "n_gchi_poisson", "n_gchi_gauss", "sr_from", "sr_to", "aria_srfrom", "aria_srto", "cal_how_wsc", "cmp_ok", "cmp_bad", "wm_ok", "wm_bad",
+  "cf_how_wsc", "cf_syntax", "cf_nox", "cf_nopar", "cf_func", "cf_manypar", "cf_dof", "cf_p0", "cf_noconv", "cf_singular", "cf_sinefew"]) used.add(k);   // the cf_ keys after wm_bad come from the worker as error codes (cfMessage in curvefit.js) or from a second branch of a choice;   // built from a variable
 for (const k of used) yes(`used key exists: ${k}`, k in TEXTS);
 for (const k of Object.keys(TEXTS)) yes(`key is used: ${k}`, used.has(k));
 

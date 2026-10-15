@@ -68,8 +68,19 @@ function compareSettings(p) {
   return { meas: str("meas"), ref: str("ref"), unit: str("unit") };
 }
 const compareKey = p => fnv(JSON.stringify(compareSettings(p)));
+// Curve fit (exponential, polynomial, sine, Gauss, free formula): the model, the degree (polynomial), an offset c (exponential, Gauss, sine), the formula and start values (free).
+const CF_MODELS = ["exp", "poly", "sine", "gauss", "free"], CF_OFFSET = ["exp", "gauss", "sine"], CF_MAXDEG = 6;
+function curvefitSettings(p) {
+  const c = (p.settings || {}).curvefit || {}, str = k => typeof c[k] === "string" ? c[k] : "";
+  return { model: CF_MODELS.includes(c.model) ? c.model : "exp", degree: Number.isInteger(c.degree) && c.degree >= 1 && c.degree <= CF_MAXDEG ? c.degree : 2, offset: c.offset === true, expr: str("expr"), p0: str("p0") };
+}
+// Only the settings of the chosen model count, so changing the degree after an exponential fit does not make it out of date. Weighting changes the numbers, so it counts too.
+const curvefitKey = p => {
+  const s = curvefitSettings(p);
+  return fnv(JSON.stringify([s.model, s.model === "poly" ? s.degree : 0, CF_OFFSET.includes(s.model) ? s.offset : 0, s.model === "free" ? [s.expr.trim(), s.p0.trim()] : 0, p.settings.weighted === true, fingerprint(p)]));
+};
 // Results that depend on their own settings and columns instead of the x/y/error fingerprint.
-const KEYS = { stats: statsKey, wmean: wmeanKey, hist: histKey, gof: gofKey, series: seriesKey, compare: compareKey };
+const KEYS = { stats: statsKey, wmean: wmeanKey, hist: histKey, gof: gofKey, series: seriesKey, compare: compareKey, curvefit: curvefitKey };
 
 function addResult(p, result) {
   p.results = p.results.filter(r => r.kind !== result.kind);
@@ -99,4 +110,4 @@ function open(text) {
 // Unit of a column header "name / unit": everything after the first "/", so "gi / m/s²" has the unit "m/s²" (split("/")[1] would cut it to "m").
 const colUnit = name => { const s = String(name), i = s.indexOf("/"); return i < 0 ? "" : s.slice(i + 1).trim(); };
 
-if (typeof module !== "undefined") module.exports = { colUnit, compareSettings, gofSettings, calibSettings, seriesSettings, SERIES_MAX, derivedSettings, statsSettings, wmeanSettings, histSettings, ROLES, newProject, fingerprint, addResult, isStale, save, open };
+if (typeof module !== "undefined") module.exports = { curvefitSettings, CF_MODELS, CF_OFFSET, CF_MAXDEG, colUnit, compareSettings, gofSettings, calibSettings, seriesSettings, SERIES_MAX, derivedSettings, statsSettings, wmeanSettings, histSettings, ROLES, newProject, fingerprint, addResult, isStale, save, open };

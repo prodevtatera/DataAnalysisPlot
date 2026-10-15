@@ -1,6 +1,6 @@
 # Roadmap: what is done
 
-Moved out of `roadmap.md` on 2026-10-14. Everything here was built and checked by `bash scripts/check.sh` (46 checks, all pass). The open items from these phases (R, a real student, her real data, instructor demos) are in `roadmap.md`.
+Moved out of `roadmap.md` on 2026-10-14. Everything here was built and checked by `bash scripts/check.sh` (49 checks, all pass). The open items from these phases (R, a real student, her real data, instructor demos) are in `roadmap.md`.
 
 ## Phase 0: One-day test build. Gate passed
 
@@ -51,6 +51,14 @@ Built: a home page at the root address (headline, drop zone, example, empty proj
 Gate: first view at 1200 x 800 went from 16 sections, 55 buttons and 6441 px to 4 sections, 12 buttons and 1657 px (2178 px with the finished example fitted); the walk home page, example, template, dropped file, English passes in a real browser. **Passed.** No real student has used it (open, see `roadmap.md`).
 
 Evidence: `docs/phase4-report.md`, `tests/phase4-step6-gate.sh`.
+
+## Phase 5: General curve fitting. Gate passed (asked by Luis on 2026-10-14)
+
+Built: tool "Kurvenanpassung" with exponential, polynomial (degree 1 to 6), sine, Gauss (offset optional for exponential, Gauss, sine) and a free formula, weighted and unweighted, both error methods, curve in the plot, out-of-date handling, German and English.
+
+Gate: NIST certified values (7 nonlinear sets through the free formula, Eckerle4 through the Gauss model, Pontius and Wampler through the polynomial) 6.5 to 9 digits; exponential and sine against an independent solver (no NIST problem exists for them) 9 digits; all nine reference cases through the page. **Passed.** R cross-check and a real student are open.
+
+Evidence: `docs/phase5-report.md`, `docs/nist-curve-results.md`, `tests/phase5-step1-nist.sh`, `tests/phase5-step2-reference.sh`, `tests/phase5-step3-curvefit-ui.sh`.
 
 ## Open questions for the daughter (asked, no answers yet)
 

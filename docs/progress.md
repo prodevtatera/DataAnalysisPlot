@@ -5,12 +5,14 @@ Read by every round of the loop (see docs/loop-prompt.md). Keep the first line e
 
 ## Current state (2026-10-14)
 
-**Finished (everything that can be done alone), all checked by `bash scripts/check.sh`, 46 checks passing:**
+**Finished (everything that can be done alone), all checked by `bash scripts/check.sh`, 49 checks passing:**
 - Phase 0: one-day test build (Pyodide + Plotly kept). `docs/phase0-report.md`
 - Phase 1: project file, editable table, undo/redo, autosave, column roles, weighted and unweighted fit with scaled and unscaled errors, P3 elasticity with E in (value ± u) unit. `docs/phase1-report.md`
 - Phase 2: experiments P1 to P9 (assumed list, 12 templates) with hand-checked numbers, figure export. `docs/phase2-report.md`
 - Phase 3, the part done alone: paste own numbers from Excel into a template, a finished example on the first visit, drop a file on the page, DE / EN switch for the whole page. `docs/phase3-report.md`
 - Phase 4: a calmer page and a home page. The root address is a home page (`app/index.html`); the workbench (`app/app.html`) shows only table, plot and results at first, the other 13 tools sit behind one "Werkzeug wählen" menu, each template opens only its own tools. First view at 1200 x 800: 4 sections and 12 buttons instead of 16 and 55, page 2178 px high with the finished example instead of 6441 px (1657 px when the plot is drawn). `docs/phase4-report.md`
+
+- Phase 5: general curve fitting (asked by Luis after the SciDAVis comparison): exponential, polynomial (degree 1 to 6), sine, Gauss and a free formula in the new tool "Kurvenanpassung", with weighted and unweighted errors. Checked against NIST (Misra1a, Misra1d, BoxBOD, Eckerle4, Lanczos3, Gauss1, ENSO, Pontius, Wampler 1/4/5; 6.5 to 9 digits, BoxBOD start 1 refused with a message) and, for exponential and sine, against an independent solver. `docs/phase5-report.md`, `docs/nist-curve-results.md`
 
 **Waits for people (nothing more can be built or checked alone):**
 - The Phase 3 gate: at least one lab instructor says they would try it, or we learn what blocks that. No instructor has seen the app, and no real student has used the calmer pages.

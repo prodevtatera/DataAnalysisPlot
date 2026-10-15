@@ -61,11 +61,11 @@ yes("the whole plot and the E result are inside the 800 px window", c.plotBottom
 eq("E line without a click", (await lines(p)).slice(0, 3), ["a = (0,02529 ± 0,00029) mm/N", "b = (0,007 ± 0,011) mm", "E = (201 ± 8) GPa"]);
 eq("no tool is open at first", await openTools(p), []);
 await p.screenshot({ path: "evidence/phase4-step6-2-example.png" });
-// For comparison with the old page, where every tool was always open: open all 13 tools and measure again.
+// For comparison with the old page, where every tool was always open: open all 14 tools and measure again.
 await openAll(p, ...ALL_TOOLS);
 c = await count(p);
-console.log(`workbench with all 13 tools opened by hand: sections ${c.sections.length}, buttons ${c.buttons}, page height ${c.height} px`);
-eq("all 13 tools can be opened", (await openTools(p)).length, 13);
+console.log(`workbench with all 14 tools opened by hand: sections ${c.sections.length}, buttons ${c.buttons}, page height ${c.height} px`);
+eq("all 14 tools can be opened", (await openTools(p)).length, 14);
 await p.close();
 
 // 3. A template card on the home page: P2 with its two tools only, own numbers pasted in, weighted mean.

@@ -1,8 +1,8 @@
 // The "Werkzeuge" (tools) of the workbench: which ones are open is stored in the project settings (settings.tools, a list of ids).
 // Pure functions, so Node tests can load them. A tool is "used" when the project holds something made with it.
-const TOOLS = ["paste", "formula", "stats", "hist", "cum", "gof", "wmean", "series", "derived", "calib", "compare", "logy", "export"];
+const TOOLS = ["paste", "formula", "stats", "hist", "cum", "gof", "wmean", "series", "curvefit", "derived", "calib", "compare", "logy", "export"];
 // Result kinds that belong to a tool (the cumulative plot is drawn from the histogram result).
-const TOOL_KINDS = { stats: ["stats"], hist: ["hist"], cum: ["hist"], gof: ["gof"], wmean: ["wmean"], series: ["series"], derived: ["derived"], calib: ["calib"], compare: ["compare"] };
+const TOOL_KINDS = { stats: ["stats"], hist: ["hist"], cum: ["hist"], gof: ["gof"], wmean: ["wmean"], series: ["series"], curvefit: ["curvefit"], derived: ["derived"], calib: ["calib"], compare: ["compare"] };
 
 function toolUsed(p, id) {
   if (id === "formula") return p.columns.some(c => c.formula !== undefined || c.uncert !== undefined);
