@@ -338,6 +338,7 @@
 <footer data-i18n="foot">Unabhängiges Studierendenwerkzeug. Nicht mit der Universität verbunden.</footer>
 <script src="vendor/plotly.min.js"></script>
 <script src="i18n.js"></script>
+<script src="consent.js"></script>
 <script src="round.js"></script>
 <script src="parse.js"></script>
 <script src="project.js"></script>
@@ -405,6 +406,7 @@ document.addEventListener("keydown", e => {
 const KEY = "plotlab-autosave";
 function autosave() {
   $("note").hidden = true;
+  if (!storageOK()) return;
   try { localStorage.setItem(KEY, save(proj)); $("storewarn").hidden = true; }
   catch { $("storewarn").hidden = false; }
 }

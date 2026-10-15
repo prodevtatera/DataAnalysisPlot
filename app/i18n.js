@@ -15,6 +15,9 @@ const TEXTS = {
   home_b_blank: { de: "Leeres Projekt", en: "Empty project" },
   home_b_file: { de: "Datei wählen", en: "Choose file" },
   home_pasted: { de: "eingefügte Tabelle", en: "pasted table" },
+  consent_q: { de: "Dürfen wir in diesem Browser dein letztes Projekt und deine Sprache merken, damit du beim nächsten Besuch dort weitermachst? Es wird nichts übertragen; alles bleibt auf deinem Rechner.", en: "May we remember, in this browser, your last project and your language, so you can pick up where you left off? Nothing is sent anywhere; it all stays on your computer." },
+  consent_yes: { de: "Erlauben", en: "Allow" },
+  consent_no: { de: "Nein danke", en: "No thanks" },
   home_privacy: { de: "Deine Daten bleiben auf deinem Rechner.", en: "Your data stays on your computer." },
   home_cont: { de: "Mit meinem letzten Projekt weitermachen", en: "Continue with my last project" },
   home_cont_note: { de: "Ein neues Projekt ersetzt das zuletzt gespeicherte.", en: "A new project replaces the one saved last." },
@@ -650,9 +653,11 @@ const decSep = () => LANG === "en" ? "." : ",";
 // Example numbers that a template writes into a text field: "0,002" becomes "0.002" in English (both are accepted when typed).
 const localDec = s => LANG === "en" ? String(s).replace(/(\d),(\d)/g, "$1.$2") : String(s);
 const plotSeparators = () => LANG === "en" ? ".," : ",.";
+// "No thanks" on the consent strip (consent.js) stops all saving in this browser.
+const storageOK = () => { try { return localStorage.getItem("plotlab-consent") !== "0"; } catch { return true; } };
 function setLang(l) {
   LANG = l === "en" ? "en" : "de";
-  try { localStorage.setItem(LANG_KEY, LANG); } catch {}
+  if (storageOK()) try { localStorage.setItem(LANG_KEY, LANG); } catch {}
   if (typeof document === "undefined") return;
   document.documentElement.lang = LANG;
   applyStatic();

@@ -2,6 +2,12 @@
 
 Written in plain language for people who do not read code. Newest entry on top.
 
+## 2026-10-15: A small cookie question at the bottom
+
+- **What a student can now do:** on the first visit a one-line strip at the bottom asks, in German or English, whether the browser may remember the last project and the chosen language ("Erlauben" / "Nein danke"). It is the same simple strip as on islescout.com. "Erlauben" keeps the current behaviour. "Nein danke" stops all saving in this browser and deletes what was saved. After an answer the strip does not come back. Nothing is ever sent anywhere.
+- **Tested:** a new check opens both pages in a real browser and confirms the strip shows once, is gone after either answer and after a reload, appears in English when English is chosen, and that "Nein danke" really stops the saving. The whole check (`scripts/check.sh`) passes. I looked at the home page at 1200 and 390 px.
+- **Not covered yet:** until a student answers, saving works as before (the answer is the only thing that switches it off). There is no privacy page to link to yet, so the strip has no "Privacy" link. The other tool screens were not looked at one by one with the strip showing.
+
 ## 2026-10-15: Fit curves, not only straight lines
 
 - **What a student can now do:** a new tool "Kurvenanpassung" (in the "Werkzeug wählen" menu) fits a curve to the measurements: an exponential decay or growth, a polynomial (degree 1 to 6), a sine, a Gauss bell curve, or a formula of your own, for example `a*exp(-x/tau)+c`. The exponential, Gauss and sine can have a constant offset. It uses the error values like the straight-line fit (weighted when there is an error column) and gives the same two kinds of parameter errors, rounded as (value ± u) unit. The curve appears in the plot. The result goes out of date when the data change, and undo, save and reload work. German and English. A formula that cannot be read, a missing x, too few points or a fit that finds nothing trustworthy gives a message that says what to do.

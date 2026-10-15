@@ -21,7 +21,7 @@ for (const [k, e] of Object.entries(TEXTS)) {
 }
 const used = new Set();
 // part C: the pure files, the templates and the export call t() too
-for (const f of ["app.html", "index.html", "home.js", "gofview.js", "curvefit.js", "parse.js", "drop.js", "project.js", "derived.js", "gof.js", "logaxis.js", "series.js", "compare.js", "formula.js", "propagate.js", "templates.js", "export.js", "toolui.js"]) {
+for (const f of ["app.html", "index.html", "home.js", "consent.js", "gofview.js", "curvefit.js", "parse.js", "drop.js", "project.js", "derived.js", "gof.js", "logaxis.js", "series.js", "compare.js", "formula.js", "propagate.js", "templates.js", "export.js", "toolui.js"]) {
   const src = readFileSync(resolve("app", f), "utf8");
   for (const m of src.matchAll(/data-i18n(?:-\w+)?="(\w+)"/g)) used.add(m[1]);
   for (const m of src.matchAll(/\b(?:t|fitState|stored)\("(\w+)"[,)]/g)) used.add(m[1]);
