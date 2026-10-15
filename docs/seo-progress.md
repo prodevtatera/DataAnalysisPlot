@@ -1,4 +1,4 @@
-STATUS: RUNNING
+STATUS: DONE
 Goal: fewer words, and findable by SEO, GEO, AEO; live at https://plot.productledlab.dev
 Text budget: home pages at most 60 % of the old word count per language (German 173 total / 79 first screen, English 199 / 87); workbench first screen at most 150; every other page at most 200 words. Enforced by `tests/seo-text.sh`.
 Pages decided: indexable = home (DE `/`, EN `/en/`), experiment hub (`/versuche/`, `/en/experiments/`), 12 experiment pages each, method page (`/methode/`, `/en/method/`) = 30 URLs. Not indexed: the workbench `app.html` (`noindex, follow`) and `404.html`. Report: `docs/seo-report.md`.
@@ -11,12 +11,14 @@ Pages decided: indexable = home (DE `/`, EN `/en/`), experiment hub (`/versuche/
 - [x] 5. AEO
 - [x] 6. GEO
 - [x] 7. Speed and quality bar
-- [ ] 8. Final check
-- [ ] 9. Live and validated
-- [ ] 10. Hand-off to Luis
+- [x] 8. Final check
+- [x] 9. Live and validated
+- [x] 10. Hand-off to Luis
 
 ## Log
 - 2026-10-15, steps 1 to 7: baseline measured (home 289 words German, 333 English; workbench 225). Home page cut to 168 and 181 words; the home page now has a collapsed block of five questions. 30 static pages are generated from `app/i18n.js` by `scripts/build-pages.mjs` (English home, experiment hub, 12 experiments, method page, each in two languages), plus `sitemap.xml`, `llms.txt`, `robots.txt`, `404.html`, `vercel.json` (trailing slash, cache and security headers, redirects), the share picture `app/og.png` and an IndexNow key file. New checks `tests/seo-site.sh` (titles, descriptions, canonical, language links, sitemap, robots, JSON-LD, fact sheet, links) and `tests/seo-text.sh` (word budget, no sideways scroll at 375 px): pass. Three old tests were adjusted on purpose, none weakened: the home page has no value points and no card subtitles any more, the language switch on the home page is now a link to `/en/`, and the workbench brand link goes to the home page of the chosen language. The numbers of the app are unchanged. Lighthouse (mobile): SEO 100, Accessibility 100, Best practices 100, Performance 99 or 100 on six pages.
+
+- 2026-10-15, steps 8 to 10: whole `bash scripts/check.sh` passed (50 of 50). Deployed to production and checked live: `scripts/live-check.mjs` passed, Lighthouse 100 / 100 / 100 / 100 on six pages (performance 100), word counts equal to local, walk in a real browser with no script errors, IndexNow accepted (HTTP 202). One bug found and fixed on the way: an experiment page now sets the workbench language to its own (`tests/seo-handover.sh`). Details: `docs/seo-report.md` section 5.
 
 ## Blocked
 

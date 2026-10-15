@@ -64,4 +64,12 @@ The home page and the experiment pages load no Python engine. Re-run with `bash 
 
 ## 5. Live check
 
-(filled in after the deploy)
+Deployed to production on 2026-10-15 (Vercel, project `data-analysis-plot`, `bash app/setup.sh && cd app && vercel deploy --prod --yes`), then checked against https://plot.productledlab.dev, not the local copy:
+
+- `node scripts/live-check.mjs`: passed. All 30 pages return 200 and are byte for byte the files in `app/`; `/robots.txt`, `/sitemap.xml`, `/llms.txt`, `/og.png`, the IndexNow key file and `/app.html` return 200 with the right content type; `/index.html`, `/en/index.html`, `/en` and `/versuche` redirect (301 or 308) to the address with a slash; a missing page gives a real 404 with the 404 page; security headers, HTML revalidation, one-year cache for the Python engine and fonts, and compression are as written in `app/vercel.json`.
+- Word counts on the live site: home 168 words (74 on the first screen), English home 181 (83), workbench 211 (85): the same as local.
+- Lighthouse on the live site (mobile): performance 100, accessibility 100, best practices 100, SEO 100 on all six pages in the table above.
+- Walk in a real browser on the live site: the home page fits the example (D = (2,32 ± 0,03) N/cm), "Beispiel öffnen" opens the workbench with E = (201 ± 8) GPa, an English card opens the English workbench with the template, and the button on a German experiment page opens the German workbench even after English was chosen before. No script errors.
+- IndexNow: the 30 addresses were sent to Bing (answer HTTP 202, accepted).
+
+A small bug was found on the way and fixed before the final deploy: a student who had chosen English earlier would open the English workbench from a German experiment page. The generated pages now remember their own language (`tests/seo-handover.sh`).
