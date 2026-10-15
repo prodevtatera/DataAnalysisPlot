@@ -182,6 +182,7 @@ ${seoHead(p)}
 ${main}
 </main>
 <footer>${esc(T("foot", l))}</footer>
+<script>try{localStorage.setItem("plotlab-lang","${l}")}catch(e){}</script>
 </body>
 </html>
 `;
