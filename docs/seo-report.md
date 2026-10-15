@@ -17,6 +17,8 @@ Counted by `scripts/seo-measure.mjs`: visible words only. Closed question boxes,
 
 Budget (`tests/seo-text.sh` fails above it): home at most 60 % of the old count, in each language, total and first screen. Workbench first screen at most 150. Every other page at most 200 words. Also checked: no sideways scrolling at 375 px.
 
+Cookie bar (added to `main` while this round ran): its text was shortened from 31 to 18 words in German; `tests/seo-text.sh` counts the page after the bar was answered and limits the bar itself to 20 words. The generated pages respect "Nein danke": they save their language only when the answer is not "no".
+
 What was cut on the home page: the three value points (the questions block now answers them, collapsed), the subtitle on each of the 12 experiment cards (they moved to the experiment hub page), and the long sentences of the hero, the drop box and the template lead.
 
 Not enforced: "no sentence over 20 words". The step texts of the experiment templates are longer and every one of them is an instruction a student needs, so they stayed.

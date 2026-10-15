@@ -48,6 +48,6 @@
 <p><a class="btn" href="/app.html?start=p9">Vorlage in PlotLab öffnen</a> <a class="btn alt" href="/versuche/">Alle Versuche</a></p>
 </main>
 <footer>Unabhängiges Studierendenwerkzeug. Nicht mit der Universität verbunden.</footer>
-<script>try{localStorage.setItem("plotlab-lang","de")}catch(e){}</script>
+<script>try{if(localStorage.getItem("plotlab-consent")!=="0")localStorage.setItem("plotlab-lang","de")}catch(e){}</script>
 </body>
 </html>

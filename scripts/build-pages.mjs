@@ -182,7 +182,7 @@ ${seoHead(p)}
 ${main}
 </main>
 <footer>${esc(T("foot", l))}</footer>
-<script>try{localStorage.setItem("plotlab-lang","${l}")}catch(e){}</script>
+<script>try{if(localStorage.getItem("plotlab-consent")!=="0")localStorage.setItem("plotlab-lang","${l}")}catch(e){}</script>
 </body>
 </html>
 `;

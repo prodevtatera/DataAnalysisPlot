@@ -1,6 +1,6 @@
 // The text budget (docs/seo-report.md): students are overwhelmed by text, so each page has a word limit.
 // Baseline before the cut (git commit 0c24cf2, visible words, 1200x800): home German 289 total / 133 first screen, English 333 / 146, workbench 225 / 88.
-// Budget: home pages at most 60 % of the baseline in each language (total and first screen), workbench first screen at most 150, every other page at most 200 words.
+// The budget counts the page after the cookie bar was answered (the bar is a one-time element, limited below). Budget: home pages at most 60 % of the baseline in each language (total and first screen), workbench first screen at most 150, every other page at most 200 words.
 import { serve } from "./serve.mjs";
 import { measure } from "../scripts/seo-measure.mjs";
 let bad = 0;
@@ -18,6 +18,8 @@ for (const [width, height] of [[1200, 800], [375, 800]]) {
     yes(tag + " no horizontal scroll", !r.overflowX);
   }
 }
+// the cookie bar (first visit, not yet answered) has its own limit: it is on screen for every new student
+for (const r of await measure(base, ["/", "/en/", "/app.html"], { consent: null })) { console.log(`${r.path} first visit: cookie bar ${r.bar} words`); yes(`${r.path} cookie bar present and <= 20 words`, r.bar > 0 && r.bar <= 20, r.bar); }
 close();
 console.log(bad ? `${bad} FAILED` : "text budget holds");
 process.exit(bad ? 1 : 0);

@@ -14,7 +14,7 @@ const TEXTS = {
   home_b_blank: { de: "Leeres Projekt", en: "Empty project" },
   home_b_file: { de: "Datei wählen", en: "Choose file" },
   home_pasted: { de: "eingefügte Tabelle", en: "pasted table" },
-  consent_q: { de: "Dürfen wir in diesem Browser dein letztes Projekt und deine Sprache merken, damit du beim nächsten Besuch dort weitermachst? Es wird nichts übertragen; alles bleibt auf deinem Rechner.", en: "May we remember, in this browser, your last project and your language, so you can pick up where you left off? Nothing is sent anywhere; it all stays on your computer." },
+  consent_q: { de: "Dürfen wir dein letztes Projekt und deine Sprache in diesem Browser merken? Nichts wird übertragen.", en: "May we remember your last project and language in this browser? Nothing is sent anywhere." },
   consent_yes: { de: "Erlauben", en: "Allow" },
   consent_no: { de: "Nein danke", en: "No thanks" },
   home_privacy: { de: "Deine Daten bleiben auf deinem Rechner.", en: "Your data stays on your computer." },

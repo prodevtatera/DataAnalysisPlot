@@ -46,6 +46,6 @@
 <p><a class="btn" href="/app.html?start=p8a">Open the template in PlotLab</a> <a class="btn alt" href="/en/experiments/">All experiments</a></p>
 </main>
 <footer>Independent student tool. Not affiliated with the university.</footer>
-<script>try{localStorage.setItem("plotlab-lang","en")}catch(e){}</script>
+<script>try{if(localStorage.getItem("plotlab-consent")!=="0")localStorage.setItem("plotlab-lang","en")}catch(e){}</script>
 </body>
 </html>

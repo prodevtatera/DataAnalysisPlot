@@ -7,10 +7,12 @@ import { serve } from "../tests/serve.mjs";
 const chromium = createRequire(resolve("testbuild/x.js"))("playwright-core").chromium;
 
 export const DEFAULT_PATHS = ["/", "/app.html"];
-export async function measure(base, paths, { width = 1200, height = 800, locale = "de-DE" } = {}) {
+// consent: "1" answers the cookie bar first (the steady state, what the budget counts); null leaves it open (first visit).
+export async function measure(base, paths, { width = 1200, height = 800, locale = "de-DE", consent = "1" } = {}) {
   const b = await chromium.launch(), out = [];
   for (const path of paths) {
     const c = await b.newContext({ viewport: { width, height }, locale }), p = await c.newPage();
+    if (consent) await c.addInitScript(v => { try { localStorage.setItem("plotlab-consent", v); } catch {} }, consent);
     await p.goto(new URL(path, base).href, { waitUntil: "networkidle" });
     await p.waitForTimeout(500);
     out.push({ path, width, ...(await p.evaluate(vh => {
@@ -25,7 +27,7 @@ export async function measure(base, paths, { width = 1200, height = 800, locale 
         if (r.getBoundingClientRect().top < vh) first += k;
       }
       const vis = sel => [...document.querySelectorAll(sel)].filter(e => !e.closest("[hidden]") && e.checkVisibility?.({ checkVisibilityCSS: true }));
-      return { first, total, headings: vis("h1,h2,h3").length, buttons: vis("button,.btn,input[type=button],summary").length, height: document.documentElement.scrollHeight, overflowX: document.documentElement.scrollWidth > innerWidth };
+      const bar = document.querySelector(".consent"); return { bar: bar ? w(bar.innerText) : 0, first, total, headings: vis("h1,h2,h3").length, buttons: vis("button,.btn,input[type=button],summary").length, height: document.documentElement.scrollHeight, overflowX: document.documentElement.scrollWidth > innerWidth };
     }, height))});
     await c.close();
   }
