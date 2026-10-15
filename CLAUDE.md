@@ -81,6 +81,7 @@ Done as far as it can be alone: the HU material research, the one-day test build
 - `docs/design.md`: colours, type and spacing taken from the look of hu-berlin.de, and what we must not copy.
 - `docs/loop-prompt.md`, `docs/progress.md`, `scripts/loop.sh`, `scripts/check.sh`: the unattended build loop. One fresh Claude session per step; progress.md holds the state; check.sh runs all tests in `tests/`.
 - `docs/roadmap.md`: what is still open (instructor demos, real data, a timed student, the R cross-check, hosting). First target is Physics 2 (the HU physics lab for Biology students).
+- `docs/backlog.md`: ideas for after launch (search, Google sign-in, feedback, explanations, GPTT chat).
 - `docs/roadmap_done.md`: phases 0 to 5 as built, with their gates and evidence.
 - `docs/seo-report.md`, `docs/seo-progress.md`, `docs/loop-prompt-seo.md`: the less-text and SEO/GEO/AEO round (before and after numbers, what is live, what is not verified, steps for Luis).
 - `docs/phase5-report.md`: the general curve fitting (exponential, polynomial, sine, Gauss, free formula) and how it was checked against NIST and an independent solver.
