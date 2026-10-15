@@ -6,7 +6,7 @@ Written in plain language for people who do not read code. Newest entry on top.
 
 - **What a student can now do:** in the data table, the role choice (X, Y, error, unused) now sits directly under the column name, so the headers line up when some columns have a formula and others do not. The delete button for a calculated column stays at the bottom of the header.
 - **Tested:** the whole check (`scripts/check.sh`) passes. Not looked at with every table layout by eye.
-- **Not covered yet:** the home page wording from the session "Frontpage clarity and scope messaging" was left out: it clashes with the shorter wording of the search-engine round, so one of the two has to win.
+- **Not covered yet:** the home page wording from the session "Frontpage clarity and scope messaging" was dropped on purpose: the shorter wording of the search-engine round stays.
 
 ## 2026-10-15: Proof that the calculations are correct
 
