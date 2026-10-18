@@ -7,7 +7,7 @@ const BASE = (process.argv[2] || "https://plot.productledlab.dev").replace(/\/$/
 const get = (path, o = {}) => fetch(BASE + path, { redirect: "manual", ...o });
 const local = rel => readFileSync(new URL("../app/" + rel, import.meta.url), "utf8");
 const locs = [...local("sitemap.xml").matchAll(/<loc>https:\/\/plot\.productledlab\.dev([^<]*)<\/loc>/g)].map(m => m[1]);
-yes("30 pages in the sitemap", locs.length === 30);
+yes("32 pages in the sitemap", locs.length === 32);
 for (const p of locs) {
   const r = await get(p), body = await r.text();
   yes(`${p}: 200 html`, r.status === 200 && /text\/html/.test(r.headers.get("content-type")), `${r.status} ${r.headers.get("content-type")}`);
