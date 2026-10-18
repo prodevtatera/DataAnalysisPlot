@@ -2,6 +2,7 @@
 // {name} marks a value that the caller fills in. The pure files (parse.js, formula.js, ...) call t() too, so their messages follow the chosen language; with German chosen they are the texts the Node tests compare.
 const TEXTS = {
   // header, note
+  about_link: { de: "Über PlotLab · Kontakt", en: "About PlotLab · Contact" },
   foot: { de: "Unabhängiges Studierendenwerkzeug. Nicht mit der Universität verbunden.", en: "Independent student tool. Not affiliated with the university." },
   // validation page (pruefung.html, pruefung.js)
   val_badge: { de: "✓ NIST-geprüft", en: "✓ NIST-verified" },

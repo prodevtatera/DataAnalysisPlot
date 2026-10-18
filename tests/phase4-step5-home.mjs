@@ -42,7 +42,7 @@ let p = await fresh();
 await home(p);
 eq("root address shows the home page", [await p.title(), await p.textContent("h1")], ["Messdaten auswerten und plotten: Ausgleichsgerade | PlotLab", "Vom Messwert zum fertigen Protokoll-Diagramm"]);
 eq("language is German by default", await p.evaluate(() => document.documentElement.lang), "de");
-eq("the footer sentence", await p.textContent("footer"), "Unabhängiges Studierendenwerkzeug. Nicht mit der Universität verbunden.");
+eq("the footer sentence", await p.textContent("footer [data-i18n=foot]"), "Unabhängiges Studierendenwerkzeug. Nicht mit der Universität verbunden.");
 eq("example result line", await p.textContent("#res"), "D = (2,32 ± 0,03) N/cm");
 await p.click("input[value=unscaled]");
 eq("unscaled result line", await p.textContent("#res"), "D = (2,32 ± 0,05) N/cm");
@@ -65,7 +65,7 @@ await p.screenshot({ path: "evidence/phase4-step5-home-1200-full.png", fullPage:
 // 2. English: everything switches, the choice is kept, and the workbench opens in English too.
 await p.click('[data-home-lang="en"]'); await p.waitForURL(/\/en\/$/); await p.waitForFunction(() => /^D = \(/.test(document.getElementById("res").textContent)); // the language is the address now: /en/
 eq("English headline", await p.textContent("h1"), "From measurements to a finished lab-report plot");
-eq("English footer", await p.textContent("footer"), "Independent student tool. Not affiliated with the university.");
+eq("English footer", await p.textContent("footer [data-i18n=foot]"), "Independent student tool. Not affiliated with the university.");
 eq("English buttons", await p.$$eval(".hero .btn", e => e.map(x => x.textContent.trim())), ["Open example", "Empty project", "Choose file"]);
 eq("English result line (decimal point)", await p.textContent("#res"), "D = (2.32 ± 0.03) N/cm");
 yes("English cards", (await p.$$eval(".card strong", e => e.map(x => x.textContent))).every(x => !/[äöüÄÖÜ]/.test(x)) && (await p.textContent(".card strong")) === "P1 Error distribution");

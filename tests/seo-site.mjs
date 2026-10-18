@@ -15,7 +15,7 @@ const { FACTS } = await import("../scripts/build-pages.mjs"); // (loading it reb
 // pages = the URLs of the sitemap
 const sitemap = read("sitemap.xml");
 const locs = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map(m => m[1]);
-yes("sitemap has the 30 expected pages", locs.length === 30, String(locs.length));
+yes("sitemap has the 32 expected pages", locs.length === 32, String(locs.length));
 const fileOf = u => { const p = u.replace(SITE, ""); return p.endsWith("/") ? p.slice(1) + "index.html" : p.slice(1); };
 const html = {}; for (const u of locs) { yes("page file exists " + u, existsSync(resolve(APP, fileOf(u)))); html[u] = read(fileOf(u)); }
 

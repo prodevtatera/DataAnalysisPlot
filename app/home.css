@@ -88,3 +88,10 @@
   .faq p { margin:8px 0 2px; }
   .foot2 { margin-top:8px; }
   .foot2 a { color:var(--muted); }
+  footer a { color:var(--muted); }
+  .contact label { display:block; font-weight:600; margin:0 0 14px; }
+  .contact input, .contact textarea { display:block; width:100%; margin-top:4px; font:inherit; font-weight:400; color:var(--ink); background:#fff; border:1px solid var(--line); border-radius:12px; padding:9px 12px; }
+  .contact input:focus-visible, .contact textarea:focus-visible { outline:3px solid var(--accent); outline-offset:1px; }
+  .contact .hp { display:none; }
+  .contact .btn:disabled { opacity:.6; cursor:default; }
+  .status { min-height:27px; margin:12px 0 0; font-weight:600; }

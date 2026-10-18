@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>About PlotLab: Who Builds It and How to Write | PlotLab</title>
+  <meta name="description" content="PlotLab is an independent, free tool for lab data. Find out who builds it, and send me a question, a bug report or an idea for an experiment.">
+  <meta name="robots" content="index, follow, max-image-preview:large">
+  <link rel="canonical" href="https://plot.productledlab.dev/en/about/">
+  <link rel="alternate" hreflang="de" href="https://plot.productledlab.dev/ueber/">
+  <link rel="alternate" hreflang="en" href="https://plot.productledlab.dev/en/about/">
+  <link rel="alternate" hreflang="x-default" href="https://plot.productledlab.dev/ueber/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="PlotLab">
+  <meta property="og:title" content="About PlotLab: Who Builds It and How to Write | PlotLab">
+  <meta property="og:description" content="PlotLab is an independent, free tool for lab data. Find out who builds it, and send me a question, a bug report or an idea for an experiment.">
+  <meta property="og:url" content="https://plot.productledlab.dev/en/about/">
+  <meta property="og:locale" content="en_US">
+  <meta property="og:locale:alternate" content="de_DE">
+  <meta property="og:image" content="https://plot.productledlab.dev/og.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="PlotLab: fit line with error bars and result">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="About PlotLab: Who Builds It and How to Write | PlotLab">
+  <meta name="twitter:description" content="PlotLab is an independent, free tool for lab data. Find out who builds it, and send me a question, a bug report or an idea for an experiment.">
+  <meta name="twitter:image" content="https://plot.productledlab.dev/og.png">
+  <meta name="theme-color" content="#4F46E5">
+  <link rel="icon" type="image/jpeg" href="/favicon.jpg">
+  <link rel="preload" href="/fonts/source-sans-3-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/fonts/barlow-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/home.css">
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"AboutPage","name":"About PlotLab: Who Builds It and How to Write","description":"PlotLab is an independent, free tool for lab data. Find out who builds it, and send me a question, a bug report or an idea for an experiment.","url":"https://plot.productledlab.dev/en/about/","inLanguage":"en","isPartOf":{"@id":"https://plot.productledlab.dev/#website"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"PlotLab","item":"https://plot.productledlab.dev/en/"},{"@type":"ListItem","position":2,"name":"About PlotLab","item":"https://plot.productledlab.dev/en/about/"}]}]}</script>
+</head>
+<body>
+<header><a class="brand" href="/en/"><img src="/logo.jpg" alt="" width="40" height="40">PlotLab</a><a class="proof" href="/pruefung.html">✓ NIST-verified</a><span class="lang" role="navigation" aria-label="Sprache / Language"><a href="/ueber/" hreflang="de" lang="de" data-home-lang="de">DE</a><a href="/en/about/" hreflang="en" lang="en" data-home-lang="en" aria-current="true">EN</a></span></header>
+<main class="page">
+<nav class="crumbs" aria-label="Breadcrumb"><a href="/en/">PlotLab</a> › About PlotLab</nav>
+<h1>About PlotLab</h1>
+<p class="answer">PlotLab is a free tool for evaluating and plotting lab data in your browser. Free, no signup, no install.</p>
+<p>I am Luis and I build PlotLab independently. It is not affiliated with any university.</p>
+<p>PlotLab aims to make evaluating lab data faster than in Excel: paste your measurements, fit a line with error bars, read off the correctly rounded result.</p>
+<p>Everything is calculated in your browser. Your measurements are not uploaded.</p>
+<p>Do you have a question, found a bug or have an idea for an experiment? Write to me. I read every message.</p>
+<h2>Send a message</h2>
+<form class="contact" action="https://api.web3forms.com/submit" method="POST">
+  <input type="hidden" name="access_key" value="d057eb19-b26f-46b8-88ce-9a23471b6f68">
+  <input type="hidden" name="subject" value="PlotLab: new message">
+  <input type="hidden" name="from_name" value="PlotLab">
+  <input type="checkbox" name="botcheck" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
+  <label>Name<input name="name" autocomplete="name" maxlength="200"></label>
+  <label>Email (if you want a reply)<input type="email" name="email" autocomplete="email" maxlength="200"></label>
+  <label>Message<textarea name="message" rows="6" required maxlength="5000"></textarea></label>
+  <p class="sub">Your message reaches me as an email through the Web3Forms service. Without an email address I cannot reply.</p>
+  <button class="btn" type="submit">Send</button>
+  <p class="status" role="status" aria-live="polite"></p>
+</form>
+<script>document.querySelector(".contact").addEventListener("submit",async e=>{e.preventDefault();const f=e.target,s=f.querySelector(".status"),b=f.querySelector("button");b.disabled=true;s.textContent="Sending …";try{const r=await fetch(f.action,{method:"POST",headers:{Accept:"application/json"},body:new FormData(f)});if(!(await r.json()).success)throw 0;f.reset();s.textContent="Thank you! Your message has arrived."}catch(x){s.textContent="That did not work. Please try again later."}b.disabled=false})</script>
+</main>
+<footer><span data-i18n="foot">Independent student tool. Not affiliated with the university.</span> <a href="/en/about/" data-i18n="about_link">About PlotLab · Contact</a></footer>
+<script>try{if(localStorage.getItem("plotlab-consent")!=="0")localStorage.setItem("plotlab-lang","en")}catch(e){}</script>
+</body>
+</html>

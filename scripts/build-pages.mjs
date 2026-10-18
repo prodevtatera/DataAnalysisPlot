@@ -11,6 +11,7 @@ const APP = resolve(import.meta.dirname, "../app");
 export const SITE = "https://plot.productledlab.dev";
 const LASTMOD = "2026-10-15"; // ponytail: bump by hand when a page's content changes; a computed date would change on every rebuild
 const BRAND = "PlotLab";
+const WEB3FORMS_KEY = "d057eb19-b26f-46b8-88ce-9a23471b6f68"; // ponytail: public by design (Web3Forms keys only allow sending to Luis's inbox), so it lives in the page
 
 // ---- the fact sheet: one wording, used by the page head, the JSON-LD, the question block, the method page and llms.txt
 export const FACTS = {
@@ -48,7 +49,14 @@ const W = {
       "Weitere Anpassungen: Gegen NIST-Datensätze (Misra1a, Misra1d, BoxBOD, Eckerle4, Lanczos3, Gauss1, ENSO, Pontius, Wampler 1, 4 und 5) stimmen die Parameter auf 6,5 bis 9 Stellen. Ein Start, bei dem die Anpassung stecken bleibt, zeigt eine Meldung statt einer falschen Zahl.",
       "Rundung: " + FACTS.de.round,
       "Beispiele: Die Zahlen in den Versuchsvorlagen sind erfunden."],
-    mNot: "Noch nicht geprüft: Der Vergleich mit R steht aus." },
+    mNot: "Noch nicht geprüft: Der Vergleich mit R steht aus.",
+    aTitle: "Über PlotLab: wer es baut und wie du schreibst", aDesc: "PlotLab ist ein unabhängiges, kostenloses Werkzeug für Praktikumsdaten. Hier steht, wer es baut, und du kannst mir eine Frage oder Idee schicken.",
+    aH1: "Über PlotLab", aItems: ["Ich heiße Luis und baue PlotLab unabhängig. Es ist nicht mit einer Universität verbunden.",
+      "PlotLab soll das Auswerten im Praktikum schneller machen als Excel: Messwerte einfügen, Gerade mit Fehlerbalken anpassen, das Ergebnis richtig gerundet ablesen.",
+      FACTS.de.privacy, "Hast du eine Frage, einen Fehler gefunden oder eine Idee für einen Versuch? Schreib mir. Ich lese jede Nachricht."],
+    aH2: "Nachricht schreiben", aName: "Name", aMail: "E-Mail (wenn du eine Antwort möchtest)", aMsg: "Nachricht", aSend: "Senden", aSubject: "PlotLab: neue Nachricht",
+    aNote: "Deine Nachricht geht über den Dienst Web3Forms als E-Mail an mich. Ohne E-Mail-Adresse kann ich nicht antworten.",
+    aSending: "Wird gesendet …", aOk: "Danke! Deine Nachricht ist angekommen.", aFail: "Das hat nicht geklappt. Bitte versuch es später noch einmal." },
   en: { proof: "✓ NIST-verified", how: "How it works in PlotLab", invented: "The numbers in the template are invented. You replace them with your own measurements.", open: "Open the template in PlotLab", all: "All experiments", crumbHub: "Experiments", crumbs: "Breadcrumb", sw: "Sprache / Language", home: "PlotLab",
     hubTitle: "Evaluate Lab Experiments: 12 Free Templates", hubDesc: "12 templates for lab experiments: table, plot and evaluation with error bars and uncertainty. Free in your browser, no signup.",
     hubH1: "Experiment templates for lab courses and reports", hubLead: "Choose your experiment. The template sets up table, plot and tools. The numbers in it are invented.",
@@ -59,7 +67,14 @@ const W = {
       "Other fits: against NIST data sets (Misra1a, Misra1d, BoxBOD, Eckerle4, Lanczos3, Gauss1, ENSO, Pontius, Wampler 1, 4 and 5) the parameters agree to 6.5 to 9 digits. A start where the fit gets stuck shows a message instead of a wrong number.",
       "Rounding: " + FACTS.en.round,
       "Examples: the numbers in the experiment templates are invented."],
-    mNot: "Not yet checked: the comparison with R is still open." },
+    mNot: "Not yet checked: the comparison with R is still open.",
+    aTitle: "About PlotLab: Who Builds It and How to Write", aDesc: "PlotLab is an independent, free tool for lab data. Find out who builds it, and send me a question, a bug report or an idea for an experiment.",
+    aH1: "About PlotLab", aItems: ["I am Luis and I build PlotLab independently. It is not affiliated with any university.",
+      "PlotLab aims to make evaluating lab data faster than in Excel: paste your measurements, fit a line with error bars, read off the correctly rounded result.",
+      FACTS.en.privacy, "Do you have a question, found a bug or have an idea for an experiment? Write to me. I read every message."],
+    aH2: "Send a message", aName: "Name", aMail: "Email (if you want a reply)", aMsg: "Message", aSend: "Send", aSubject: "PlotLab: new message",
+    aNote: "Your message reaches me as an email through the Web3Forms service. Without an email address I cannot reply.",
+    aSending: "Sending …", aOk: "Thank you! Your message has arrived.", aFail: "That did not work. Please try again later." },
 };
 
 // ---- questions of the home page (also in the JSON-LD); answers repeat the fact sheet
@@ -120,6 +135,7 @@ const idLang = l => l === "de" ? "de_DE" : "en_US";
 const expPath = (l, i) => l === "de" ? `/versuche/${EXP[i][1]}/` : `/en/experiments/${EXP[i][2]}/`;
 const hubPath = l => l === "de" ? "/versuche/" : "/en/experiments/";
 const methodPath = l => l === "de" ? "/methode/" : "/en/method/";
+const aboutPath = l => l === "de" ? "/ueber/" : "/en/about/";
 const homePath = l => l === "de" ? "/" : "/en/";
 const T = (key, lang) => TEXTS[key][lang];
 
@@ -181,7 +197,7 @@ ${seoHead(p)}
 <main class="page">
 ${main}
 </main>
-<footer>${esc(T("foot", l))}</footer>
+<footer><span data-i18n="foot">${esc(T("foot", l))}</span> <a href="${aboutPath(l)}" data-i18n="about_link">${esc(T("about_link", l))}</a></footer>
 <script>try{if(localStorage.getItem("plotlab-consent")!=="0")localStorage.setItem("plotlab-lang","${l}")}catch(e){}</script>
 </body>
 </html>
@@ -211,6 +227,7 @@ function homeJson(lang, path) {
     let h = applyI18n(src, lang).replace(/<html lang="\w+">/, `<html lang="${lang}">`);
     h = h.replace(/<!--seo:start-->[\s\S]*?<!--seo:end-->/, `<!--seo:start-->\n  ${seoHead(p)}\n<!--seo:end-->`);
     h = h.replace(/(?:<a class="proof"[^>]*>[^<]*<\/a>)?<span class="lang"[\s\S]*?<\/span>/, langSwitch(p));
+    if (lang === "en") h = h.replace('href="/methode/"', 'href="/en/method/"').replace('href="/ueber/"', 'href="/en/about/"');
     h = h.replace(/<!--faq:start-->[\s\S]*?<!--faq:end-->/, `<!--faq:start-->\n${faqHtml(lang)}\n<!--faq:end-->`);
     out.set(lang === "de" ? "index.html" : "en/index.html", h);
     pages.push({ path, lang, alt, title: HOME[lang].title, desc: HOME[lang].desc });
@@ -257,6 +274,32 @@ for (const lang of ["de", "en"]) {
       `<p><a class="btn" href="${homePath(lang)}">${esc(w.home)}</a></p>`,
     ].join("\n")));
     pages.push({ path, lang, alt: a, title: w.mTitle, desc: w.mDesc });
+  }
+  // about, with a contact form that posts to Web3Forms (no JavaScript: their own result page; with JavaScript: a status line here)
+  {
+    const path = aboutPath(lang), a = alt(aboutPath("de"), aboutPath("en"));
+    const p = page({ lang, path, alt: a, title: w.aTitle, desc: w.aDesc,
+      jsonld: [{ "@context": "https://schema.org", "@graph": [{ "@type": "AboutPage", name: w.aTitle, description: w.aDesc, url: SITE + path, inLanguage: lang, isPartOf: { "@id": SITE + "/#website" } }, crumbsJson(lang, [[BRAND, homePath(lang)], [w.aH1, path]])] }] });
+    out.set(path.slice(1) + "index.html", shell(p, [
+      `<nav class="crumbs" aria-label="${w.crumbs}"><a href="${homePath(lang)}">${BRAND}</a> › ${esc(w.aH1)}</nav>`,
+      `<h1>${esc(w.aH1)}</h1>`, `<p class="answer">${esc(FACTS[lang].what)} ${esc(FACTS[lang].price)}</p>`,
+      ...w.aItems.map(s => `<p>${esc(s)}</p>`),
+      `<h2>${esc(w.aH2)}</h2>`,
+      `<form class="contact" action="https://api.web3forms.com/submit" method="POST">
+  <input type="hidden" name="access_key" value="${WEB3FORMS_KEY}">
+  <input type="hidden" name="subject" value="${escA(w.aSubject)}">
+  <input type="hidden" name="from_name" value="${BRAND}">
+  <input type="checkbox" name="botcheck" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
+  <label>${esc(w.aName)}<input name="name" autocomplete="name" maxlength="200"></label>
+  <label>${esc(w.aMail)}<input type="email" name="email" autocomplete="email" maxlength="200"></label>
+  <label>${esc(w.aMsg)}<textarea name="message" rows="6" required maxlength="5000"></textarea></label>
+  <p class="sub">${esc(w.aNote)}</p>
+  <button class="btn" type="submit">${esc(w.aSend)}</button>
+  <p class="status" role="status" aria-live="polite"></p>
+</form>`,
+      `<script>document.querySelector(".contact").addEventListener("submit",async e=>{e.preventDefault();const f=e.target,s=f.querySelector(".status"),b=f.querySelector("button");b.disabled=true;s.textContent=${JSON.stringify(w.aSending)};try{const r=await fetch(f.action,{method:"POST",headers:{Accept:"application/json"},body:new FormData(f)});if(!(await r.json()).success)throw 0;f.reset();s.textContent=${JSON.stringify(w.aOk)}}catch(x){s.textContent=${JSON.stringify(w.aFail)}}b.disabled=false})</script>`,
+    ].join("\n")));
+    pages.push({ path, lang, alt: a, title: w.aTitle, desc: w.aDesc });
   }
 }
 

@@ -2,6 +2,12 @@
 
 Written in plain language for people who do not read code. Newest entry on top.
 
+## 2026-10-18: About page with a contact form
+
+- **What a student can now do:** open "Über PlotLab · Kontakt" from the bottom of every page (German `/ueber/`, English `/en/about/`). It says in a few lines who builds PlotLab and why, and has a form to send Luis a question, a bug or an idea. Name and email are optional; without an email he cannot reply. The message goes to Luis as an email through the free service Web3Forms; the page says so. The English home page now also links to the English method page instead of the German one.
+- **Tested:** the whole check (`scripts/check.sh`) passes, including the search-engine checks (now 32 pages) and the word budget. In a real browser: the form shows an error line when the service refuses, and a thank-you line when it accepts; one test message was accepted by Web3Forms. Looked at on desktop and phone width (no sideways scroll).
+- **Not covered yet:** the form has only a hidden spam trap, no captcha. The workbench (`app.html`) has no link to the about page. Messages currently go to luistatera@gmail.com, as set in the Web3Forms account.
+
 ## 2026-10-15: Table column headers line up
 
 - **What a student can now do:** in the data table, the role choice (X, Y, error, unused) now sits directly under the column name, so the headers line up when some columns have a formula and others do not. The delete button for a calculated column stays at the bottom of the header.

@@ -113,6 +113,13 @@
     <xhtml:link rel="alternate" hreflang="x-default" href="https://plot.productledlab.dev/methode/"/>
   </url>
   <url>
+    <loc>https://plot.productledlab.dev/ueber/</loc>
+    <lastmod>2026-10-15</lastmod>
+    <xhtml:link rel="alternate" hreflang="de" href="https://plot.productledlab.dev/ueber/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://plot.productledlab.dev/en/about/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://plot.productledlab.dev/ueber/"/>
+  </url>
+  <url>
     <loc>https://plot.productledlab.dev/en/experiments/</loc>
     <lastmod>2026-10-15</lastmod>
     <xhtml:link rel="alternate" hreflang="de" href="https://plot.productledlab.dev/versuche/"/>
@@ -209,5 +216,12 @@
     <xhtml:link rel="alternate" hreflang="de" href="https://plot.productledlab.dev/methode/"/>
     <xhtml:link rel="alternate" hreflang="en" href="https://plot.productledlab.dev/en/method/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://plot.productledlab.dev/methode/"/>
+  </url>
+  <url>
+    <loc>https://plot.productledlab.dev/en/about/</loc>
+    <lastmod>2026-10-15</lastmod>
+    <xhtml:link rel="alternate" hreflang="de" href="https://plot.productledlab.dev/ueber/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://plot.productledlab.dev/en/about/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://plot.productledlab.dev/ueber/"/>
   </url>
 </urlset>
